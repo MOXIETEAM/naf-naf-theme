@@ -1,0 +1,12 @@
+// Base
+@use 'base/variables';
+@use 'base/mixins';
+@use 'base/reset';
+
+// Components
+@use 'components/header';
+@use 'components/footer';
+
+// Pages
+@use 'pages/home';
+@use 'pages/plp';

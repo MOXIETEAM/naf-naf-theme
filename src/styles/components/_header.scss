@@ -1,0 +1,79 @@
+/* ====== Header: Search + Icons ====== */
+.hdt-site-top_nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* Search block */
+.hdt-header-col-search {
+  flex: 1 1 560px;
+  max-width: 780px;
+  min-width: 260px;
+}
+
+.hdt-header-col-search hdt-predictive-search,
+.hdt-header-col-search form.hdt-search_form,
+.hdt-header-col-search .hdt-search_inner,
+.hdt-header-col-search input.hdt-search_input {
+  display: block;
+  width: 100%;
+}
+
+/* Icons */
+.hdt-site-top_nav .hdt-site-nav_icon {
+  flex: 0 0 auto;
+}
+
+.hdt-site-top_nav .hdt-site-nav_icon+.hdt-site-nav_icon {
+  margin-left: 10px;
+}
+
+/* Responsive */
+@media (max-width: 1025px) {
+  .hdt-site-top_nav {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .hdt-site-top_nav {
+    gap: 0;
+  }
+
+  .hdt-logo-default {
+    padding-right: 10px;
+  }
+}
+
+/* Menu hover */
+.hdt-sub-menu .hdt-block:hover {
+  border-bottom: 1px solid #000;
+  width: max-content;
+  font-weight: 700;
+}
+
+/* Custom menu spacing */
+.clx-menu-item__link {
+  padding: 5px 13px;
+}
+
+.clx-menu-item__header span {
+  font-weight: 600;
+}
+
+/* Mobile header tweaks */
+.hdt-header-menu-mobile::part(close-button) {
+  top: 80px;
+}
+
+.hdt-site-nav_search .hdt-inline-flex {
+  display: block;
+}
+
+/* Last menu item override */
+.hdt-menu-item:last-child .hdt-menu-link-text {
+  color: #000;
+}
