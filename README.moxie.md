@@ -28,6 +28,12 @@ npm install
 cp .env.example .env
 ```
 
+```md
+⚠️ `npm install` se ejecuta SOLO en la rama `development`.
+
+- Una vez todo funcione correctamente y se haga el commit inicial, cualquier nueva rama debe crearse a partir de `development`.
+```
+
 ---
 
 ## ⚙️ 3. Configurar tienda
@@ -135,3 +141,9 @@ shopify theme dev --store $SHOPIFY_STORE
 - Base reutilizable
 - Updates seguros de Horizon
 - Buen performance y mantenimiento
+
+---
+
+## 👤 Autor
+
+Juan Camilo Osorio Sánchez
