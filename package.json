@@ -11,7 +11,7 @@
     "post:prod": "cross-env NODE_ENV=production postcss assets/mox-custom-styles.css -o assets/mox-custom-styles.css",
     "build:css:prod": "npm run sass:prod && npm run post:prod",
     "dev:shopify": "npm-run-all --parallel watch:css theme:dev",
-    "theme:dev": "dotenv -- shopify theme dev --store $SHOPIFY_STORE"
+    "theme:dev": "dotenv -e .env -- sh -c 'shopify theme dev --store=$SHOPIFY_STORE'"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
