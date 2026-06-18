@@ -29,9 +29,22 @@ cp .env.example .env
 ```
 
 ```md
-⚠️ `npm install` se ejecuta SOLO en la rama `development`.
+⚠️ Antes de comenzar
 
-- Una vez todo funcione correctamente y se haga el commit inicial, cualquier nueva rama debe crearse a partir de `development`.
+1. Instala las dependencias:
+
+   npm install
+
+2. Cambia a la rama de trabajo:
+
+   git checkout staging
+
+3. Crea tus nuevas ramas a partir de `staging`.
+
+Reglas:
+- Nunca desarrolles directamente sobre `main`.
+- Nunca desarrolles directamente sobre `production`.
+- Todas las ramas `feature/*` deben crearse desde `staging`.
 ```
 
 ---
@@ -82,7 +95,8 @@ Pipeline:
 ## 🌿 Git Workflow
 
 - `main` → Horizon puro (NO tocar)
-- `development` → proyecto
+- `staging` → rama principal de trabajo
+- `production` → tienda en vivo
 - `feature/*` → desarrollo
 
 ---
@@ -90,20 +104,22 @@ Pipeline:
 ## 🔄 Actualizar Horizon (CRÍTICO)
 
 ```bash
-# 1. Actualizar base (Horizon)
+# 1. Actualizar base
  git checkout main
- git fetch upstream
- git merge upstream/main
- git push origin main
 
 # 2. Aplicar al proyecto
- git checkout development
+ git checkout staging
  git merge main
+
+# 3. Promover a producción
+ git checkout production
+ git merge staging
 ```
 
 Reglas:
 - Nunca modificar `main`
-- Resolver conflictos en `development`
+- Resolver conflictos en `staging`
+- Promover cambios: `main` → `staging` → `production`
 
 ---
 
