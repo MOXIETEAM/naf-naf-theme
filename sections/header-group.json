@@ -48,6 +48,7 @@
         "announcement_EXamXc",
         "announcement_BxgCk9"
       ],
+      "disabled": true,
       "name": "t:names.announcement_bar",
       "settings": {
         "speed": 3,
@@ -57,6 +58,93 @@
         "divider_color": "rgba(0,0,0,0)",
         "padding-block-start": 15,
         "padding-block-end": 15
+      }
+    },
+    "custom_header_top_bar_XLrxc3": {
+      "type": "custom_header-top-bar",
+      "blocks": {
+        "announcement_QtHmUE": {
+          "type": "_announcement",
+          "settings": {
+            "text": "HOLA MUNDO",
+            "link": "",
+            "font": "var(--font-body--family)",
+            "font_size": "0.625rem",
+            "weight": "",
+            "letter_spacing": "normal",
+            "case": "none",
+            "text_color": ""
+          },
+          "blocks": {}
+        },
+        "announcement_Vrr8r9": {
+          "type": "_announcement",
+          "settings": {
+            "text": "HI WORLD! 🌎",
+            "link": "",
+            "font": "var(--font-body--family)",
+            "font_size": "0.625rem",
+            "weight": "",
+            "letter_spacing": "normal",
+            "case": "none",
+            "text_color": "{{ settings.color_palette.background }}"
+          },
+          "blocks": {}
+        },
+        "header-top-bar-country": {
+          "type": "custom_header-country",
+          "static": true,
+          "settings": {
+            "text": "Colombia",
+            "link": ""
+          },
+          "blocks": {}
+        },
+        "header-top-bar-help": {
+          "type": "custom_header-help",
+          "static": true,
+          "settings": {
+            "text": "Ayuda",
+            "link": ""
+          },
+          "blocks": {}
+        },
+        "header-top-bar-delivery": {
+          "type": "custom_header-delivery",
+          "static": true,
+          "settings": {
+            "label": "Entregar en:",
+            "value": "Medellín",
+            "link": ""
+          },
+          "blocks": {}
+        },
+        "header-top-bar-account": {
+          "type": "custom_header-account",
+          "static": true,
+          "settings": {
+            "text": "Mi cuenta",
+            "customer_account_menu": "customer-account-main-menu"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "announcement_QtHmUE",
+        "announcement_Vrr8r9"
+      ],
+      "name": "Moxie Header Top Bar",
+      "settings": {
+        "speed": 3,
+        "section_width": "page-width",
+        "background_color": "#141414",
+        "text_color": "#ffffff",
+        "divider_width": 0,
+        "divider_color": "",
+        "padding-block-start": 13,
+        "padding-block-end": 13,
+        "padding-block-start-mobile": 11,
+        "padding-block-end-mobile": 11
       }
     },
     "header_section": {
@@ -145,6 +233,7 @@
   },
   "order": [
     "header_announcements_9jGBFp",
+    "custom_header_top_bar_XLrxc3",
     "header_section"
   ]
 }
