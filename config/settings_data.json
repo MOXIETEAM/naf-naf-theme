@@ -11,8 +11,8 @@
   "current": {
     "logo": "shopify://shop_images/Logo_07367550-4578-43bf-af37-6d02e01c507f.svg",
     "logo_inverse": "shopify://shop_images/Logo.svg",
-    "logo_height": 36,
-    "logo_height_mobile": 28,
+    "logo_height": 24,
+    "logo_height_mobile": 16,
     "type_body_font": "host_grotesk_n4",
     "type_subheading_font": "host_grotesk_n6",
     "type_heading_font": "host_grotesk_n7",
