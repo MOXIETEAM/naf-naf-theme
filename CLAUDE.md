@@ -35,6 +35,29 @@ src/styles/
 
 The `container` mixin in `_mixins.scss` is the standard layout wrapper (`max-width: 1200px`).
 
+### Fluid scaling (valores fijos de Figma → CSS responsivo)
+
+Figma siempre entrega valores fijos en px para el desktop. Antes de hardcodear un px, revisar primero si Horizon ya lo resuelve nativo:
+
+**1. Texto que es h1-h6 o párrafo (dentro de la escala de Theme Editor):** ya es fluido nativo. Horizon genera `--font-size--h1` … `--font-size--h6` y `--font-size--paragraph` como `clamp()` en `snippets/theme-styles-variables.liquid` (a partir de `settings.type_size_*`), con lógica anti-solapamiento entre tamaños vecinos. **Usar esas variables (`var(--font-size--h1)`, etc.), nunca reimplementar esto** — ya es más completo que cualquier función custom (está atado al Theme Editor).
+
+**2. Todo lo que Horizon NO cubre** — tamaños de fuente fuera de esa escala (badges, eyebrows, números de stat, etc.) y cualquier valor de layout (padding, gap, width, height, etc.) — usar las funciones Sass en `src/styles/base/_mixins.scss`:
+
+- `fluid($px)` — layout (padding, gap, width, height, etc.)
+- `fluid-type($px)` — font-size fuera de la escala h1-h6/paragraph (piso de legibilidad más conservador, 85% fijo)
+
+Ambas generan un `clamp()` entre el ancho de referencia de Figma (`$ref-w: 1440px`) y el breakpoint nativo de Horizon (`$min-w: 990px`, definidos en `_variables.scss`). Por debajo de 990px siguen mandando los breakpoints fijos de Horizon (750px/990px) — `fluid()` no los reemplaza, solo cubre el rango 990–1440px donde el tema no tiene escalado propio.
+
+Uso en un partial nuevo:
+```scss
+@use '../base/mixins' as *;
+
+.mi-componente {
+  padding: fluid(20);
+  font-size: fluid-type(16); // solo si NO es h1-h6/paragraph
+}
+```
+
 ## Theme Structure
 
 Standard Shopify Liquid theme layout:

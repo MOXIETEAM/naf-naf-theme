@@ -6,3 +6,7 @@
   --color-primary: #000000;
   --color-secondary: #ffffff;
 }
+
+// Fluid scaling reference (Figma → clamp(), ver fluid()/fluid-type() en _mixins.scss)
+$ref-w: 1440px; // ancho del frame Figma (techo del clamp)
+$min-w: 990px; // breakpoint nativo Horizon (piso del clamp)

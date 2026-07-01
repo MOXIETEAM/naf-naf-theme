@@ -1,3 +1,7 @@
+@use 'sass:math';
+@use 'sass:string';
+@use 'variables' as vars;
+
 @mixin container($max-width: 1200px, $padding: 16px) {
   width: 100%;
   max-width: $max-width;
@@ -5,4 +9,23 @@
   margin-right: auto;
   padding-left: $padding;
   padding-right: $padding;
+}
+
+// fluid($px) — layout (padding, gap, width, height)
+// Piso: proporcional al ratio min-w/ref-w (990/1440 ≈ 68.75%)
+// Uso:  padding: fluid(20);  →  clamp(13.75px, 1.39vw, 20px)
+@function fluid($px) {
+  $ratio: math.div(vars.$min-w, vars.$ref-w);
+  $min: math.round($px * $ratio);
+  $vw: math.div(math.round(math.div($px, vars.$ref-w) * 10000), 100);
+  @return string.unquote("clamp(#{$min}px, #{$vw}vw, #{$px}px)");
+}
+
+// fluid-type($px) — font-size
+// Piso fijo del 85% (independiente del ratio de layout) para no comprometer legibilidad
+// Uso:  font-size: fluid-type(16);  →  clamp(13.6px, 1.11vw, 16px)
+@function fluid-type($px) {
+  $min: math.round($px * 0.85);
+  $vw: math.div(math.round(math.div($px, vars.$ref-w) * 10000), 100);
+  @return string.unquote("clamp(#{$min}px, #{$vw}vw, #{$px}px)");
 }
