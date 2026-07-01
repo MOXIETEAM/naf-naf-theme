@@ -1,0 +1,342 @@
+{% liquid
+  assign autoplay = false
+  assign show_arrows = false
+  if section.blocks.size > 1
+    assign autoplay = true
+    assign show_arrows = true
+  endif
+%}
+
+{% if section.blocks.size > 1 %}
+  <script
+    src="{{ 'announcement-bar.js' | asset_url }}"
+    type="module"
+    fetchpriority="low"
+  ></script>
+{% endif %}
+
+{% render 'contrast-override', background_color: section.settings.background_color, text_color: section.settings.text_color, section_id: section.id %}
+
+{%- capture left_content -%}
+  {%- content_for 'block', type: 'custom_header-country', id: 'header-top-bar-country' -%}
+  {%- content_for 'block', type: 'custom_header-help', id: 'header-top-bar-help' -%}
+{%- endcapture -%}
+
+{%- capture right_content -%}
+  {%- content_for 'block', type: 'custom_header-delivery', id: 'header-top-bar-delivery' -%}
+  {%- content_for 'block', type: 'custom_header-account', id: 'header-top-bar-account' -%}
+{%- endcapture -%}
+
+<div class="section-background color-custom-{{ section.id }}"></div>
+<aside
+  class="header-top-bar spacing-style section section--{{ section.settings.section_width }} color-custom-{{ section.id }}"
+  style="{% render 'spacing-padding', settings: section.settings %}; --padding-block-start-mobile: {{ section.settings['padding-block-start-mobile'] }}px; --padding-block-end-mobile: {{ section.settings['padding-block-end-mobile'] }}px; --border-bottom-width: {{ section.settings.divider_width }}px;{% if section.settings.divider_color != blank %} --color-border: {{ section.settings.divider_color }};{% endif %}"
+>
+  <div class="header-top-bar__inner">
+    {%- if left_content != blank -%}
+      <div class="header-top-bar__column header-top-bar__column--left mobile:hidden">
+        {{ left_content }}
+      </div>
+    {%- endif -%}
+
+    <announcement-bar-component
+      class="announcement-bar__slider header-top-bar__column header-top-bar__column--center"
+      {% if autoplay == true %}
+        autoplay="{{ section.settings.speed }}" aria-live="polite"
+      {% endif %}
+    >
+      {% if show_arrows %}
+        {% render 'slideshow-arrow', action: 'previous', icon_style: 'chevron' %}
+      {% endif %}
+
+      <div class="announcement-bar__slides">
+        {% content_for 'blocks' %}
+      </div>
+
+      {% if show_arrows %}
+        {% render 'slideshow-arrow', action: 'next', icon_style: 'chevron' %}
+      {% endif %}
+    </announcement-bar-component>
+
+    {%- if right_content != blank -%}
+      <div class="header-top-bar__column header-top-bar__column--right mobile:hidden">
+        {{ right_content }}
+      </div>
+    {%- endif -%}
+  </div>
+</aside>
+
+{% stylesheet %}
+  .header-top-bar {
+    border-block-end: var(--border-bottom-width) solid var(--color-border);
+
+    @media screen and (max-width: 749px) {
+      --padding-block-start: var(--padding-block-start-mobile);
+      --padding-block-end: var(--padding-block-end-mobile);
+    }
+  }
+
+  .header-top-bar__inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    width: 100%;
+
+    @media screen and (max-width: 749px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .header-top-bar__column--left {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    gap: clamp(17px, 1.67vw, 24px);
+    justify-self: start;
+  }
+
+  .header-top-bar__column--center {
+    grid-column: 2;
+    min-width: 0;
+
+    @media screen and (max-width: 749px) {
+      grid-column: 1;
+    }
+  }
+
+  .header-top-bar__column--right {
+    grid-column: 3;
+    display: flex;
+    align-items: center;
+    gap: clamp(17px, 1.67vw, 24px);
+    justify-self: end;
+  }
+
+  .header-top-bar__item {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 0.56vw, 8px);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .header-top-bar__icon {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .header-top-bar__text {
+    font-family: var(--font-body--family);
+    font-weight: var(--font-body--weight);
+    font-size: 10px;
+    line-height: 14px;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  /*
+    Selectores prefijados con .header-top-bar: header-announcements.liquid (nativo,
+    sin tocar) usa las mismas clases .announcement-bar__* / .slideshow-control y su
+    stylesheet sigue compilándose en el bundle global del tema. Sin este prefijo,
+    reglas viejas de ese archivo (margin-inline: auto, transform: translateX(...))
+    ganan el empate de especificidad y rompen este layout.
+  */
+  .header-top-bar .announcement-bar__slider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(36px, 3.68vw, 53px);
+    margin-inline: 0;
+
+    @media screen and (max-width: 749px) {
+      gap: 22px;
+    }
+  }
+
+  .header-top-bar .announcement-bar__slides {
+    display: grid;
+    grid: [stack] auto / [stack] auto;
+    max-width: 680px;
+    min-width: 0;
+    margin-inline: 0;
+  }
+
+  .header-top-bar .announcement-bar__slides > * {
+    grid-area: stack;
+  }
+
+  .header-top-bar .announcement-bar__slide {
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+    content-visibility: visible;
+    place-content: center;
+
+    &[aria-hidden='true'] {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  .header-top-bar .announcement-bar__slider .slideshow-control {
+    /* Anula el offset heredado de header-announcements.liquid en la fuente:
+       cualquier transform: translateX(var(--slideshow-control-offset)) de ese
+       archivo queda en 0px sin necesitar !important. */
+    --slideshow-control-offset: 0px;
+
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    padding: 0;
+    width: var(--icon-size-xs);
+    height: var(--icon-size-xs);
+    align-items: center;
+    justify-content: center;
+    color: var(--color-foreground);
+
+    /* Área de toque accesible (min-target 44px) sin inflar el alto de la barra:
+       el hit-area se expande vía ::before absoluto, fuera del flujo. */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: calc((var(--icon-size-xs) - var(--minimum-touch-target)) / 2);
+    }
+  }
+
+  .header-top-bar .announcement-bar__slider .slideshow-control .svg-wrapper {
+    width: var(--icon-size-xs);
+    height: var(--icon-size-xs);
+  }
+
+  .header-top-bar .announcement-bar__text:first-child {
+    margin: 0;
+  }
+
+  .header-top-bar .announcement-bar__link {
+    position: absolute;
+    inset: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Barra de utilidades",
+  "blocks": [
+    { "type": "_announcement" }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "t:settings.scroll_speed",
+      "min": 2,
+      "max": 10,
+      "default": 5,
+      "unit": "sec"
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.section_width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "full-width"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:settings.background_color",
+      "default": "#141414"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:settings.text_color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "divider_width",
+      "label": "t:settings.divider_thickness",
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "t:settings.divider_color",
+      "placeholder": "t:settings.default",
+      "visible_if": "{{ section.settings.divider_width > 0 }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Arriba (desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Abajo (desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start-mobile",
+      "label": "Arriba (mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end-mobile",
+      "label": "Abajo (mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 11
+    }
+  ],
+  "presets": [
+    {
+      "name": "Moxie Header Top Bar",
+      "blocks": {
+        "announcement_1": { "type": "_announcement" }
+      },
+      "block_order": ["announcement_1"]
+    }
+  ]
+}
+{% endschema %}

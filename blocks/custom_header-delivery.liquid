@@ -1,0 +1,66 @@
+{%- liquid
+  assign tag = 'span'
+  if block.settings.link != blank
+    assign tag = 'a'
+  endif
+-%}
+
+<{{ tag }}
+  class="header-top-bar__item header-top-bar__delivery"
+  {% if tag == 'a' %}href="{{ block.settings.link }}"{% endif %}
+  {{ block.shopify_attributes }}
+>
+  <span class="svg-wrapper header-top-bar__icon" aria-hidden="true">
+    {{ 'ubicacion_home.svg' | inline_asset_content }}
+  </span>
+  <span class="header-top-bar__text">
+    {{ block.settings.label }}
+    <strong class="header-top-bar__delivery-value">{{ block.settings.value }}</strong>
+  </span>
+</{{ tag }}>
+
+{% stylesheet %}
+  .header-top-bar__delivery .header-top-bar__icon {
+    width: clamp(9px, 0.9vw, 13px);
+    height: clamp(11px, 1.11vw, 16px);
+  }
+
+  .header-top-bar__delivery-value {
+    font-family: var(--font-subheading--family);
+    font-weight: var(--font-subheading--weight);
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Entregar en",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Etiqueta",
+      "default": "Entregar en:"
+    },
+    {
+      "type": "text",
+      "id": "value",
+      "label": "Ciudad",
+      "default": "Medellín"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link (opcional)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Moxie Header Delivery"
+    }
+  ]
+}
+{% endschema %}

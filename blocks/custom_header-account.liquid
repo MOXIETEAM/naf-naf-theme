@@ -1,0 +1,70 @@
+<div
+  class="header-top-bar__item header-top-bar__account account-button"
+  {{ block.shopify_attributes }}
+>
+  <shopify-account menu="{{ block.settings.customer_account_menu }}">
+    {% if customer %}
+      <div class="account-button__fallback"></div>
+    {% else %}
+      <span slot="signed-out-avatar" class="header-top-bar__account-content">
+        <span class="svg-wrapper header-top-bar__icon" aria-hidden="true">
+          {{ 'mi_cuenta_home.svg' | inline_asset_content }}
+        </span>
+        <span class="account-button__text header-top-bar__text">
+          {{ block.settings.text }}
+        </span>
+      </span>
+    {% endif %}
+  </shopify-account>
+</div>
+
+{% stylesheet %}
+  /*
+    shopify-account (componente nativo de Shopify) reserva 44px de alto para su
+    touch-target aunque ya esté :defined — no es algo que controlemos vía CSS.
+    Fijamos el alto del wrapper al tamaño del ícono (igual que los demás bloques)
+    y dejamos overflow:visible + align-items:center (heredado de .header-top-bar__item)
+    para que shopify-account se centre visualmente sin inflar el alto de la fila.
+  */
+  .header-top-bar__account {
+    height: clamp(11px, 1.11vw, 16px);
+    overflow: visible;
+  }
+
+  .header-top-bar__account-content {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 0.56vw, 8px);
+  }
+
+  .header-top-bar__account .header-top-bar__icon {
+    width: clamp(10px, 0.97vw, 14px);
+    height: clamp(11px, 1.11vw, 16px);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Mi cuenta",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Texto",
+      "default": "Mi cuenta"
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "label": "Menú",
+      "default": "customer-account-main-menu"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Moxie Header Account"
+    }
+  ]
+}
+{% endschema %}

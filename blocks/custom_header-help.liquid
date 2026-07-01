@@ -1,0 +1,49 @@
+{%- liquid
+  assign tag = 'span'
+  if block.settings.link != blank
+    assign tag = 'a'
+  endif
+-%}
+
+<{{ tag }}
+  class="header-top-bar__item header-top-bar__help"
+  {% if tag == 'a' %}href="{{ block.settings.link }}"{% endif %}
+  {{ block.shopify_attributes }}
+>
+  <span class="svg-wrapper header-top-bar__icon" aria-hidden="true">
+    {{ 'ayuda_home.svg' | inline_asset_content }}
+  </span>
+  <span class="header-top-bar__text">{{ block.settings.text }}</span>
+</{{ tag }}>
+
+{% stylesheet %}
+  .header-top-bar__help .header-top-bar__icon {
+    width: clamp(11px, 1.11vw, 16px);
+    height: clamp(11px, 1.11vw, 16px);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Ayuda",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Texto",
+      "default": "Ayuda"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link (opcional)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Moxie Header Help"
+    }
+  ]
+}
+{% endschema %}
