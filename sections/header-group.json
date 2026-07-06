@@ -148,9 +148,9 @@
       }
     },
     "header_section": {
-      "type": "header",
+      "type": "custom_header-main",
       "blocks": {
-        "header-logo": {
+        "header-logo-main": {
           "type": "_header-logo",
           "static": true,
           "settings": {
@@ -160,14 +160,14 @@
           },
           "blocks": {}
         },
-        "header-menu": {
+        "header-menu-main": {
           "type": "_header-menu",
           "static": true,
           "settings": {
             "menu": "main-menu",
             "background_color": "#ffffff",
             "text_color": "",
-            "type_font_primary_size": "0.875rem",
+            "type_font_primary_size": "0.75rem",
             "menu_font_style": "inverse",
             "type_font_primary_link": "body",
             "type_case_primary_link": "none",
@@ -227,7 +227,9 @@
         "text_color_transparent_product": "",
         "enable_transparent_header_collection": false,
         "collection_inverse_logo": false,
-        "text_color_transparent_collection": ""
+        "text_color_transparent_collection": "",
+        "menu_highlight_background_color": "#ffffff",
+        "menu_highlight_text_color": "#000000"
       }
     }
   },

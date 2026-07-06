@@ -1,0 +1,107 @@
+// MOXIE: estilos del header principal custom (custom_header-main.liquid).
+// No confundir con _header.scss (CSS muerto de otro tema, no tocar).
+@use '../base/mixins' as *;
+
+// Fallback pre-JS: assets/utilities.js recalcula --header-height real al cargar,
+// esto solo evita salto de layout en el primer paint (ver comentario en
+// custom_header-main.liquid sobre mantener esto sincronizado).
+html body {
+  @media screen and (min-width: 750px) {
+    --header-height: 80px;
+  }
+
+  @media screen and (max-width: 749px) {
+    --header-height: 60px;
+  }
+}
+
+#header-component {
+  @media screen and (min-width: 750px) {
+    --header-height: 80px;
+  }
+
+  @media screen and (max-width: 749px) {
+    --header-height: 60px;
+  }
+
+  .header__columns {
+    @media screen and (min-width: 750px) {
+      min-height: 80px;
+    }
+
+    @media screen and (max-width: 749px) {
+      min-height: 60px;
+    }
+  }
+
+  // Mobile: glass fijo, igual en estado transparente y sólido (Figma).
+  // --closed-underlay-height: assets/header.js la pisa como estilo inline al
+  // activarse el sticky-state en scroll — un inline style le gana a cualquier
+  // regla de CSS por especificidad, así que hace falta !important para retomar
+  // el control y que no vuelva a 0px apenas arranca el scroll.
+  @media screen and (max-width: 749px) {
+    --closed-underlay-height: 100% !important;
+
+    .header__underlay-closed,
+    .header__underlay-open {
+      background: #dcdcdc33 !important;
+      backdrop-filter: blur(34.1px) !important;
+      -webkit-backdrop-filter: blur(34.1px) !important;
+    }
+  }
+
+  // Buscador: el botón nativo (icono, abre #search-modal) se viste como pill
+  // con placeholder visual. No es un input real — el copy vive en CSS porque
+  // snippets/search.liquid es nativo y no se toca (MOXIE: ver plan Fase 1).
+  @media screen and (min-width: 750px) {
+    .search-action {
+      align-items: center;
+      gap: fluid(8);
+      padding: fluid(10) fluid(16);
+      border-radius: 999px;
+      background-color: rgb(var(--color-foreground-rgb) / 0.06);
+
+      &::after {
+        content: 'Que estás buscando?';
+        font-family: var(--font-body--family);
+        font-size: fluid-type(13);
+        color: rgb(var(--color-foreground-rgb) / 0.55);
+        white-space: nowrap;
+      }
+    }
+
+    // La cuenta ya vive en la topbar (custom_header-top-bar) en desktop;
+    // en la fila principal solo se muestra en mobile (ver capturas Figma).
+    .account-button {
+      display: none;
+    }
+  }
+
+  // Tipografía del menú desktop: tamaño (12px) y fuente (Host Grotesk / body)
+  // ya se controlan con settings nativos de _header-menu (type_font_primary_size:
+  // 0.75rem, type_font_primary_link: body → host_grotesk_n4). line-height y
+  // letter-spacing no tienen setting nativo, van por CSS.
+  @media screen and (min-width: 750px) {
+    &[data-menu-style='menu'] .menu-list__link-title {
+      line-height: 1.333;
+      letter-spacing: 0.02em;
+    }
+  }
+
+  // "SALE" como pill — asume que es siempre el último ítem del menú principal
+  // (MOXIE: si el orden cambia en Admin, este selector deja de matchear la pill
+  // correcta; se revisita junto con el mega menu en Fase 2). Colores editables
+  // desde el editor vía section.settings.menu_highlight_*_color.
+  @media screen and (min-width: 750px) {
+    &[data-menu-style='menu'] .menu-list__list-item:last-child > .menu-list__link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 2px 6px;
+      border-radius: 2px;
+      background-color: var(--menu-highlight-background, #ffffff);
+      color: var(--menu-highlight-text, #000000);
+    }
+  }
+}

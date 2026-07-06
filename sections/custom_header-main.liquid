@@ -352,6 +352,9 @@
   style="
     --color-background-top-row: rgba({{ section.settings.background_color_top.rgba | default: settings.page_background_color.rgba }});
     --color-background-bottom-row: rgba({{ section.settings.background_color_bottom.rgba | default: settings.page_background_color.rgba }});
+    {% comment %} MOXIE: colores editables del ítem de menú destacado (pill "SALE"), ver src/styles/components/_header-main.scss {% endcomment %}
+    --menu-highlight-background: {{ section.settings.menu_highlight_background_color | default: '#ffffff' }};
+    --menu-highlight-text: {{ section.settings.menu_highlight_text_color | default: '#000000' }};
     {% if transparent and text_color_transparent != blank %}
       --color-transparent-text: {{ text_color_transparent }};
       --color-transparent-text-rgb: {{ text_color_transparent.rgb }};
@@ -1254,6 +1257,22 @@
         }
       ],
       "default": "top"
+    },
+    {
+      "type": "header",
+      "content": "MOXIE: Menú - ítem destacado"
+    },
+    {
+      "type": "color",
+      "id": "menu_highlight_background_color",
+      "label": "Color de fondo",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "menu_highlight_text_color",
+      "label": "Color de texto",
+      "default": "#000000"
     },
     {
       "type": "header",
