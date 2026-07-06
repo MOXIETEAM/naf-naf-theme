@@ -1,0 +1,348 @@
+// MOXIE: drawer mobile custom con tabs (Fase 2 del header custom).
+// Presenta los MISMOS bloques del mega menu desktop (blocks/_custom_menu*.liquid)
+// en formato drawer: tabs persistentes + panel por tab + drill-down de columnas.
+// JS: assets/custom-header-drawer.js. El dropdown desktop vive en _header-mega-menu.scss.
+@use '../base/mixins' as *;
+
+// ---------------------------------------------------------------------------
+// Elementos que solo existen para una de las dos copias del menú.
+
+// Tab del drawer: oculto por defecto (copia desktop); se muestra dentro del drawer.
+.custom-menu-item__tab {
+  display: none;
+}
+
+// Utility link en la copia desktop: NO usar display:none — overflow-list.js mide
+// getBoundingClientRect().top de cada item contra el botón "More", y un item con
+// display:none (rect 0,0) puede caer en el bucket equivocado cuando el header está
+// parcialmente fuera de viewport. Anclado en absolute al inicio de la lista su rect
+// siempre coincide con la fila visible → contado como visible de forma estable y
+// nunca dispara el "More".
+.custom-menu-utility-link {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+// ---------------------------------------------------------------------------
+// Contenedor y summary (hamburguesa ↔ X)
+.custom-menu-drawer {
+  display: flex;
+  align-items: center;
+
+  &__summary {
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  &__icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+
+  &__icon--close {
+    display: none;
+  }
+
+  &__container[open] {
+    .custom-menu-drawer__icon--open {
+      display: none;
+    }
+
+    .custom-menu-drawer__icon--close {
+      display: block;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Panel principal del drawer: pantalla completa bajo el header, fondo blanco
+  // fijo (Figma) independiente del estado transparente del header.
+  // MOXIE: colores hardcodeados a propósito hasta la pasada de estilos exactos.
+  &__panel {
+    --color-foreground: #141414;
+    --color-foreground-rgb: 20 20 20;
+
+    position: fixed;
+    inset: var(--header-height, 60px) 0 0;
+    z-index: var(--layer-header-menu, 3);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background-color: #ffffff;
+    color: var(--color-foreground);
+    animation: custom-menu-drawer-in 0.25s var(--ease-out-cubic, ease-out);
+  }
+
+  // -------------------------------------------------------------------------
+  // Buscador como pill (mismo patrón Fase 1: botón nativo que abre #search-modal,
+  // vestido por CSS; el copy vive acá porque snippets/search.liquid no se toca).
+  &__search {
+    padding: 16px;
+
+    .search-action {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background-color: rgb(var(--color-foreground-rgb) / 0.06);
+
+      &::after {
+        content: '¿Qué buscas hoy?';
+        font-family: var(--font-body--family);
+        font-size: 14px;
+        color: rgb(var(--color-foreground-rgb) / 0.55);
+        white-space: nowrap;
+      }
+    }
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+  }
+
+  // -------------------------------------------------------------------------
+  // Lista única: cada ítem aporta su tab (fila 1, via order) y su panel (fila 2);
+  // los utility links van al final (footer). display:contents + flex-wrap.
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1 0 auto;
+    align-content: flex-start;
+    padding-inline: 16px;
+  }
+
+  .custom-menu-item {
+    display: contents;
+  }
+
+  // El link de navegación desktop no participa en el drawer (los tabs lo reemplazan).
+  .custom-menu-item__link {
+    display: none;
+  }
+
+  .custom-menu-item__tab {
+    display: inline-flex;
+    order: 1;
+    align-items: center;
+    padding: 12px 10px;
+    font-family: var(--menu-top-level-font-family);
+    font-size: 14px;
+    text-transform: var(--menu-top-level-font-case);
+    color: var(--color-foreground);
+    border-block-end: 2px solid transparent;
+  }
+
+  .custom-menu-item[data-active] > .custom-menu-item__tab {
+    border-block-end-color: currentColor;
+    font-weight: 700;
+  }
+
+  // Tab destacado (SALE) como pill invertida (Figma mobile).
+  .custom-menu-item--highlight > .custom-menu-item__tab {
+    padding: 4px 10px;
+    margin-inline-start: 6px;
+    border-radius: 2px;
+    border-block-end: none;
+    background-color: #141414;
+    color: #ffffff;
+  }
+
+  // -------------------------------------------------------------------------
+  // Panel del tab: anula la maquinaria del dropdown desktop (absolute + clip-path
+  // + visibility de _custom_menu.liquid) y lo muestra como bloque normal.
+  .custom-menu-item__panel {
+    display: none;
+    order: 2;
+    width: 100%;
+    position: static;
+    visibility: visible;
+    clip-path: none;
+    transition: none;
+  }
+
+  .custom-menu-item[data-active] > .custom-menu-item__panel {
+    display: block;
+  }
+
+  .menu-list__submenu-inner {
+    opacity: 1;
+    transform: none;
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+    display: block;
+  }
+
+  // El wrapper .section trae la grilla global de página; en el drawer es un bloque simple.
+  .custom-menu-item__panel .section {
+    display: block;
+    padding-inline: 0;
+    margin: 0;
+  }
+
+  // Contenido del tab en una columna: cards/grupos primero, banner/promo después,
+  // columnas (filas drill-down) al final — orden del Figma mobile.
+  .custom-menu-item__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-block: 8px 24px;
+
+    > .custom-menu-card,
+    > .custom-menu-card-group {
+      order: 1;
+    }
+
+    > .custom-menu-banner,
+    > .custom-menu-promo {
+      order: 2;
+    }
+
+    > .custom-menu-column {
+      order: 3;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Columna → fila con chevron + subpanel drill-down a pantalla completa.
+  .custom-menu-column {
+    border: 0;
+    padding-inline-start: 0;
+
+    .custom-menu-column__heading {
+      display: none;
+    }
+
+    .custom-menu-column__drill-row {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      padding-block: 16px;
+      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+      font-size: 15px;
+      color: var(--color-foreground);
+    }
+
+    .custom-menu-column__drill-icon svg,
+    .custom-menu-column__back-icon svg {
+      display: block;
+      width: 14px;
+      height: 14px;
+    }
+
+    .custom-menu-column__panel {
+      position: fixed;
+      inset: var(--header-height, 60px) 0 0;
+      z-index: calc(var(--layer-header-menu, 3) + 1);
+      overflow-y: auto;
+      padding: 0 16px 24px;
+      background-color: #ffffff;
+      visibility: hidden;
+      transform: translateX(100%);
+      transition: transform 0.25s var(--ease-out-cubic, ease-out), visibility 0.25s;
+    }
+
+    &[data-drill-open] .custom-menu-column__panel {
+      visibility: visible;
+      transform: none;
+    }
+
+    .custom-menu-column__back {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: 10px;
+      padding-block: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-foreground);
+      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+    }
+
+    .custom-menu-column__list {
+      gap: 0;
+    }
+
+    .custom-menu-column__list-item {
+      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+    }
+
+    .custom-menu-column__link {
+      display: block;
+      padding-block: 16px;
+      font-size: 15px;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Cards: scroll horizontal dentro del grupo (Figma mobile).
+  .custom-menu-card-group__cards {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    margin-inline: -16px;
+    padding-inline: 16px;
+    scrollbar-width: none;
+
+    .custom-menu-card {
+      flex: 0 0 72%;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Footer de utilidades.
+  .custom-menu-utility-link {
+    position: static;
+    visibility: visible;
+    pointer-events: auto;
+    order: 4;
+    width: 100%;
+
+    &__inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-block: 12px;
+      color: var(--color-foreground);
+      text-decoration: none;
+    }
+
+    &__icon svg {
+      display: block;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+@keyframes custom-menu-drawer-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+// Convención Moxie: siempre fallback para prefers-reduced-motion.
+@media (prefers-reduced-motion: reduce) {
+  .custom-menu-drawer__panel {
+    animation: none;
+  }
+
+  .custom-menu-drawer .custom-menu-column .custom-menu-column__panel {
+    transition: none;
+  }
+}

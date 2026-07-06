@@ -160,29 +160,381 @@
           },
           "blocks": {}
         },
-        "header-menu-main": {
-          "type": "_header-menu",
+        "custom-menu-main": {
+          "type": "_custom_menu",
           "static": true,
           "settings": {
-            "menu": "main-menu",
             "background_color": "#ffffff",
             "text_color": "",
             "type_font_primary_size": "0.75rem",
             "menu_font_style": "inverse",
             "type_font_primary_link": "body",
-            "type_case_primary_link": "none",
-            "menu_style": "featured_products",
-            "featured_products_aspect_ratio": "4 / 5",
-            "featured_collections_aspect_ratio": "16 / 9",
-            "image_border_radius": 0,
-            "navigation_bar": false,
-            "background_color_navigation_bar": "#ffffff",
-            "text_color_navigation_bar": "",
-            "drawer_accordion": false,
-            "drawer_accordion_expand_first": false,
-            "drawer_dividers": false
+            "type_case_primary_link": "none"
           },
-          "blocks": {}
+          "blocks": {
+            "menu-item-ropa": {
+              "type": "_custom_menu-item",
+              "settings": {
+                "label": "ROPA",
+                "link": "",
+                "highlight": false
+              },
+              "blocks": {
+                "ropa-col-trending": {
+                  "type": "_custom_menu-column",
+                  "settings": {
+                    "heading": "Trending",
+                    "span_desktop": "1"
+                  },
+                  "blocks": {}
+                },
+                "ropa-col-prendas": {
+                  "type": "_custom_menu-column",
+                  "settings": {
+                    "heading": "Prendas",
+                    "bold_last_link": true,
+                    "span_desktop": "1"
+                  },
+                  "blocks": {}
+                },
+                "ropa-col-denim": {
+                  "type": "_custom_menu-column",
+                  "settings": {
+                    "heading": "Denim",
+                    "bold_last_link": true,
+                    "span_desktop": "1"
+                  },
+                  "blocks": {}
+                },
+                "ropa-col-accesorios": {
+                  "type": "_custom_menu-column",
+                  "settings": {
+                    "heading": "Accesorios",
+                    "bold_last_link": true,
+                    "span_desktop": "1"
+                  },
+                  "blocks": {}
+                },
+                "ropa-ocasiones": {
+                  "type": "_custom_menu-card-group",
+                  "settings": {
+                    "heading": "Por Ocasiones de Uso",
+                    "span_desktop": "8"
+                  },
+                  "blocks": {
+                    "ropa-card-dailywear": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "Dailywear"
+                      },
+                      "blocks": {}
+                    },
+                    "ropa-card-goingout": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "Going Out"
+                      },
+                      "blocks": {}
+                    },
+                    "ropa-card-holiday": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "Holiday"
+                      },
+                      "blocks": {}
+                    },
+                    "ropa-card-workleisure": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "Workleisure"
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "ropa-card-dailywear",
+                    "ropa-card-goingout",
+                    "ropa-card-holiday",
+                    "ropa-card-workleisure"
+                  ]
+                }
+              },
+              "block_order": [
+                "ropa-col-trending",
+                "ropa-col-prendas",
+                "ropa-col-denim",
+                "ropa-col-accesorios",
+                "ropa-ocasiones"
+              ]
+            },
+            "menu-item-colecciones": {
+              "type": "_custom_menu-item",
+              "settings": {
+                "label": "COLECCIONES",
+                "link": "",
+                "highlight": false
+              },
+              "blocks": {
+                "colecciones-cards": {
+                  "type": "_custom_menu-card-group",
+                  "settings": {
+                    "heading": "",
+                    "span_desktop": "6"
+                  },
+                  "blocks": {
+                    "colecciones-card-1": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "Dreamy"
+                      },
+                      "blocks": {}
+                    },
+                    "colecciones-card-2": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "Dazzle"
+                      },
+                      "blocks": {}
+                    },
+                    "colecciones-card-3": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "La Vacanza"
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "colecciones-card-1",
+                    "colecciones-card-2",
+                    "colecciones-card-3"
+                  ]
+                },
+                "colecciones-col-1": {
+                  "type": "_custom_menu-column",
+                  "settings": {
+                    "heading": "Colecciones",
+                    "span_desktop": "2"
+                  },
+                  "blocks": {}
+                },
+                "colecciones-banner": {
+                  "type": "_custom_menu-banner",
+                  "settings": {
+                    "heading": "Fashion Edit",
+                    "content_position": "bottom-left",
+                    "span_desktop": "3"
+                  },
+                  "blocks": {}
+                },
+                "colecciones-col-2": {
+                  "type": "_custom_menu-column",
+                  "settings": {
+                    "heading": "Diseñadoras",
+                    "span_desktop": "1"
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "colecciones-cards",
+                "colecciones-col-1",
+                "colecciones-banner",
+                "colecciones-col-2"
+              ]
+            },
+            "menu-item-nafme": {
+              "type": "_custom_menu-item",
+              "settings": {
+                "label": "NAF&ME",
+                "link": "",
+                "highlight": false
+              },
+              "blocks": {
+                "nafme-promo": {
+                  "type": "_custom_menu-promo",
+                  "settings": {
+                    "heading": "Naf&Me",
+                    "subheading": "Tu programa de beneficios NAF NAF",
+                    "text": "<p>Vive una experiencia exclusiva con beneficios, descuentos y acceso a momentos especiales por ser parte de nuestra comunidad.</p><ul><li>Descuento de cumpleaños</li><li>Descuentos exclusivos</li><li>Preventas y lanzamientos</li><li>Eventos especiales</li><li>Envíos gratis</li><li>Beneficios con aliados</li></ul>",
+                    "cta_label": "Conoce el universo Naf&Me",
+                    "span_desktop": "8"
+                  },
+                  "blocks": {
+                    "nafme-tier-member": {
+                      "type": "_custom_menu-promo-tier",
+                      "settings": {
+                        "title": "MEMBER",
+                        "text": "Tu entrada a NAF&ME."
+                      },
+                      "blocks": {}
+                    },
+                    "nafme-tier-silver": {
+                      "type": "_custom_menu-promo-tier",
+                      "settings": {
+                        "title": "SILVER",
+                        "text": "Más compras, más beneficios."
+                      },
+                      "blocks": {}
+                    },
+                    "nafme-tier-black": {
+                      "type": "_custom_menu-promo-tier",
+                      "settings": {
+                        "title": "BLACK",
+                        "text": "El más exclusivo de la comunidad."
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "nafme-tier-member",
+                    "nafme-tier-silver",
+                    "nafme-tier-black"
+                  ]
+                },
+                "nafme-banner": {
+                  "type": "_custom_menu-banner",
+                  "settings": {
+                    "cta_label": "Quiero mi 25%dcto",
+                    "content_position": "center",
+                    "span_desktop": "4"
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "nafme-promo",
+                "nafme-banner"
+              ]
+            },
+            "menu-item-sale": {
+              "type": "_custom_menu-item",
+              "settings": {
+                "label": "SALE",
+                "link": "",
+                "highlight": true,
+                "highlight_background_color": "#ffffff",
+                "highlight_text_color": "#000000"
+              },
+              "blocks": {
+                "sale-col-sale": {
+                  "type": "_custom_menu-column",
+                  "settings": {
+                    "heading": "Sale",
+                    "bold_last_link": true,
+                    "span_desktop": "1"
+                  },
+                  "blocks": {}
+                },
+                "sale-col-precio": {
+                  "type": "_custom_menu-column",
+                  "settings": {
+                    "heading": "Precio",
+                    "bold_last_link": true,
+                    "span_desktop": "2"
+                  },
+                  "blocks": {}
+                },
+                "sale-col-ropa": {
+                  "type": "_custom_menu-column",
+                  "settings": {
+                    "heading": "Ropa",
+                    "bold_last_link": true,
+                    "span_desktop": "1"
+                  },
+                  "blocks": {}
+                },
+                "sale-favoritos": {
+                  "type": "_custom_menu-card-group",
+                  "settings": {
+                    "heading": "Explora tus favoritos",
+                    "span_desktop": "5"
+                  },
+                  "blocks": {
+                    "sale-card-tejidos": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "Tejidos"
+                      },
+                      "blocks": {}
+                    },
+                    "sale-card-camisas": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "Camisas"
+                      },
+                      "blocks": {}
+                    },
+                    "sale-card-pantalones": {
+                      "type": "_custom_menu-card",
+                      "settings": {
+                        "label": "Pantalones"
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "sale-card-tejidos",
+                    "sale-card-camisas",
+                    "sale-card-pantalones"
+                  ]
+                },
+                "sale-banner": {
+                  "type": "_custom_menu-banner",
+                  "settings": {
+                    "heading": "días naf",
+                    "text": "ref. selec hasta 50%dcto",
+                    "content_position": "center",
+                    "span_desktop": "3"
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "sale-col-sale",
+                "sale-col-precio",
+                "sale-col-ropa",
+                "sale-favoritos",
+                "sale-banner"
+              ]
+            },
+            "utility-ubicacion": {
+              "type": "_custom_menu-utility-link",
+              "settings": {
+                "icon": "ubicacion_home",
+                "text": "Ubicación",
+                "link": ""
+              },
+              "blocks": {}
+            },
+            "utility-cuenta": {
+              "type": "_custom_menu-utility-link",
+              "settings": {
+                "icon": "mi_cuenta_home",
+                "text": "Mi Cuenta",
+                "link": "/account"
+              },
+              "blocks": {}
+            },
+            "utility-ayuda": {
+              "type": "_custom_menu-utility-link",
+              "settings": {
+                "icon": "ayuda_home",
+                "text": "Ayuda",
+                "link": ""
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "menu-item-ropa",
+            "menu-item-colecciones",
+            "menu-item-nafme",
+            "menu-item-sale",
+            "utility-ubicacion",
+            "utility-cuenta",
+            "utility-ayuda"
+          ]
         }
       },
       "settings": {
@@ -227,9 +579,7 @@
         "text_color_transparent_product": "",
         "enable_transparent_header_collection": false,
         "collection_inverse_logo": false,
-        "text_color_transparent_collection": "",
-        "menu_highlight_background_color": "#ffffff",
-        "menu_highlight_text_color": "#000000"
+        "text_color_transparent_collection": ""
       }
     }
   },

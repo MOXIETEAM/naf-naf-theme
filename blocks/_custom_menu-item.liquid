@@ -1,0 +1,146 @@
+{%- doc -%}
+  Ítem de nivel superior del menú custom Moxie (ROPA / COLECCIONES / NAF&ME / SALE).
+
+  Hijo de `_custom_menu`. Emite el <li> con el contrato de markup que assets/header-menu.js
+  espera (on:focus/blur/pointerenter/pointerleave, ref="menuitem", ref="submenu[]") para heredar
+  gratis el hover-intent, la animación del dropdown y el overflow "More" del tema.
+
+  El contenido del dropdown son bloques hijos (columnas, cards, banner, promo) sobre una grilla
+  de 12 columnas. El mismo markup sirve para el dropdown desktop y el panel del tab en el drawer
+  mobile — el contenedor de cada variante adapta layout/comportamiento vía CSS/JS.
+{%- enddoc -%}
+
+{% liquid
+  assign item_settings = block.settings
+  assign panel_id = 'custom-menu-panel-' | append: block.id
+%}
+
+{% capture panel_content %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+{% assign panel_content = panel_content | strip %}
+
+<li
+  role="presentation"
+  class="menu-list__list-item custom-menu-item{% if item_settings.highlight %} custom-menu-item--highlight{% endif %}"
+  on:focus="/activate"
+  on:blur="/deactivate"
+  on:pointerenter="/activate"
+  on:pointerleave="/deactivate"
+  {% if item_settings.highlight %}
+    style="--menu-highlight-background: {{ item_settings.highlight_background_color }}; --menu-highlight-text: {{ item_settings.highlight_text_color }};"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  <a
+    href="{{ item_settings.link | default: '#' }}"
+    data-skip-node-update="true"
+    class="menu-list__link custom-menu-item__link"
+    {%- if panel_content != blank -%}
+      aria-controls="{{ panel_id }}"
+      aria-haspopup="true"
+      aria-expanded="false"
+    {%- endif -%}
+    {%- if item_settings.link == request.path -%}
+      aria-current="page"
+    {%- endif -%}
+    ref="menuitem"
+  >
+    <span class="menu-list__link-title">{{ item_settings.label }}</span>
+  </a>
+  {%- comment -%}
+    MOXIE: tab del drawer mobile — oculto en desktop vía CSS. on:click resuelve contra el
+    Component ancestro más cercano: en el drawer es <custom-header-drawer> (define selectTab).
+  {%- endcomment -%}
+  <button
+    type="button"
+    class="custom-menu-item__tab button-unstyled"
+    on:click="/selectTab"
+    aria-expanded="false"
+    {% if panel_content != blank %}
+      aria-controls="{{ panel_id }}"
+    {% endif %}
+  >
+    {{ item_settings.label }}
+  </button>
+  {%- if panel_content != blank -%}
+    {%- comment -%}
+      MOXIE: este id se duplica entre las dos copias (desktop/drawer) del static block. El JS del
+      drawer (Hito 4) re-prefija los ids/aria de su subárbol al conectarse para restaurar unicidad.
+    {%- endcomment -%}
+    <div class="menu-list__submenu custom-menu-item__panel" ref="submenu[]">
+      <div
+        id="{{ panel_id }}"
+        class="menu-list__submenu-inner"
+      >
+        <div class="mega-menu section section--full-width-margin section--{{ section.settings.section_width }}">
+          <div class="custom-menu-item__grid">
+            {{ panel_content }}
+          </div>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+</li>
+
+{% schema %}
+{
+  "name": "Moxie Ítem de menú",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_custom_menu-column"
+    },
+    {
+      "type": "_custom_menu-card"
+    },
+    {
+      "type": "_custom_menu-card-group"
+    },
+    {
+      "type": "_custom_menu-banner"
+    },
+    {
+      "type": "_custom_menu-promo"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Etiqueta",
+      "default": "Ítem"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Enlace"
+    },
+    {
+      "type": "header",
+      "content": "Ítem destacado"
+    },
+    {
+      "type": "checkbox",
+      "id": "highlight",
+      "label": "Resaltar como pill",
+      "default": false,
+      "info": "Muestra el ítem como una píldora de color (ej. SALE)."
+    },
+    {
+      "type": "color",
+      "id": "highlight_background_color",
+      "label": "Color de fondo",
+      "default": "#ffffff",
+      "visible_if": "{{ block.settings.highlight }}"
+    },
+    {
+      "type": "color",
+      "id": "highlight_text_color",
+      "label": "Color de texto",
+      "default": "#000000",
+      "visible_if": "{{ block.settings.highlight }}"
+    }
+  ]
+}
+{% endschema %}

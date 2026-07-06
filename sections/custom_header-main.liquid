@@ -82,16 +82,16 @@
     content_for 'block', type: '_header-logo', id: 'header-logo-main'
   endcapture
 
+  # MOXIE: Fase 2 — el menú ya no es el _header-menu nativo sino el menú custom de bloques
+  # anidados (blocks/_custom_menu.liquid): mega menu desktop + drawer con tabs. Mismo id
+  # estático con variant distinta (patrón nativo, válido para UniqueStaticBlockId).
+  # La variante navigation_bar se eliminó: el Figma no la usa, el fallback mobile es siempre el drawer.
   capture menu
-    content_for 'block', type: '_header-menu', id: 'header-menu-main'
+    content_for 'block', type: '_custom_menu', id: 'custom-menu-main'
   endcapture
 
   capture drawer_menu
-    content_for 'block', type: '_header-menu', id: 'header-menu-main', variant: 'mobile'
-  endcapture
-
-  capture navigation_bar
-    content_for 'block', type: '_header-menu', id: 'header-menu-main', variant: 'navigation_bar', transparent: transparent
+    content_for 'block', type: '_custom_menu', id: 'custom-menu-main', variant: 'mobile'
   endcapture
 
   capture actions
@@ -325,10 +325,10 @@
   MOXIE: id="header-component" intencionalmente idéntico al nativo — layout/theme.liquid y assets/utilities.js
   dependen de este ID global; esta sección reemplaza, no coexiste con, la nativa cuando se wiree en header-group.json.
 
-  MOXIE: los static block ids se renombraron a "header-logo-main"/"header-menu-main" (en vez de "header-logo"/
-  "header-menu" del original) solo por claridad de cara al wireo futuro en header-group.json — no había colisión
-  real con sections/header.liquid (cada instancia de sección tiene su propio namespace de "blocks" en el JSON).
-  Al wirear, la entrada "blocks" de esta sección debe usar estos mismos ids nuevos.
+  MOXIE: los static block ids son propios de esta sección: "header-logo-main" (logo nativo) y
+  "custom-menu-main" (menú custom Fase 2, blocks/_custom_menu.liquid) — no hay colisión con
+  sections/header.liquid (cada instancia de sección tiene su propio namespace de "blocks" en el JSON).
+  La entrada "blocks" en header-group.json debe usar estos mismos ids.
 {%- endcomment -%}
 <header-component
   id="header-component"
@@ -352,9 +352,6 @@
   style="
     --color-background-top-row: rgba({{ section.settings.background_color_top.rgba | default: settings.page_background_color.rgba }});
     --color-background-bottom-row: rgba({{ section.settings.background_color_bottom.rgba | default: settings.page_background_color.rgba }});
-    {% comment %} MOXIE: colores editables del ítem de menú destacado (pill "SALE"), ver src/styles/components/_header-main.scss {% endcomment %}
-    --menu-highlight-background: {{ section.settings.menu_highlight_background_color | default: '#ffffff' }};
-    --menu-highlight-text: {{ section.settings.menu_highlight_text_color | default: '#000000' }};
     {% if transparent and text_color_transparent != blank %}
       --color-transparent-text: {{ text_color_transparent }};
       --color-transparent-text-rgb: {{ text_color_transparent.rgb }};
@@ -466,12 +463,6 @@
       </div>
     {% endif %}
   {% endfor %}
-
-  {% if navigation_bar != blank %}
-    <div class="header__row header__navigation-bar-row">
-      {{ navigation_bar }}
-    </div>
-  {% endif %}
 </header-component>
 
 <script
@@ -517,12 +508,6 @@
 
   #header-component[data-menu-style='drawer'] .header__column {
     display: contents;
-  }
-
-  @media screen and (min-width: 750px) {
-    #header-component[data-menu-style='menu'] .header__navigation-bar-row {
-      display: none;
-    }
   }
 
   .header[transparent] {
@@ -1257,22 +1242,6 @@
         }
       ],
       "default": "top"
-    },
-    {
-      "type": "header",
-      "content": "MOXIE: Menú - ítem destacado"
-    },
-    {
-      "type": "color",
-      "id": "menu_highlight_background_color",
-      "label": "Color de fondo",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "menu_highlight_text_color",
-      "label": "Color de texto",
-      "default": "#000000"
     },
     {
       "type": "header",

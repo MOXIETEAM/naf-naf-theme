@@ -87,21 +87,7 @@ html body {
       letter-spacing: 0.02em;
     }
   }
-
-  // "SALE" como pill — asume que es siempre el último ítem del menú principal
-  // (MOXIE: si el orden cambia en Admin, este selector deja de matchear la pill
-  // correcta; se revisita junto con el mega menu en Fase 2). Colores editables
-  // desde el editor vía section.settings.menu_highlight_*_color.
-  @media screen and (min-width: 750px) {
-    &[data-menu-style='menu'] .menu-list__list-item:last-child > .menu-list__link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 2px 6px;
-      border-radius: 2px;
-      background-color: var(--menu-highlight-background, #ffffff);
-      color: var(--menu-highlight-text, #000000);
-    }
-  }
 }
+
+// La pill del ítem destacado (SALE) vive ahora en _header-mega-menu.scss
+// (.custom-menu-item--highlight), marcada por bloque desde el Theme Editor.

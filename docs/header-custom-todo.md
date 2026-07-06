@@ -49,7 +49,22 @@ Estilos nuevos en `src/styles/components/_header-main.scss` (fluid, no toca `_he
 
 **Estado: Fase 1 cerrada y verificada en navegador** (desktop + mobile, incluyendo scroll/sticky).
 
-## Pendiente — Fase 2: Mega menu desktop + drawer mobile
+### 3. Fase 2 — Mega menu desktop + drawer mobile (implementada, pendiente verificación en navegador)
+
+Implementada el 2026-07-06 con **bloques anidados custom** (ver plan aprobado). Decisiones confirmadas por el usuario:
+- Links de columna = **link_list de Shopify por columna** (menús en Admin → Navegación; el cliente los crea, ~1 menú pequeño por columna).
+- Contenido lo carga el cliente en el Theme Editor (estructura de ejemplo con placeholders ya wireada en `header-group.json`).
+- "Rastrear Mi Pedido"/"Favoritos" fuera de alcance: el footer del drawer usa bloques `_custom_menu-utility-link` extensibles (hoy: Ubicación, Mi Cuenta, Ayuda).
+
+**Arquitectura**: `blocks/_custom_menu.liquid` (contenedor static, renderizado 2× desde `custom_header-main.liquid` con el mismo id `custom-menu-main` y `variant` default/mobile — patrón nativo, válido para `UniqueStaticBlockId`; el validador viejo tira 1 falso positivo, igual que contra `header.liquid` nativo sin tocar). Los hijos se configuran UNA vez y renderizan en ambas copias (hijos agnósticos a variante: `content_for 'blocks'` no acepta params custom). Jerarquía: `_custom_menu` → `_custom_menu-item` (×4, con setting `highlight` para la pill SALE — murió el hack `:last-child`) → `_custom_menu-column` (link_list) / `_custom_menu-card` / `_custom_menu-card-group` / `_custom_menu-banner` / `_custom_menu-promo` (+ `_custom_menu-promo-tier`); y `_custom_menu-utility-link` como hijo directo del contenedor. Layout desktop por composición: grilla de 12 columnas + setting "Ancho en desktop" por bloque (CSS var `--custom-menu-span`).
+
+**Desktop sin JS nuevo**: el ítem emite el contrato de markup de `assets/header-menu.js` (`ref="menuitem"`, `ref="submenu[]"`, `on:pointerenter="/activate"`, overflow-list con slot "more") → hover-intent, animación clip-path, "More" y `setHeaderMenuStyle()` heredados. El `{% stylesheet %}` nativo de `_header-menu.liquid` se copió 1:1 al bloque contenedor (los stylesheet solo se incluyen si el archivo se renderiza — sin la copia, toda la maquinaria visual del dropdown desaparecía). La variante `navigation_bar` se eliminó del header custom.
+
+**Drawer mobile**: `<custom-header-drawer>` (`assets/custom-header-drawer.js`, extends `Component`) — tabs persistentes (uno por ítem, flechas ←/→/Home/End), panel por tab (mismos bloques del desktop re-presentados vía CSS: columnas → filas drill-down a pantalla completa con back, card-groups → scroll horizontal), buscador pill (abre `#search-modal` nativo), footer de utilidades, trapFocus/Escape, `activate/deactivate` no-ops (los `on:` de los li resuelven contra este componente dentro del drawer), y re-prefijado de ids `drawer-*` al conectar (evita ids duplicados entre las 2 copias). SCSS: `_header-mega-menu.scss` + `_header-drawer.scss` (con `prefers-reduced-motion`).
+
+**Validación**: Theme Check MCP limpio en todos los archivos nuevos/modificados. **Pendiente**: `npm run build:css` + verificación en navegador (desktop hover/teclado/sticky/overflow ~800px, drawer tabs/drill-down/Escape en 390px, Theme Editor agregar/reordenar bloques) — requiere dev server del desarrollador.
+
+## Fase 2 — detalle original del requerimiento (referencia)
 
 Dirección recomendada: **bloques anidados custom** en el Theme Editor (no metaobjects, no matching por posición contra el link list) — cada ítem del menú principal es una instancia de bloque con sus propios sub-bloques de contenido, editable por el cliente sin tocar código. Detalle de lo que hay que soportar, por ítem (visto en las capturas de Figma, node-ids arriba):
 
@@ -69,10 +84,16 @@ Cada bloque de nivel superior (Ropa/Colecciones/Naf&Me/Sale) debería poder rend
 ## Archivos clave
 
 - `sections/header.liquid` — nativo, no tocar
-- `sections/custom_header-main.liquid` — header principal custom (wireado en vivo)
+- `sections/custom_header-main.liquid` — header principal custom (wireado en vivo; Fase 2 reemplazó los `content_for` de `_header-menu` por `_custom_menu` y eliminó navigation_bar + settings `menu_highlight_*`)
 - `sections/custom_header-top-bar.liquid` + `blocks/custom_header-*.liquid` — barra superior (wireada en vivo)
-- `sections/header-group.json` — ambas secciones wireadas
-- `src/styles/components/_header-main.scss` — estilos Fase 1 (pill de búsqueda, pill de SALE, cuenta oculta en desktop)
+- `blocks/_custom_menu.liquid` — contenedor del menú custom (2 variantes; CSS nativo del dropdown copiado en su `{% stylesheet %}`)
+- `blocks/_custom_menu-item.liquid` + `_custom_menu-{column,card,card-group,banner,promo,promo-tier,utility-link}.liquid` — bloques anidados del mega menu
+- `assets/custom-header-drawer.js` — componente del drawer con tabs (único JS custom del header)
+- `sections/header-group.json` — todo wireado, con árbol de ejemplo de los 4 dropdowns
+- `src/styles/components/_header-main.scss` — estilos Fase 1 (pill de búsqueda, cuenta oculta en desktop)
+- `src/styles/components/_header-mega-menu.scss` — dropdown desktop (grilla, columnas, cards, banner, promo, pill SALE)
+- `src/styles/components/_header-drawer.scss` — drawer mobile (tabs, drill-down, footer, buscador pill)
 - `src/styles/components/_header.scss` — legacy `.hdt-*` de otro tema, no tocar
 - `src/styles/base/_mixins.scss` — `fluid()`/`fluid-type()` para valores Figma → responsive
 - `assets/utilities.js`, `layout/theme.liquid` — dependencias duras del id `#header-component`
+- `blocks/_header-menu.liquid`, `snippets/header-drawer.liquid`, `assets/header-menu.js` — nativos, referencia del contrato de markup, no tocar
