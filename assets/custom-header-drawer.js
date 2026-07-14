@@ -71,10 +71,14 @@ class CustomHeaderDrawer extends Component {
 
   /**
    * Activa el tab del ítem clickeado.
-   * @param {string} [_target] - Sin uso (firma del sistema de eventos declarativos).
+   *
+   * MOXIE: el markup declarativo es `on:click="/selectTab"` (sin `?data`), así que
+   * assets/component.js solo pasa UN argumento — el evento. Una firma `(_target, event)`
+   * hace que el evento caiga en `_target` y `event` llegue `undefined`, matando el handler
+   * en silencio (bug encontrado en sesión de QA — el drawer abría pero los tabs no reaccionaban).
    * @param {Event} [event]
    */
-  selectTab(_target, event) {
+  selectTab(event) {
     const item = event?.target instanceof Element ? event.target.closest('.custom-menu-item') : null;
     if (!(item instanceof HTMLElement)) return;
 
@@ -84,10 +88,9 @@ class CustomHeaderDrawer extends Component {
 
   /**
    * Abre el subpanel (drill-down) de la columna clickeada.
-   * @param {string} [_target]
    * @param {Event} [event]
    */
-  drillDown(_target, event) {
+  drillDown(event) {
     const column = event?.target instanceof Element ? event.target.closest('.custom-menu-column') : null;
     if (!(column instanceof HTMLElement)) return;
 
@@ -100,10 +103,9 @@ class CustomHeaderDrawer extends Component {
 
   /**
    * Cierra el subpanel abierto y devuelve el foco a la fila que lo abrió.
-   * @param {string} [_target]
    * @param {Event} [event]
    */
-  drillBack(_target, event) {
+  drillBack(event) {
     const column = event?.target instanceof Element ? event.target.closest('[data-drill-open]') : null;
     this.#closeDrill();
 

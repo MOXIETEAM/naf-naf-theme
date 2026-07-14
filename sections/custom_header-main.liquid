@@ -519,8 +519,13 @@
     --closed-underlay-height: 0px;
 
     /* used to display the appropriate logo based on transparency state */
-    --header-logo-display: none;
-    --header-logo-inverse-display: block;
+    /* MOXIE: inverso se muestra en estado sólido/scrolled, original en transparente.
+       !important porque sections/header.liquid (nativo, sin usar) comparte este mismo
+       selector global y su CSS igual se compila en el bundle del theme; sin !important
+       sus valores viejos ganan por orden de bundle y cancelan este override. No se toca
+       header.liquid. */
+    --header-logo-display: block !important;
+    --header-logo-inverse-display: none !important;
 
     position: absolute;
     top: 0;
@@ -531,8 +536,8 @@
 
     &[transparent='not-sticky'][data-sticky-state='active'],
     &:has(.menu-list__link:not([aria-haspopup]):hover) {
-      --header-logo-display: unset;
-      --header-logo-inverse-display: unset;
+      --header-logo-display: none !important;
+      --header-logo-inverse-display: block !important;
       --color-foreground: inherit;
       --color-foreground-rgb: inherit;
       --color-background: inherit;
@@ -566,8 +571,8 @@
     &:has(.mega-menu__list:hover),
     &:has(.menu-list__link:is(:hover, [aria-expanded='true'])),
     &:has(.menu-list__list-item[slot='overflow'] .menu-list__link:is(:hover, [aria-expanded='true'])) {
-      --header-logo-display: unset;
-      --header-logo-inverse-display: unset;
+      --header-logo-display: none !important;
+      --header-logo-inverse-display: block !important;
       --color-foreground: inherit;
       --color-foreground-rgb: inherit;
       --color-background: inherit;

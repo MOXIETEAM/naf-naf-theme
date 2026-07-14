@@ -10,15 +10,49 @@
   // como pill" en el bloque Moxie Ítem de menú) y los colores llegan como CSS
   // vars inline en su <li>.
   @media screen and (min-width: 750px) {
+    // El <li> es flex-direction: column (native), así que el eje principal es
+    // vertical: márgenes auto centran el pill dentro del alto completo del <li>.
     &[data-menu-style='menu'] .custom-menu-item--highlight > .menu-list__link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      margin-block: auto;
       gap: 10px;
       padding: 2px 6px;
       border-radius: 2px;
+      max-height: 20px;
       background-color: var(--menu-highlight-background, #ffffff);
       color: var(--menu-highlight-text, #000000);
+    }
+
+    // Pill con header sólido (Figma): fondo/texto fijos, no los de la config
+    // del bloque (que solo aplican sobre el overlay transparente). Estado
+    // "sólido" = header nunca transparente, o transparente que se volvió
+    // sólido por scroll (ver sections/header.liquid: atributos `transparent`
+    // y `data-sticky-state`).
+    &[data-menu-style='menu']:not([transparent]) .custom-menu-item--highlight > .menu-list__link,
+    &[data-menu-style='menu'][transparent='not-sticky'][data-sticky-state='active']
+      .custom-menu-item--highlight
+      > .menu-list__link {
+      background-color: #a3a3a3;
+      color: #ffffff;
+    }
+
+    // Tab activo (dropdown abierto) — Figma: bold + underline en el label.
+    // PLACEHOLDER: valores (grosor, offset) a ajustar cuando lleguen los
+    // tokens exactos; el pill (SALE) no lleva underline, cambia de color.
+    &[data-menu-style='menu']
+      .custom-menu-item:not(.custom-menu-item--highlight)
+      > .menu-list__link[aria-expanded='true']
+      .menu-list__link-title {
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+
+    &[data-menu-style='menu'] .custom-menu-item--highlight > .menu-list__link[aria-expanded='true'] {
+      background-color: #000000;
+      color: #ffffff;
     }
   }
 }

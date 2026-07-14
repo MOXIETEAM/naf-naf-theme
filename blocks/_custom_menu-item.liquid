@@ -5,35 +5,116 @@
   espera (on:focus/blur/pointerenter/pointerleave, ref="menuitem", ref="submenu[]") para heredar
   gratis el hover-intent, la animación del dropdown y el overflow "More" del tema.
 
-  El contenido del dropdown son bloques hijos (columnas, cards, banner, promo) sobre una grilla
-  de 12 columnas. El mismo markup sirve para el dropdown desktop y el panel del tab en el drawer
-  mobile — el contenedor de cada variante adapta layout/comportamiento vía CSS/JS.
+  Fase 3 — layouts rígidos: Figma solo define 4 layouts de dropdown posibles (ver
+  docs/header-custom-todo.md). En vez de dejar que el cliente arme el contenido con bloques
+  hijos libres (columna/card/card-group/banner/promo con span manual — Fase 2, reemplazada),
+  el setting `menu_layout` elige uno de los 4 tipos fijos y solo expone los campos de contenido
+  de ESE tipo (heading, link_list, imágenes, texto). La estructura (cuántas columnas/cards, en
+  qué orden, con qué ancho) queda hardcodeada acá — el cliente no puede romperla.
+
+  El mismo markup sirve para el dropdown desktop y el panel del tab en el drawer mobile — el
+  contenedor de cada variante adapta layout/comportamiento vía CSS/JS.
 {%- enddoc -%}
 
 {% liquid
-  assign item_settings = block.settings
+  assign s = block.settings
   assign panel_id = 'custom-menu-panel-' | append: block.id
 %}
 
 {% capture panel_content %}
-  {% content_for 'blocks' %}
+  {% case s.menu_layout %}
+    {% when 'grid' %}
+      {% render 'custom-menu-column', heading: s.grid_col_1_heading, menu: s.grid_col_1_menu, bold_last_link: false, span_desktop: 1 %}
+      {% render 'custom-menu-column', heading: s.grid_col_2_heading, menu: s.grid_col_2_menu, bold_last_link: true, span_desktop: 1 %}
+      {% render 'custom-menu-column', heading: s.grid_col_3_heading, menu: s.grid_col_3_menu, bold_last_link: true, span_desktop: 1 %}
+      {% render 'custom-menu-column', heading: s.grid_col_4_heading, menu: s.grid_col_4_menu, bold_last_link: true, span_desktop: 1 %}
+      {% capture occasion_cards %}
+        {% render 'custom-menu-card', image: s.grid_occasion_1_image, label: s.grid_occasion_1_label, link: s.grid_occasion_1_link %}
+        {% render 'custom-menu-card', image: s.grid_occasion_2_image, label: s.grid_occasion_2_label, link: s.grid_occasion_2_link %}
+        {% render 'custom-menu-card', image: s.grid_occasion_3_image, label: s.grid_occasion_3_label, link: s.grid_occasion_3_link %}
+        {% render 'custom-menu-card', image: s.grid_occasion_4_image, label: s.grid_occasion_4_label, link: s.grid_occasion_4_link %}
+      {% endcapture %}
+      {% render 'custom-menu-card-group', heading: s.grid_occasions_heading, span_desktop: 8, content: occasion_cards %}
+
+    {% when 'asymmetric' %}
+      {% capture asymmetric_cards %}
+        {% render 'custom-menu-card', image: s.asym_card_1_image, label: s.asym_card_1_label, link: s.asym_card_1_link %}
+        {% render 'custom-menu-card', image: s.asym_card_2_image, label: s.asym_card_2_label, link: s.asym_card_2_link %}
+        {% render 'custom-menu-card', image: s.asym_card_3_image, label: s.asym_card_3_label, link: s.asym_card_3_link %}
+      {% endcapture %}
+      {% render 'custom-menu-card-group', span_desktop: 6, content: asymmetric_cards %}
+      {% render 'custom-menu-column', heading: s.asym_col_1_heading, menu: s.asym_col_1_menu, span_desktop: 2 %}
+      {% render 'custom-menu-banner',
+        image: s.asym_banner_image,
+        heading: s.asym_banner_heading,
+        link: s.asym_banner_link,
+        content_position: 'bottom-left',
+        span_desktop: 3
+      %}
+      {% render 'custom-menu-column', heading: s.asym_col_2_heading, menu: s.asym_col_2_menu, span_desktop: 1 %}
+
+    {% when 'promo' %}
+      {% capture promo_tiers %}
+        {% render 'custom-menu-promo-tier', icon: s.promo_tier_1_icon, title: s.promo_tier_1_title, text: s.promo_tier_1_text %}
+        {% render 'custom-menu-promo-tier', icon: s.promo_tier_2_icon, title: s.promo_tier_2_title, text: s.promo_tier_2_text %}
+        {% render 'custom-menu-promo-tier', icon: s.promo_tier_3_icon, title: s.promo_tier_3_title, text: s.promo_tier_3_text %}
+      {% endcapture %}
+      {% render 'custom-menu-promo',
+        image: s.promo_image,
+        heading: s.promo_heading,
+        subheading: s.promo_subheading,
+        text: s.promo_text,
+        cta_label: s.promo_cta_label,
+        cta_link: s.promo_cta_link,
+        span_desktop: 8,
+        tiers_content: promo_tiers
+      %}
+      {% render 'custom-menu-banner',
+        image: s.promo_banner_image,
+        heading: s.promo_banner_heading,
+        text: s.promo_banner_text,
+        cta_label: s.promo_banner_cta_label,
+        link: s.promo_banner_link,
+        content_position: 'center',
+        span_desktop: 4
+      %}
+
+    {% when 'sale' %}
+      {% render 'custom-menu-column', heading: s.sale_col_1_heading, menu: s.sale_col_1_menu, bold_last_link: true, span_desktop: 1 %}
+      {% render 'custom-menu-column', heading: s.sale_col_2_heading, menu: s.sale_col_2_menu, bold_last_link: true, span_desktop: 2 %}
+      {% render 'custom-menu-column', heading: s.sale_col_3_heading, menu: s.sale_col_3_menu, bold_last_link: true, span_desktop: 1 %}
+      {% capture sale_cards %}
+        {% render 'custom-menu-card', image: s.sale_card_1_image, label: s.sale_card_1_label, link: s.sale_card_1_link %}
+        {% render 'custom-menu-card', image: s.sale_card_2_image, label: s.sale_card_2_label, link: s.sale_card_2_link %}
+        {% render 'custom-menu-card', image: s.sale_card_3_image, label: s.sale_card_3_label, link: s.sale_card_3_link %}
+      {% endcapture %}
+      {% render 'custom-menu-card-group', heading: s.sale_cards_heading, span_desktop: 5, content: sale_cards %}
+      {% render 'custom-menu-banner',
+        image: s.sale_banner_image,
+        heading: s.sale_banner_heading,
+        text: s.sale_banner_text,
+        link: s.sale_banner_link,
+        content_position: 'center',
+        span_desktop: 3
+      %}
+  {% endcase %}
 {% endcapture %}
 {% assign panel_content = panel_content | strip %}
 
 <li
   role="presentation"
-  class="menu-list__list-item custom-menu-item{% if item_settings.highlight %} custom-menu-item--highlight{% endif %}"
+  class="menu-list__list-item custom-menu-item{% if s.highlight %} custom-menu-item--highlight{% endif %}"
   on:focus="/activate"
   on:blur="/deactivate"
   on:pointerenter="/activate"
   on:pointerleave="/deactivate"
-  {% if item_settings.highlight %}
-    style="--menu-highlight-background: {{ item_settings.highlight_background_color }}; --menu-highlight-text: {{ item_settings.highlight_text_color }};"
+  {% if s.highlight %}
+    style="--menu-highlight-background: {{ s.highlight_background_color }}; --menu-highlight-text: {{ s.highlight_text_color }};"
   {% endif %}
   {{ block.shopify_attributes }}
 >
   <a
-    href="{{ item_settings.link | default: '#' }}"
+    href="{{ s.link | default: '#' }}"
     data-skip-node-update="true"
     class="menu-list__link custom-menu-item__link"
     {%- if panel_content != blank -%}
@@ -41,12 +122,12 @@
       aria-haspopup="true"
       aria-expanded="false"
     {%- endif -%}
-    {%- if item_settings.link == request.path -%}
+    {%- if s.link == request.path -%}
       aria-current="page"
     {%- endif -%}
     ref="menuitem"
   >
-    <span class="menu-list__link-title">{{ item_settings.label }}</span>
+    <span class="menu-list__link-title">{{ s.label }}</span>
   </a>
   {%- comment -%}
     MOXIE: tab del drawer mobile — oculto en desktop vía CSS. on:click resuelve contra el
@@ -61,7 +142,7 @@
       aria-controls="{{ panel_id }}"
     {% endif %}
   >
-    {{ item_settings.label }}
+    {{ s.label }}
   </button>
   {%- if panel_content != blank -%}
     {%- comment -%}
@@ -87,23 +168,6 @@
 {
   "name": "Moxie Ítem de menú",
   "tag": null,
-  "blocks": [
-    {
-      "type": "_custom_menu-column"
-    },
-    {
-      "type": "_custom_menu-card"
-    },
-    {
-      "type": "_custom_menu-card-group"
-    },
-    {
-      "type": "_custom_menu-banner"
-    },
-    {
-      "type": "_custom_menu-promo"
-    }
-  ],
   "settings": [
     {
       "type": "text",
@@ -115,6 +179,31 @@
       "type": "url",
       "id": "link",
       "label": "Enlace"
+    },
+    {
+      "type": "select",
+      "id": "menu_layout",
+      "label": "Tipo de submenú",
+      "info": "Los 4 layouts de dropdown que soporta el diseño. Elegir uno revela solo sus campos de contenido — la estructura no se puede modificar desde acá.",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Columnas + Ocasiones (ej. Ropa)"
+        },
+        {
+          "value": "asymmetric",
+          "label": "Colecciones (asimétrico)"
+        },
+        {
+          "value": "promo",
+          "label": "Promoción membresía (ej. Naf&Me)"
+        },
+        {
+          "value": "sale",
+          "label": "Columnas + Cards + Banner (ej. Sale)"
+        }
+      ],
+      "default": "grid"
     },
     {
       "type": "header",
@@ -140,6 +229,529 @@
       "label": "Color de texto",
       "default": "#000000",
       "visible_if": "{{ block.settings.highlight }}"
+    },
+    {
+      "type": "header",
+      "content": "Contenido — Columnas + Ocasiones",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "text",
+      "id": "grid_col_1_heading",
+      "label": "Columna 1 — Título",
+      "default": "Trending",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "link_list",
+      "id": "grid_col_1_menu",
+      "label": "Columna 1 — Menú",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "text",
+      "id": "grid_col_2_heading",
+      "label": "Columna 2 — Título",
+      "default": "Prendas",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "link_list",
+      "id": "grid_col_2_menu",
+      "label": "Columna 2 — Menú",
+      "info": "El último enlace del menú se muestra en negrita (ej. \"Ver todo\").",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "text",
+      "id": "grid_col_3_heading",
+      "label": "Columna 3 — Título",
+      "default": "Denim",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "link_list",
+      "id": "grid_col_3_menu",
+      "label": "Columna 3 — Menú",
+      "info": "El último enlace del menú se muestra en negrita (ej. \"Ver todo\").",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "text",
+      "id": "grid_col_4_heading",
+      "label": "Columna 4 — Título",
+      "default": "Accesorios",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "link_list",
+      "id": "grid_col_4_menu",
+      "label": "Columna 4 — Menú",
+      "info": "El último enlace del menú se muestra en negrita (ej. \"Ver todo\").",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "text",
+      "id": "grid_occasions_heading",
+      "label": "Cards — Título del grupo",
+      "default": "Por Ocasiones de Uso",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "grid_occasion_1_image",
+      "label": "Card 1 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "text",
+      "id": "grid_occasion_1_label",
+      "label": "Card 1 — Etiqueta",
+      "default": "Dailywear",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "url",
+      "id": "grid_occasion_1_link",
+      "label": "Card 1 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "grid_occasion_2_image",
+      "label": "Card 2 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "text",
+      "id": "grid_occasion_2_label",
+      "label": "Card 2 — Etiqueta",
+      "default": "Going Out",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "url",
+      "id": "grid_occasion_2_link",
+      "label": "Card 2 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "grid_occasion_3_image",
+      "label": "Card 3 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "text",
+      "id": "grid_occasion_3_label",
+      "label": "Card 3 — Etiqueta",
+      "default": "Holiday",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "url",
+      "id": "grid_occasion_3_link",
+      "label": "Card 3 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "grid_occasion_4_image",
+      "label": "Card 4 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "text",
+      "id": "grid_occasion_4_label",
+      "label": "Card 4 — Etiqueta",
+      "default": "Workleisure",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "url",
+      "id": "grid_occasion_4_link",
+      "label": "Card 4 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'grid' }}"
+    },
+    {
+      "type": "header",
+      "content": "Contenido — Colecciones",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "asym_card_1_image",
+      "label": "Card 1 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "text",
+      "id": "asym_card_1_label",
+      "label": "Card 1 — Etiqueta",
+      "default": "Dreamy",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "url",
+      "id": "asym_card_1_link",
+      "label": "Card 1 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "asym_card_2_image",
+      "label": "Card 2 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "text",
+      "id": "asym_card_2_label",
+      "label": "Card 2 — Etiqueta",
+      "default": "Dazzle",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "url",
+      "id": "asym_card_2_link",
+      "label": "Card 2 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "asym_card_3_image",
+      "label": "Card 3 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "text",
+      "id": "asym_card_3_label",
+      "label": "Card 3 — Etiqueta",
+      "default": "La Vacanza",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "url",
+      "id": "asym_card_3_link",
+      "label": "Card 3 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "text",
+      "id": "asym_col_1_heading",
+      "label": "Columna 1 — Título",
+      "default": "Colecciones",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "link_list",
+      "id": "asym_col_1_menu",
+      "label": "Columna 1 — Menú",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "asym_banner_image",
+      "label": "Banner — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "text",
+      "id": "asym_banner_heading",
+      "label": "Banner — Título",
+      "default": "Fashion Edit",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "url",
+      "id": "asym_banner_link",
+      "label": "Banner — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "text",
+      "id": "asym_col_2_heading",
+      "label": "Columna 2 — Título",
+      "default": "Diseñadoras",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "link_list",
+      "id": "asym_col_2_menu",
+      "label": "Columna 2 — Menú",
+      "visible_if": "{{ block.settings.menu_layout == 'asymmetric' }}"
+    },
+    {
+      "type": "header",
+      "content": "Contenido — Promoción membresía",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "promo_image",
+      "label": "Imagen lateral",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_heading",
+      "label": "Título",
+      "default": "Naf&Me",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_subheading",
+      "label": "Subtítulo",
+      "default": "Tu programa de beneficios NAF NAF",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "richtext",
+      "id": "promo_text",
+      "label": "Descripción",
+      "default": "<p>Vive una experiencia exclusiva con beneficios, descuentos y acceso a momentos especiales por ser parte de nuestra comunidad.</p>",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_cta_label",
+      "label": "Texto del botón",
+      "default": "Conoce el universo Naf&Me",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "url",
+      "id": "promo_cta_link",
+      "label": "Enlace del botón",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "promo_tier_1_icon",
+      "label": "Tier 1 — Ícono",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_tier_1_title",
+      "label": "Tier 1 — Nombre",
+      "default": "MEMBER",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_tier_1_text",
+      "label": "Tier 1 — Descripción",
+      "default": "Tu entrada a NAF&ME.",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "promo_tier_2_icon",
+      "label": "Tier 2 — Ícono",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_tier_2_title",
+      "label": "Tier 2 — Nombre",
+      "default": "SILVER",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_tier_2_text",
+      "label": "Tier 2 — Descripción",
+      "default": "Más compras, más beneficios.",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "promo_tier_3_icon",
+      "label": "Tier 3 — Ícono",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_tier_3_title",
+      "label": "Tier 3 — Nombre",
+      "default": "BLACK",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_tier_3_text",
+      "label": "Tier 3 — Descripción",
+      "default": "El más exclusivo de la comunidad.",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "promo_banner_image",
+      "label": "Banner — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_banner_heading",
+      "label": "Banner — Título",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_banner_text",
+      "label": "Banner — Texto",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "text",
+      "id": "promo_banner_cta_label",
+      "label": "Banner — Texto del botón",
+      "default": "Quiero mi 25%dcto",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "url",
+      "id": "promo_banner_link",
+      "label": "Banner — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'promo' }}"
+    },
+    {
+      "type": "header",
+      "content": "Contenido — Columnas + Cards + Banner",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "text",
+      "id": "sale_col_1_heading",
+      "label": "Columna 1 — Título",
+      "default": "Sale",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "link_list",
+      "id": "sale_col_1_menu",
+      "label": "Columna 1 — Menú",
+      "info": "El último enlace del menú se muestra en negrita (ej. \"Best Sale\").",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "text",
+      "id": "sale_col_2_heading",
+      "label": "Columna 2 — Título",
+      "default": "Precio",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "link_list",
+      "id": "sale_col_2_menu",
+      "label": "Columna 2 — Menú",
+      "info": "El último enlace del menú se muestra en negrita (ej. \"Ver todo\").",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "text",
+      "id": "sale_col_3_heading",
+      "label": "Columna 3 — Título",
+      "default": "Ropa",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "link_list",
+      "id": "sale_col_3_menu",
+      "label": "Columna 3 — Menú",
+      "info": "El último enlace del menú se muestra en negrita (ej. \"Ver todo\").",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "text",
+      "id": "sale_cards_heading",
+      "label": "Cards — Título del grupo",
+      "default": "Explora tus favoritos",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "sale_card_1_image",
+      "label": "Card 1 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "text",
+      "id": "sale_card_1_label",
+      "label": "Card 1 — Etiqueta",
+      "default": "Tejidos",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "url",
+      "id": "sale_card_1_link",
+      "label": "Card 1 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "sale_card_2_image",
+      "label": "Card 2 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "text",
+      "id": "sale_card_2_label",
+      "label": "Card 2 — Etiqueta",
+      "default": "Camisas",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "url",
+      "id": "sale_card_2_link",
+      "label": "Card 2 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "sale_card_3_image",
+      "label": "Card 3 — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "text",
+      "id": "sale_card_3_label",
+      "label": "Card 3 — Etiqueta",
+      "default": "Pantalones",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "url",
+      "id": "sale_card_3_link",
+      "label": "Card 3 — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "sale_banner_image",
+      "label": "Banner — Imagen",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "text",
+      "id": "sale_banner_heading",
+      "label": "Banner — Título",
+      "default": "días naf",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "text",
+      "id": "sale_banner_text",
+      "label": "Banner — Texto",
+      "default": "ref. selec hasta 50%dcto",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
+    },
+    {
+      "type": "url",
+      "id": "sale_banner_link",
+      "label": "Banner — Enlace",
+      "visible_if": "{{ block.settings.menu_layout == 'sale' }}"
     }
   ]
 }

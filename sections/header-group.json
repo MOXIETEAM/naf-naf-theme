@@ -177,235 +177,56 @@
               "settings": {
                 "label": "ROPA",
                 "link": "",
-                "highlight": false
+                "highlight": false,
+                "menu_layout": "grid",
+                "grid_col_1_heading": "Trending",
+                "grid_col_2_heading": "Prendas",
+                "grid_col_3_heading": "Denim",
+                "grid_col_4_heading": "Accesorios",
+                "grid_occasions_heading": "Por Ocasiones de Uso",
+                "grid_occasion_1_label": "Dailywear",
+                "grid_occasion_2_label": "Going Out",
+                "grid_occasion_3_label": "Holiday",
+                "grid_occasion_4_label": "Workleisure"
               },
-              "blocks": {
-                "ropa-col-trending": {
-                  "type": "_custom_menu-column",
-                  "settings": {
-                    "heading": "Trending",
-                    "span_desktop": "1"
-                  },
-                  "blocks": {}
-                },
-                "ropa-col-prendas": {
-                  "type": "_custom_menu-column",
-                  "settings": {
-                    "heading": "Prendas",
-                    "bold_last_link": true,
-                    "span_desktop": "1"
-                  },
-                  "blocks": {}
-                },
-                "ropa-col-denim": {
-                  "type": "_custom_menu-column",
-                  "settings": {
-                    "heading": "Denim",
-                    "bold_last_link": true,
-                    "span_desktop": "1"
-                  },
-                  "blocks": {}
-                },
-                "ropa-col-accesorios": {
-                  "type": "_custom_menu-column",
-                  "settings": {
-                    "heading": "Accesorios",
-                    "bold_last_link": true,
-                    "span_desktop": "1"
-                  },
-                  "blocks": {}
-                },
-                "ropa-ocasiones": {
-                  "type": "_custom_menu-card-group",
-                  "settings": {
-                    "heading": "Por Ocasiones de Uso",
-                    "span_desktop": "8"
-                  },
-                  "blocks": {
-                    "ropa-card-dailywear": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "Dailywear"
-                      },
-                      "blocks": {}
-                    },
-                    "ropa-card-goingout": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "Going Out"
-                      },
-                      "blocks": {}
-                    },
-                    "ropa-card-holiday": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "Holiday"
-                      },
-                      "blocks": {}
-                    },
-                    "ropa-card-workleisure": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "Workleisure"
-                      },
-                      "blocks": {}
-                    }
-                  },
-                  "block_order": [
-                    "ropa-card-dailywear",
-                    "ropa-card-goingout",
-                    "ropa-card-holiday",
-                    "ropa-card-workleisure"
-                  ]
-                }
-              },
-              "block_order": [
-                "ropa-col-trending",
-                "ropa-col-prendas",
-                "ropa-col-denim",
-                "ropa-col-accesorios",
-                "ropa-ocasiones"
-              ]
+              "blocks": {}
             },
             "menu-item-colecciones": {
               "type": "_custom_menu-item",
               "settings": {
                 "label": "COLECCIONES",
                 "link": "",
-                "highlight": false
+                "highlight": false,
+                "menu_layout": "asymmetric",
+                "asym_card_1_label": "Dreamy",
+                "asym_card_2_label": "Dazzle",
+                "asym_card_3_label": "La Vacanza",
+                "asym_col_1_heading": "Colecciones",
+                "asym_banner_heading": "Fashion Edit",
+                "asym_col_2_heading": "Diseñadoras"
               },
-              "blocks": {
-                "colecciones-cards": {
-                  "type": "_custom_menu-card-group",
-                  "settings": {
-                    "heading": "",
-                    "span_desktop": "6"
-                  },
-                  "blocks": {
-                    "colecciones-card-1": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "Dreamy"
-                      },
-                      "blocks": {}
-                    },
-                    "colecciones-card-2": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "Dazzle"
-                      },
-                      "blocks": {}
-                    },
-                    "colecciones-card-3": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "La Vacanza"
-                      },
-                      "blocks": {}
-                    }
-                  },
-                  "block_order": [
-                    "colecciones-card-1",
-                    "colecciones-card-2",
-                    "colecciones-card-3"
-                  ]
-                },
-                "colecciones-col-1": {
-                  "type": "_custom_menu-column",
-                  "settings": {
-                    "heading": "Colecciones",
-                    "span_desktop": "2"
-                  },
-                  "blocks": {}
-                },
-                "colecciones-banner": {
-                  "type": "_custom_menu-banner",
-                  "settings": {
-                    "heading": "Fashion Edit",
-                    "content_position": "bottom-left",
-                    "span_desktop": "3"
-                  },
-                  "blocks": {}
-                },
-                "colecciones-col-2": {
-                  "type": "_custom_menu-column",
-                  "settings": {
-                    "heading": "Diseñadoras",
-                    "span_desktop": "1"
-                  },
-                  "blocks": {}
-                }
-              },
-              "block_order": [
-                "colecciones-cards",
-                "colecciones-col-1",
-                "colecciones-banner",
-                "colecciones-col-2"
-              ]
+              "blocks": {}
             },
             "menu-item-nafme": {
               "type": "_custom_menu-item",
               "settings": {
                 "label": "NAF&ME",
                 "link": "",
-                "highlight": false
+                "highlight": false,
+                "menu_layout": "promo",
+                "promo_heading": "Naf&Me",
+                "promo_subheading": "Tu programa de beneficios NAF NAF",
+                "promo_text": "<p>Vive una experiencia exclusiva con beneficios, descuentos y acceso a momentos especiales por ser parte de nuestra comunidad.</p><ul><li>Descuento de cumpleaños</li><li>Descuentos exclusivos</li><li>Preventas y lanzamientos</li><li>Eventos especiales</li><li>Envíos gratis</li><li>Beneficios con aliados</li></ul>",
+                "promo_cta_label": "Conoce el universo Naf&Me",
+                "promo_tier_1_title": "MEMBER",
+                "promo_tier_1_text": "Tu entrada a NAF&ME.",
+                "promo_tier_2_title": "SILVER",
+                "promo_tier_2_text": "Más compras, más beneficios.",
+                "promo_tier_3_title": "BLACK",
+                "promo_tier_3_text": "El más exclusivo de la comunidad.",
+                "promo_banner_cta_label": "Quiero mi 25%dcto"
               },
-              "blocks": {
-                "nafme-promo": {
-                  "type": "_custom_menu-promo",
-                  "settings": {
-                    "heading": "Naf&Me",
-                    "subheading": "Tu programa de beneficios NAF NAF",
-                    "text": "<p>Vive una experiencia exclusiva con beneficios, descuentos y acceso a momentos especiales por ser parte de nuestra comunidad.</p><ul><li>Descuento de cumpleaños</li><li>Descuentos exclusivos</li><li>Preventas y lanzamientos</li><li>Eventos especiales</li><li>Envíos gratis</li><li>Beneficios con aliados</li></ul>",
-                    "cta_label": "Conoce el universo Naf&Me",
-                    "span_desktop": "8"
-                  },
-                  "blocks": {
-                    "nafme-tier-member": {
-                      "type": "_custom_menu-promo-tier",
-                      "settings": {
-                        "title": "MEMBER",
-                        "text": "Tu entrada a NAF&ME."
-                      },
-                      "blocks": {}
-                    },
-                    "nafme-tier-silver": {
-                      "type": "_custom_menu-promo-tier",
-                      "settings": {
-                        "title": "SILVER",
-                        "text": "Más compras, más beneficios."
-                      },
-                      "blocks": {}
-                    },
-                    "nafme-tier-black": {
-                      "type": "_custom_menu-promo-tier",
-                      "settings": {
-                        "title": "BLACK",
-                        "text": "El más exclusivo de la comunidad."
-                      },
-                      "blocks": {}
-                    }
-                  },
-                  "block_order": [
-                    "nafme-tier-member",
-                    "nafme-tier-silver",
-                    "nafme-tier-black"
-                  ]
-                },
-                "nafme-banner": {
-                  "type": "_custom_menu-banner",
-                  "settings": {
-                    "cta_label": "Quiero mi 25%dcto",
-                    "content_position": "center",
-                    "span_desktop": "4"
-                  },
-                  "blocks": {}
-                }
-              },
-              "block_order": [
-                "nafme-promo",
-                "nafme-banner"
-              ]
+              "blocks": {}
             },
             "menu-item-sale": {
               "type": "_custom_menu-item",
@@ -414,89 +235,19 @@
                 "link": "",
                 "highlight": true,
                 "highlight_background_color": "#ffffff",
-                "highlight_text_color": "#000000"
+                "highlight_text_color": "#000000",
+                "menu_layout": "sale",
+                "sale_col_1_heading": "Sale",
+                "sale_col_2_heading": "Precio",
+                "sale_col_3_heading": "Ropa",
+                "sale_cards_heading": "Explora tus favoritos",
+                "sale_card_1_label": "Tejidos",
+                "sale_card_2_label": "Camisas",
+                "sale_card_3_label": "Pantalones",
+                "sale_banner_heading": "días naf",
+                "sale_banner_text": "ref. selec hasta 50%dcto"
               },
-              "blocks": {
-                "sale-col-sale": {
-                  "type": "_custom_menu-column",
-                  "settings": {
-                    "heading": "Sale",
-                    "bold_last_link": true,
-                    "span_desktop": "1"
-                  },
-                  "blocks": {}
-                },
-                "sale-col-precio": {
-                  "type": "_custom_menu-column",
-                  "settings": {
-                    "heading": "Precio",
-                    "bold_last_link": true,
-                    "span_desktop": "2"
-                  },
-                  "blocks": {}
-                },
-                "sale-col-ropa": {
-                  "type": "_custom_menu-column",
-                  "settings": {
-                    "heading": "Ropa",
-                    "bold_last_link": true,
-                    "span_desktop": "1"
-                  },
-                  "blocks": {}
-                },
-                "sale-favoritos": {
-                  "type": "_custom_menu-card-group",
-                  "settings": {
-                    "heading": "Explora tus favoritos",
-                    "span_desktop": "5"
-                  },
-                  "blocks": {
-                    "sale-card-tejidos": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "Tejidos"
-                      },
-                      "blocks": {}
-                    },
-                    "sale-card-camisas": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "Camisas"
-                      },
-                      "blocks": {}
-                    },
-                    "sale-card-pantalones": {
-                      "type": "_custom_menu-card",
-                      "settings": {
-                        "label": "Pantalones"
-                      },
-                      "blocks": {}
-                    }
-                  },
-                  "block_order": [
-                    "sale-card-tejidos",
-                    "sale-card-camisas",
-                    "sale-card-pantalones"
-                  ]
-                },
-                "sale-banner": {
-                  "type": "_custom_menu-banner",
-                  "settings": {
-                    "heading": "días naf",
-                    "text": "ref. selec hasta 50%dcto",
-                    "content_position": "center",
-                    "span_desktop": "3"
-                  },
-                  "blocks": {}
-                }
-              },
-              "block_order": [
-                "sale-col-sale",
-                "sale-col-precio",
-                "sale-col-ropa",
-                "sale-favoritos",
-                "sale-banner"
-              ]
+              "blocks": {}
             },
             "utility-ubicacion": {
               "type": "_custom_menu-utility-link",
@@ -572,7 +323,7 @@
         "bubble_background_color": "",
         "bubble_text_color": "",
         "enable_transparent_header_home": true,
-        "home_inverse_logo": false,
+        "home_inverse_logo": true,
         "text_color_transparent_home": "{{ settings.color_palette.background }}",
         "enable_transparent_header_product": false,
         "product_inverse_logo": false,

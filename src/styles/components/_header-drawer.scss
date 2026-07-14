@@ -70,7 +70,15 @@
     --color-foreground-rgb: 20 20 20;
 
     position: fixed;
-    inset: var(--header-height, 60px) 0 0;
+    inset-inline: 0;
+    // MOXIE: no usar `inset` con top+bottom para derivar la altura — el
+    // ancestro #header-component nativo tiene `contain: layout style`
+    // (sections/header.liquid), lo que lo convierte en containing block
+    // de este `position: fixed` en vez del viewport. Con top+bottom la
+    // altura se calcularía contra los 60px del header, no del viewport,
+    // colapsando el panel a 0px. Altura explícita contra 100dvh evita eso.
+    top: var(--header-height, 60px);
+    height: calc(100dvh - var(--header-height, 60px));
     z-index: var(--layer-header-menu, 3);
     display: flex;
     flex-direction: column;
@@ -167,10 +175,17 @@
     display: none;
     order: 2;
     width: 100%;
-    position: static;
+
+    // MOXIE: el {% stylesheet %} nativo copiado en blocks/_custom_menu.liquid (dropdown
+    // desktop) define `.menu-list__submenu` con la MISMA especificidad (2 clases) que esta
+    // regla — el empate lo gana el que se inyecta más tarde en el <head>, que no es
+    // predecible entre un stylesheet de sección y este archivo SCSS. Sin !important el
+    // panel del tab heredaba `position: absolute` + `clip-path` del desktop y quedaba
+    // literalmente fuera del viewport (bug encontrado en sesión de QA mobile).
+    position: static !important;
+    clip-path: none !important;
+    transition: none !important;
     visibility: visible;
-    clip-path: none;
-    transition: none;
   }
 
   .custom-menu-item[data-active] > .custom-menu-item__panel {
@@ -246,7 +261,10 @@
 
     .custom-menu-column__panel {
       position: fixed;
-      inset: var(--header-height, 60px) 0 0;
+      inset-inline: 0;
+      // MOXIE: mismo problema de containing block que .custom-menu-drawer__panel arriba.
+      top: var(--header-height, 60px);
+      height: calc(100dvh - var(--header-height, 60px));
       z-index: calc(var(--layer-header-menu, 3) + 1);
       overflow-y: auto;
       padding: 0 16px 24px;

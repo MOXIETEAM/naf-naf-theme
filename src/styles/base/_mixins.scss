@@ -17,7 +17,10 @@
 @function fluid($px) {
   $ratio: math.div(vars.$min-w, vars.$ref-w);
   $min: math.round($px * $ratio);
-  $vw: math.div(math.round(math.div($px, vars.$ref-w) * 10000), 100);
+  // math.div necesita $ref-w sin unidad — dividir un número unitless por un valor en
+  // px produce una unidad "1/px" que Dart Sass no puede interpolar como número plano
+  // (cae a un calc() de texto roto, ej. "calc(0.83 / 1px)vw", CSS inválido).
+  $vw: math.div(math.round(math.div($px, math.div(vars.$ref-w, 1px)) * 10000), 100);
   @return string.unquote("clamp(#{$min}px, #{$vw}vw, #{$px}px)");
 }
 
@@ -26,6 +29,6 @@
 // Uso:  font-size: fluid-type(16);  →  clamp(13.6px, 1.11vw, 16px)
 @function fluid-type($px) {
   $min: math.round($px * 0.85);
-  $vw: math.div(math.round(math.div($px, vars.$ref-w) * 10000), 100);
+  $vw: math.div(math.round(math.div($px, math.div(vars.$ref-w, 1px)) * 10000), 100);
   @return string.unquote("clamp(#{$min}px, #{$vw}vw, #{$px}px)");
 }
