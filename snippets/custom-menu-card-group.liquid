@@ -1,0 +1,25 @@
+{%- doc -%}
+  Grupo de cards del mega menu custom Moxie (ej. "POR OCASIONES DE USO" / "EXPLORA TUS FAVORITOS").
+
+  Snippet reutilizado por los 4 tipos fijos de `_custom_menu-item` (Fase 3 — layouts rígidos,
+  reemplaza al antiguo block `_custom_menu-card-group`). En desktop: título + fila de cards en
+  sub-grilla uniforme. En el drawer mobile: los cards pasan a scroll horizontal (CSS).
+
+  @param {string} [heading] - Título del grupo.
+  @param {number} [span_desktop] - Columnas de la grilla de 12 que ocupa en desktop.
+  @param {string} content - Markup ya renderizado de los cards (capturar con `custom-menu-card`).
+  @param {string} [block_attributes] - `block.shopify_attributes` del theme block que renderiza este snippet.
+{%- enddoc -%}
+
+<div
+  class="custom-menu-card-group"
+  style="--custom-menu-span: {{ span_desktop | default: 8 }};"
+  {{ block_attributes }}
+>
+  {%- if heading != blank -%}
+    <p class="custom-menu-card-group__heading">{{ heading }}</p>
+  {%- endif -%}
+  <div class="custom-menu-card-group__cards">
+    {{ content }}
+  </div>
+</div>

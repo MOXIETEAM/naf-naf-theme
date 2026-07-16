@@ -1,0 +1,64 @@
+{%- doc -%}
+  Banner de imagen del mega menu custom Moxie (ej. "FASHION EDIT" / "días naf ... 50%dcto").
+
+  Snippet reutilizado por los 4 tipos fijos de `_custom_menu-item` (Fase 3 — layouts rígidos,
+  reemplaza al antiguo block `_custom_menu-banner`). Imagen grande con texto overlay (heading +
+  texto + CTA opcional). Si hay link, todo el banner es clickeable.
+
+  La imagen SIEMPRE lleva width/height explícitos: assets/header-menu.js mide offsetHeight del
+  submenu para la animación de apertura.
+
+  @param {object} [image] - Imagen del banner.
+  @param {string} [heading] - Título overlay.
+  @param {string} [text] - Texto overlay.
+  @param {string} [cta_label] - Texto del CTA visual (sin acción propia, ver comentario en block original).
+  @param {string} [link] - Enlace de todo el banner.
+  @param {string} content_position - 'bottom-left' | 'center' | 'bottom-right', fijo por tipo.
+  @param {number} [span_desktop] - Columnas de la grilla de 12 que ocupa en desktop.
+  @param {string} [block_attributes] - `block.shopify_attributes` del theme block que renderiza este snippet.
+{%- enddoc -%}
+
+{% liquid
+  if link != blank
+    assign banner_tag = 'a'
+  else
+    assign banner_tag = 'div'
+  endif
+%}
+
+<{{ banner_tag }}
+  {% if link != blank %}
+    href="{{ link }}"
+  {% endif %}
+  class="custom-menu-banner"
+  style="--custom-menu-span: {{ span_desktop | default: 4 }};"
+  {{ block_attributes }}
+>
+  <div class="custom-menu-banner__media">
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: 1000
+        | image_tag: widths: '480, 640, 800, 1000', sizes: '(min-width: 990px) 30vw, 100vw', class: 'custom-menu-banner__image'
+      }}
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'custom-menu-banner__image custom-menu-banner__image--placeholder' }}
+    {%- endif -%}
+  </div>
+  {%- if heading != blank or text != blank or cta_label != blank -%}
+    <div class="custom-menu-banner__content custom-menu-banner__content--{{ content_position }}">
+      {%- if heading != blank -%}
+        <p class="custom-menu-banner__heading">{{ heading }}</p>
+      {%- endif -%}
+      {%- if text != blank -%}
+        <p class="custom-menu-banner__text">{{ text }}</p>
+      {%- endif -%}
+      {%- if cta_label != blank -%}
+        <span class="custom-menu-banner__cta">
+          {{ cta_label }}
+          <span class="custom-menu-banner__cta-icon">{{ 'icon-chevron-right.svg' | inline_asset_content }}</span>
+        </span>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</{{ banner_tag }}>

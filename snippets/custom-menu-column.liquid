@@ -1,0 +1,78 @@
+{%- doc -%}
+  Columna de links del mega menu custom Moxie (ej. TRENDING / PRENDAS / DENIM).
+
+  Snippet reutilizado por los 4 tipos fijos de `_custom_menu-item` (Fase 3 — layouts rígidos,
+  reemplaza al antiguo block `_custom_menu-column`). Los links vienen de un menú de
+  Admin → Navegación (link_list).
+
+  Doble renderizado con el mismo markup:
+  - Desktop: título + lista de links visible en la grilla del dropdown.
+  - Drawer mobile: fila con chevron (drill-down) que abre el panel con los links a pantalla
+    completa con botón "back" — CSS/JS del drawer adaptan, este snippet no sabe de variantes.
+
+  @param {string} [heading] - Título visible de la columna.
+  @param {object} [menu] - link_list de Admin → Navegación con los enlaces de esta columna.
+  @param {boolean} [bold_last_link] - Resalta en negrita el último enlace (ej. "Ver todo").
+  @param {number} [span_desktop] - Columnas de la grilla de 12 que ocupa en desktop.
+  @param {string} [block_attributes] - `block.shopify_attributes` del theme block que renderiza este snippet (selección/drag en el editor).
+
+  MOXIE (Fase 2.5): sin menú asignado y fuera del editor, la columna no renderiza nada — evita un
+  heading flotando sobre un hueco vacío cuando el merchant agrega el bloque pero no asigna un link_list.
+{%- enddoc -%}
+
+{%- if menu.links.size > 0 or request.design_mode -%}
+<div
+  class="custom-menu-column{% if bold_last_link %} custom-menu-column--bold-last{% endif %}"
+  style="--custom-menu-span: {{ span_desktop | default: 1 }};"
+  {{ block_attributes }}
+>
+  {%- if heading != blank -%}
+    <p class="custom-menu-column__heading">{{ heading }}</p>
+  {%- endif -%}
+
+  <button
+    type="button"
+    class="custom-menu-column__drill-row button-unstyled"
+    on:click="/drillDown"
+  >
+    <span>{{ heading | default: menu.title }}</span>
+    <span class="custom-menu-column__drill-icon">{{ 'icon-chevron-right.svg' | inline_asset_content }}</span>
+  </button>
+
+  <div class="custom-menu-column__panel" data-drill-panel>
+    <button
+      type="button"
+      class="custom-menu-column__back button-unstyled"
+      on:click="/drillBack"
+    >
+      <span class="custom-menu-column__back-icon">{{ 'icon-chevron-left.svg' | inline_asset_content }}</span>
+      <span>{{ heading | default: menu.title }}</span>
+    </button>
+
+    <ul class="custom-menu-column__list list-unstyled">
+      {%- if menu.links.size > 0 -%}
+        {%- for link in menu.links -%}
+          <li class="custom-menu-column__list-item">
+            <a
+              href="{{ link.url }}"
+              class="custom-menu-column__link"
+              {% if link.current %}
+                aria-current="page"
+              {% endif %}
+            >
+              {{- link.title -}}
+            </a>
+          </li>
+        {%- endfor -%}
+      {%- elsif request.design_mode -%}
+        {%- comment -%} Placeholders solo en el editor: el layout es visible sin menú asignado; en producción no se renderiza nada. {%- endcomment -%}
+        {%- for i in (1..4) -%}
+          <li class="custom-menu-column__list-item">
+            <span class="custom-menu-column__link custom-menu-column__link--placeholder">Enlace {{ i }}</span>
+          </li>
+        {%- endfor -%}
+      {%- endif -%}
+    </ul>
+  </div>
+</div>
+{%- endif -%}

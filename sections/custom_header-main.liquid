@@ -82,16 +82,16 @@
     content_for 'block', type: '_header-logo', id: 'header-logo-main'
   endcapture
 
+  # MOXIE: Fase 2 — el menú ya no es el _header-menu nativo sino el menú custom de bloques
+  # anidados (blocks/_custom_menu.liquid): mega menu desktop + drawer con tabs. Mismo id
+  # estático con variant distinta (patrón nativo, válido para UniqueStaticBlockId).
+  # La variante navigation_bar se eliminó: el Figma no la usa, el fallback mobile es siempre el drawer.
   capture menu
-    content_for 'block', type: '_header-menu', id: 'header-menu-main'
+    content_for 'block', type: '_custom_menu', id: 'custom-menu-main'
   endcapture
 
   capture drawer_menu
-    content_for 'block', type: '_header-menu', id: 'header-menu-main', variant: 'mobile'
-  endcapture
-
-  capture navigation_bar
-    content_for 'block', type: '_header-menu', id: 'header-menu-main', variant: 'navigation_bar', transparent: transparent
+    content_for 'block', type: '_custom_menu', id: 'custom-menu-main', variant: 'mobile'
   endcapture
 
   capture actions
@@ -325,10 +325,10 @@
   MOXIE: id="header-component" intencionalmente idéntico al nativo — layout/theme.liquid y assets/utilities.js
   dependen de este ID global; esta sección reemplaza, no coexiste con, la nativa cuando se wiree en header-group.json.
 
-  MOXIE: los static block ids se renombraron a "header-logo-main"/"header-menu-main" (en vez de "header-logo"/
-  "header-menu" del original) solo por claridad de cara al wireo futuro en header-group.json — no había colisión
-  real con sections/header.liquid (cada instancia de sección tiene su propio namespace de "blocks" en el JSON).
-  Al wirear, la entrada "blocks" de esta sección debe usar estos mismos ids nuevos.
+  MOXIE: los static block ids son propios de esta sección: "header-logo-main" (logo nativo) y
+  "custom-menu-main" (menú custom Fase 2, blocks/_custom_menu.liquid) — no hay colisión con
+  sections/header.liquid (cada instancia de sección tiene su propio namespace de "blocks" en el JSON).
+  La entrada "blocks" en header-group.json debe usar estos mismos ids.
 {%- endcomment -%}
 <header-component
   id="header-component"
@@ -463,12 +463,6 @@
       </div>
     {% endif %}
   {% endfor %}
-
-  {% if navigation_bar != blank %}
-    <div class="header__row header__navigation-bar-row">
-      {{ navigation_bar }}
-    </div>
-  {% endif %}
 </header-component>
 
 <script
@@ -516,12 +510,6 @@
     display: contents;
   }
 
-  @media screen and (min-width: 750px) {
-    #header-component[data-menu-style='menu'] .header__navigation-bar-row {
-      display: none;
-    }
-  }
-
   .header[transparent] {
     --language-button-background-color: transparent;
     --language-button-border-color: transparent;
@@ -531,8 +519,13 @@
     --closed-underlay-height: 0px;
 
     /* used to display the appropriate logo based on transparency state */
-    --header-logo-display: none;
-    --header-logo-inverse-display: block;
+    /* MOXIE: inverso se muestra en estado sólido/scrolled, original en transparente.
+       !important porque sections/header.liquid (nativo, sin usar) comparte este mismo
+       selector global y su CSS igual se compila en el bundle del theme; sin !important
+       sus valores viejos ganan por orden de bundle y cancelan este override. No se toca
+       header.liquid. */
+    --header-logo-display: block !important;
+    --header-logo-inverse-display: none !important;
 
     position: absolute;
     top: 0;
@@ -543,8 +536,8 @@
 
     &[transparent='not-sticky'][data-sticky-state='active'],
     &:has(.menu-list__link:not([aria-haspopup]):hover) {
-      --header-logo-display: unset;
-      --header-logo-inverse-display: unset;
+      --header-logo-display: none !important;
+      --header-logo-inverse-display: block !important;
       --color-foreground: inherit;
       --color-foreground-rgb: inherit;
       --color-background: inherit;
@@ -578,8 +571,8 @@
     &:has(.mega-menu__list:hover),
     &:has(.menu-list__link:is(:hover, [aria-expanded='true'])),
     &:has(.menu-list__list-item[slot='overflow'] .menu-list__link:is(:hover, [aria-expanded='true'])) {
-      --header-logo-display: unset;
-      --header-logo-inverse-display: unset;
+      --header-logo-display: none !important;
+      --header-logo-inverse-display: block !important;
       --color-foreground: inherit;
       --color-foreground-rgb: inherit;
       --color-background: inherit;

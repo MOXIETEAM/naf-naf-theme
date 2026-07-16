@@ -1,0 +1,135 @@
+// MOXIE: estilos del header principal custom (custom_header-main.liquid).
+// No confundir con _header.scss (CSS muerto de otro tema, no tocar).
+@use '../base/mixins' as *;
+
+// Fallback pre-JS: assets/utilities.js recalcula --header-height real al cargar,
+// esto solo evita salto de layout en el primer paint (ver comentario en
+// custom_header-main.liquid sobre mantener esto sincronizado).
+html body {
+  @media screen and (min-width: 750px) {
+    --header-height: 80px;
+  }
+
+  @media screen and (max-width: 749px) {
+    --header-height: 60px;
+  }
+}
+
+#header-component {
+  @media screen and (min-width: 750px) {
+    --header-height: 80px;
+  }
+
+  @media screen and (max-width: 749px) {
+    --header-height: 60px;
+  }
+
+  .header__columns {
+    @media screen and (min-width: 750px) {
+      min-height: 80px;
+    }
+
+    @media screen and (max-width: 749px) {
+      min-height: 60px;
+    }
+  }
+
+  // Mobile: glass fijo, igual en estado transparente y sólido (Figma).
+  // --closed-underlay-height: assets/header.js la pisa como estilo inline al
+  // activarse el sticky-state en scroll — un inline style le gana a cualquier
+  // regla de CSS por especificidad, así que hace falta !important para retomar
+  // el control y que no vuelva a 0px apenas arranca el scroll.
+  @media screen and (max-width: 749px) {
+    --closed-underlay-height: 100% !important;
+
+    .header__underlay-closed,
+    .header__underlay-open {
+      background: #dcdcdc33 !important;
+      backdrop-filter: blur(34.1px) !important;
+      -webkit-backdrop-filter: blur(34.1px) !important;
+    }
+  }
+
+  // Buscador: el botón nativo (icono, abre #search-modal) se viste como caja
+  // con placeholder visual. No es un input real — el copy vive en CSS porque
+  // snippets/search.liquid es nativo (el ícono sí se cambió, ver MOXIE en ese
+  // snippet; el resto del markup/comportamiento sigue nativo).
+  // MOXIE: la caja/placeholder se estilan sobre .header-actions__action (el
+  // <button> real, único con el on:click nativo que abre #search-modal), no
+  // sobre .search-action (el <search-button> wrapper) — si el placeholder vive
+  // en el wrapper queda fuera del área clickeable y el clic no abre el modal.
+  @media screen and (min-width: 750px) {
+    .search-action .header-actions__action {
+      align-items: center;
+      justify-content: flex-start;
+      height: 32px;
+      gap: fluid(8);
+      padding-inline: fluid(16);
+      border-radius: 4px;
+      background-color: #7b7b7b33;
+
+      &::after {
+        content: 'Que estás buscando?';
+        font-family: var(--font-body--family);
+        font-weight: 400;
+        font-size: fluid-type(12);
+        line-height: 1.333; // 16px a 12px, mismo ratio que .menu-list__link-title
+        letter-spacing: 0.02em;
+        color: rgb(var(--color-foreground-rgb) / 0.55);
+        white-space: nowrap;
+      }
+    }
+
+    // El ícono nativo hereda tamaño de --icon-size-md (pensado para botones sueltos,
+    // no para vivir dentro de una caja de 32px de alto); Figma pide 16x16 fijo.
+    // Prefijo #header-component (vía &): gana especificidad sobre la regla nativa de
+    // custom_header-main.liquid (.header-actions__action:not(.account-button) svg).
+    & .search-action svg,
+    & .search-action .svg-wrapper {
+      width: 16px;
+      height: 16px;
+    }
+
+    // Header sólido (nunca transparente, o transparente ya scrolleado): caja e
+    // ícono pasan a los colores fijos del Figma en vez de heredar el color del
+    // header (mismo patrón de selector "sólido" que _header-mega-menu.scss).
+    &:not([transparent]) .search-action .header-actions__action,
+    &[transparent='not-sticky'][data-sticky-state='active'] .search-action .header-actions__action {
+      background-color: #f3f3f3;
+      color: #000000;
+
+      &::after {
+        color: #595959;
+      }
+    }
+
+    // La cuenta ya vive en la topbar (custom_header-top-bar) en desktop;
+    // en la fila principal solo se muestra en mobile (ver capturas Figma).
+    .account-button {
+      display: none;
+    }
+
+    // Espacio buscador → minicart: Figma pide 24px exactos. Los márgenes negativos
+    // nativos (header-actions.liquid: margin-inline-start: calc(--gap-md * -1))
+    // estaban pensados para iconos sueltos, no para la caja del buscador, y dejaban
+    // el gap real en -2.4px (se solapaban). ~ (no +) porque header-actions.liquid
+    // inyecta un <script> entre .search-action y <header-actions> en el DOM.
+    .search-action ~ header-actions {
+      margin-inline-start: 12px;
+    }
+  }
+
+  // Tipografía del menú desktop: tamaño (12px) y fuente (Host Grotesk / body)
+  // ya se controlan con settings nativos de _header-menu (type_font_primary_size:
+  // 0.75rem, type_font_primary_link: body → host_grotesk_n4). line-height y
+  // letter-spacing no tienen setting nativo, van por CSS.
+  @media screen and (min-width: 750px) {
+    &[data-menu-style='menu'] .menu-list__link-title {
+      line-height: 1.333;
+      letter-spacing: 0.02em;
+    }
+  }
+}
+
+// La pill del ítem destacado (SALE) vive ahora en _header-mega-menu.scss
+// (.custom-menu-item--highlight), marcada por bloque desde el Theme Editor.

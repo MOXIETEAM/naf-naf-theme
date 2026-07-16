@@ -1,0 +1,64 @@
+{%- doc -%}
+  Panel promocional del mega menu custom Moxie (ej. NAF&ME: programa de membresía).
+
+  Snippet reutilizado por el tipo fijo "promo" de `_custom_menu-item` (Fase 3 — layouts rígidos,
+  reemplaza al antiguo block `_custom_menu-promo`). Layout desktop: imagen lateral + columna de
+  texto (título, subtítulo, descripción con bullets, CTA) + columna de tiers. En el drawer mobile
+  se apila a una columna (CSS).
+
+  La imagen SIEMPRE lleva width/height explícitos: assets/header-menu.js mide offsetHeight del
+  submenu para la animación de apertura.
+
+  @param {object} [image] - Imagen lateral.
+  @param {string} [heading] - Título.
+  @param {string} [subheading] - Subtítulo.
+  @param {string} [text] - Descripción (richtext).
+  @param {string} [cta_label] - Texto del botón.
+  @param {string} [cta_link] - Enlace del botón.
+  @param {number} [span_desktop] - Columnas de la grilla de 12 que ocupa en desktop.
+  @param {string} tiers_content - Markup ya renderizado de los tiers (capturar con `custom-menu-promo-tier`).
+  @param {string} [block_attributes] - `block.shopify_attributes` del theme block que renderiza este snippet.
+{%- enddoc -%}
+
+<div
+  class="custom-menu-promo"
+  style="--custom-menu-span: {{ span_desktop | default: 8 }};"
+  {{ block_attributes }}
+>
+  {%- if image != blank -%}
+    <div class="custom-menu-promo__media">
+      {{
+        image
+        | image_url: width: 800
+        | image_tag: widths: '320, 480, 640, 800', sizes: '(min-width: 990px) 25vw, 100vw', class: 'custom-menu-promo__image'
+      }}
+    </div>
+  {%- endif -%}
+
+  <div class="custom-menu-promo__body">
+    {%- if heading != blank -%}
+      <p class="custom-menu-promo__heading">{{ heading }}</p>
+    {%- endif -%}
+    {%- if subheading != blank -%}
+      <p class="custom-menu-promo__subheading">{{ subheading }}</p>
+    {%- endif -%}
+    {%- if text != blank -%}
+      <div class="custom-menu-promo__text rte">{{ text }}</div>
+    {%- endif -%}
+    {%- if cta_label != blank -%}
+      <a
+        class="custom-menu-promo__cta button"
+        {% if cta_link != blank %}
+          href="{{ cta_link }}"
+        {% endif %}
+      >
+        {{ cta_label }}
+        <span class="custom-menu-promo__cta-icon">{{ 'icon-chevron-right.svg' | inline_asset_content }}</span>
+      </a>
+    {%- endif -%}
+  </div>
+
+  <div class="custom-menu-promo__tiers">
+    {{ tiers_content }}
+  </div>
+</div>

@@ -24,7 +24,8 @@
       </span>
 
       <span class="svg-wrapper {% if display_style != 'icon' %}desktop:hidden{% endif %}">
-        {{ 'icon-search.svg' | inline_asset_content }}
+        {%- comment -%} MOXIE: ícono custom del buscador (Figma) en vez del nativo icon-search.svg {%- endcomment -%}
+        {{ 'lupa.svg' | inline_asset_content }}
       </span>
     </button>
   </search-button>

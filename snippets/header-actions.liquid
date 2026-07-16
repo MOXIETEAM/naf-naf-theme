@@ -31,7 +31,8 @@
       class="svg-wrapper {% if display_style != 'icon' %}desktop:hidden{% endif %}"
       aria-hidden="true"
     >
-      {{ 'icon-cart.svg' | inline_asset_content }}
+      {%- comment -%} MOXIE: ícono custom del minicart (Figma) en vez del nativo icon-cart.svg {%- endcomment -%}
+      {{ 'minicart.svg' | inline_asset_content }}
     </span>
 
     {% render 'cart-bubble', limit: 100 %}
@@ -253,6 +254,14 @@
     --cart-bubble-right: 2.5px;
 
     position: relative;
+  }
+
+  /* MOXIE: minicart.svg no es cuadrado (24:21) como el nativo icon-cart.svg (20:20) y
+     Figma pide 20px de alto fijo; #header-component gana especificidad sobre la regla
+     nativa que fuerza width/height iguales a --icon-size-md, para no distorsionarlo. */
+  #header-component .header-actions__cart-icon svg {
+    width: auto;
+    height: 20px;
   }
 
   .header-actions__cart-icon .cart-bubble {

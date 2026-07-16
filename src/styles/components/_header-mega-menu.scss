@@ -1,0 +1,363 @@
+// MOXIE: estilos del mega menu custom (blocks/_custom_menu*.liquid), Fase 2.
+// El markup del dropdown reusa las clases nativas .menu-list__* para heredar
+// la maquinaria de assets/header-menu.js (hover-intent, animación, overflow);
+// todo lo propio va con prefijo .custom-menu-*.
+@use '../base/mixins' as *;
+
+#header-component {
+  // Ítem destacado como pill (ej. SALE) — reemplaza el hack :last-child de la
+  // Fase 1: ahora el ítem se marca desde el Theme Editor (checkbox "Resaltar
+  // como pill" en el bloque Moxie Ítem de menú) y los colores llegan como CSS
+  // vars inline en su <li>.
+  @media screen and (min-width: 750px) {
+    // El <li> es flex-direction: column (native), así que el eje principal es
+    // vertical: márgenes auto centran el pill dentro del alto completo del <li>.
+    &[data-menu-style='menu'] .custom-menu-item--highlight > .menu-list__link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-block: auto;
+      gap: 10px;
+      padding: 2px 6px;
+      border-radius: 2px;
+      max-height: 20px;
+      background-color: var(--menu-highlight-background, #ffffff);
+      color: var(--menu-highlight-text, #000000);
+    }
+
+    // Pill con header sólido (Figma): fondo/texto fijos, no los de la config
+    // del bloque (que solo aplican sobre el overlay transparente). Estado
+    // "sólido" = header nunca transparente, o transparente que se volvió
+    // sólido por scroll (ver sections/header.liquid: atributos `transparent`
+    // y `data-sticky-state`).
+    &[data-menu-style='menu']:not([transparent]) .custom-menu-item--highlight > .menu-list__link,
+    &[data-menu-style='menu'][transparent='not-sticky'][data-sticky-state='active']
+      .custom-menu-item--highlight
+      > .menu-list__link {
+      background-color: #a3a3a3;
+      color: #ffffff;
+    }
+
+    // Tab activo (dropdown abierto) — Figma: bold + underline en el label.
+    // PLACEHOLDER: valores (grosor, offset) a ajustar cuando lleguen los
+    // tokens exactos; el pill (SALE) no lleva underline, cambia de color.
+    &[data-menu-style='menu']
+      .custom-menu-item:not(.custom-menu-item--highlight)
+      > .menu-list__link[aria-expanded='true']
+      .menu-list__link-title {
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+
+    &[data-menu-style='menu'] .custom-menu-item--highlight > .menu-list__link[aria-expanded='true'] {
+      background-color: #000000;
+      color: #ffffff;
+    }
+  }
+}
+
+// Grilla del panel del dropdown (Fase 2.5 — bloques anidados con guardrails).
+// Cada bloque hijo (columna/card-group/banner/promo) es un ítem flex cuyo peso
+// (--custom-menu-span, setting "Ancho relativo en desktop" del bloque) reparte
+// el espacio libre de forma RELATIVA, no como fracción fija de 12: con 2
+// columnas en vez de 4, las 2 presentes se reparten el ancho sin dejar hueco;
+// un ítem "full imágenes" o "full columnas" también se autodistribuye sin
+// configuración especial. flex-wrap + min-width por tipo (ver reglas de cada
+// bloque más abajo) es la válvula de seguridad: si la suma de min-widths no
+// cabe en una fila, envuelve a la siguiente en vez de aplastar el contenido.
+.custom-menu-item__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: fluid(32) fluid(24);
+  align-items: start;
+  padding-block: fluid(28) fluid(40);
+
+  > * {
+    flex: var(--custom-menu-span, 3) 1 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Columna de links
+// El drill-row y el botón back solo existen para el drawer mobile (Hito 4);
+// la presentación por defecto es la de desktop.
+.custom-menu-column {
+  min-width: 140px;
+
+  &__drill-row,
+  &__back {
+    display: none;
+  }
+
+  &__heading {
+    margin: 0 0 fluid(16);
+    font-size: fluid-type(12);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: fluid(12);
+  }
+
+  &__link {
+    font-family: var(--menu-child-font-family);
+    font-size: var(--menu-child-font-size, fluid-type(13));
+    color: var(--menu-child-font-color, var(--color-foreground));
+    text-decoration: none;
+
+    &:hover {
+      color: var(--menu-child-active-font-color, var(--color-foreground));
+    }
+
+    &--placeholder {
+      color: rgb(var(--color-foreground-rgb) / 0.4);
+    }
+  }
+
+  &--bold-last &__list-item:last-child &__link {
+    font-weight: 700;
+  }
+}
+
+// Divisor vertical entre columnas adyacentes (Figma: ROPA / SALE).
+@media screen and (min-width: 750px) {
+  .custom-menu-column + .custom-menu-column {
+    border-inline-start: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+    padding-inline-start: fluid(24);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Card de imagen
+.custom-menu-card {
+  display: flex;
+  flex-direction: column;
+  gap: fluid(12);
+  text-decoration: none;
+  color: var(--color-foreground);
+
+  &__media {
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+  }
+
+  &__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--animation-speed-slow, 0.4s) var(--ease-out-cubic, ease-out);
+  }
+
+  &:hover &__image {
+    transform: scale(1.03);
+  }
+
+  &__label {
+    font-size: fluid-type(12);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Grupo de cards
+.custom-menu-card-group {
+  min-width: 300px;
+
+  &__heading {
+    margin: 0 0 fluid(16);
+    font-size: fluid-type(12);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+  }
+
+  &__cards {
+    display: grid;
+    // MOXIE (Fase 2.5): auto-fit en vez de grid-auto-flow: column — con un
+    // número variable de cards reparte el ancho en partes iguales y envuelve
+    // a una fila nueva en vez de comprimir cards indefinidamente.
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: fluid(20);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Banner
+.custom-menu-banner {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  text-decoration: none;
+  min-width: 260px;
+
+  &__media {
+    // MOXIE (Fase 2.5): aspect-ratio fijo — sin esto, una imagen de proporción
+    // arbitraria (muy alta o muy ancha) descuadraba el alto de la fila frente
+    // a los demás bloques hermanos (riesgo real encontrado, no existía ni en
+    // Fase 2 ni en Fase 3).
+    aspect-ratio: 4 / 5;
+    height: auto;
+  }
+
+  &__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: fluid(10);
+    padding: fluid(24);
+    color: #ffffff;
+
+    &--center {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    &--bottom-right {
+      align-items: flex-end;
+      text-align: right;
+    }
+  }
+
+  &__heading {
+    margin: 0;
+    font-size: fluid-type(28);
+    line-height: 1.15;
+  }
+
+  &__text {
+    margin: 0;
+    font-size: fluid-type(14);
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: fluid(8);
+    padding: fluid(8) fluid(16);
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: fluid-type(13);
+  }
+
+  &__cta-icon svg {
+    display: block;
+    width: fluid(12);
+    height: fluid(12);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Panel promocional (NAF&ME) + tiers
+.custom-menu-promo {
+  display: grid;
+  gap: fluid(32);
+  align-items: start;
+  min-width: 480px;
+
+  @media screen and (min-width: 750px) {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 4fr);
+  }
+
+  &__media {
+    // MOXIE (Fase 2.5): mismo fix de aspect-ratio que .custom-menu-banner.
+    aspect-ratio: 3 / 4;
+    height: auto;
+  }
+
+  &__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: fluid(14);
+    align-items: flex-start;
+  }
+
+  &__heading {
+    margin: 0;
+    font-size: fluid-type(32);
+    line-height: 1.1;
+  }
+
+  &__subheading {
+    margin: 0;
+    font-size: fluid-type(14);
+  }
+
+  &__text {
+    font-size: fluid-type(13);
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: fluid(8);
+  }
+
+  &__cta-icon svg {
+    display: block;
+    width: fluid(12);
+    height: fluid(12);
+  }
+
+  &__tiers {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.custom-menu-promo-tier {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 2fr);
+  align-items: center;
+  gap: fluid(14);
+  padding-block: fluid(16);
+
+  &:not(:first-child) {
+    border-block-start: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+  }
+
+  &__icon-image {
+    display: block;
+    width: fluid(24);
+    height: fluid(24);
+    object-fit: contain;
+  }
+
+  &__title {
+    font-size: fluid-type(13);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  &__text {
+    font-size: fluid-type(13);
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+  }
+}

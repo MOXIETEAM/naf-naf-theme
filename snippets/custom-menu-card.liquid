@@ -1,0 +1,49 @@
+{%- doc -%}
+  Card de imagen del mega menu custom Moxie (ej. DAILYWEAR / DREAMY / TEJIDOS).
+
+  Snippet reutilizado por los 4 tipos fijos de `_custom_menu-item` (Fase 3 — layouts rígidos,
+  reemplaza al antiguo block `_custom_menu-card`). Imagen con label debajo y link opcional.
+  En el drawer mobile los cards de un grupo van en scroll horizontal (lo maneja el CSS del grupo).
+
+  La imagen SIEMPRE lleva width/height explícitos: assets/header-menu.js mide offsetHeight del
+  submenu para la animación de apertura — una imagen sin dimensiones rompería la medición.
+
+  @param {object} [image] - Imagen del card.
+  @param {string} [label] - Etiqueta debajo de la imagen.
+  @param {string} [link] - Enlace del card completo.
+  @param {number} [span_desktop] - Columnas de la grilla de 12 en desktop (solo aplica si el card
+    NO vive dentro de un custom-menu-card-group, que auto-distribuye sus hijos).
+  @param {string} [block_attributes] - `block.shopify_attributes` del theme block que renderiza este snippet.
+{%- enddoc -%}
+
+{% liquid
+  if link != blank
+    assign card_tag = 'a'
+  else
+    assign card_tag = 'div'
+  endif
+%}
+
+<{{ card_tag }}
+  {% if link != blank %}
+    href="{{ link }}"
+  {% endif %}
+  class="custom-menu-card"
+  style="--custom-menu-span: {{ span_desktop | default: 3 }};"
+  {{ block_attributes }}
+>
+  <div class="custom-menu-card__media">
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: 800
+        | image_tag: widths: '320, 480, 640, 800', sizes: '(min-width: 990px) 20vw, 60vw', class: 'custom-menu-card__image'
+      }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'custom-menu-card__image custom-menu-card__image--placeholder' }}
+    {%- endif -%}
+  </div>
+  {%- if label != blank -%}
+    <span class="custom-menu-card__label">{{ label }}</span>
+  {%- endif -%}
+</{{ card_tag }}>
