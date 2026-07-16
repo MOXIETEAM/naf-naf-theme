@@ -1,0 +1,41 @@
+{%- doc -%}
+  Card de imagen del mega menu custom Moxie (ej. DAILYWEAR / DREAMY / TEJIDOS).
+
+  Hijo **exclusivo** de `_custom_menu-card-group` (Fase 2.5 — bloques anidados con guardrails):
+  no es hijo directo de `_custom_menu-item` a propósito, para que siempre viva dentro de un grupo
+  que autodistribuye el ancho de sus cards entre sí — evita cards huérfanas con ancho inconsistente.
+
+  Wrapper delgado: todo el markup vive en snippets/custom-menu-card.liquid.
+{%- enddoc -%}
+
+{% render 'custom-menu-card',
+  image: block.settings.image,
+  label: block.settings.label,
+  link: block.settings.link,
+  block_attributes: block.shopify_attributes
+%}
+
+{% schema %}
+{
+  "name": "Moxie Card de menú",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Imagen"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Etiqueta",
+      "default": "Card"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Enlace"
+    }
+  ]
+}
+{% endschema %}

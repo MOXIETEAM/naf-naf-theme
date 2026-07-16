@@ -13,6 +13,7 @@
   @param {string} [link] - Enlace del card completo.
   @param {number} [span_desktop] - Columnas de la grilla de 12 en desktop (solo aplica si el card
     NO vive dentro de un custom-menu-card-group, que auto-distribuye sus hijos).
+  @param {string} [block_attributes] - `block.shopify_attributes` del theme block que renderiza este snippet.
 {%- enddoc -%}
 
 {% liquid
@@ -29,6 +30,7 @@
   {% endif %}
   class="custom-menu-card"
   style="--custom-menu-span: {{ span_desktop | default: 3 }};"
+  {{ block_attributes }}
 >
   <div class="custom-menu-card__media">
     {%- if image != blank -%}

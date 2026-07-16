@@ -15,6 +15,7 @@
   @param {string} [link] - Enlace de todo el banner.
   @param {string} content_position - 'bottom-left' | 'center' | 'bottom-right', fijo por tipo.
   @param {number} [span_desktop] - Columnas de la grilla de 12 que ocupa en desktop.
+  @param {string} [block_attributes] - `block.shopify_attributes` del theme block que renderiza este snippet.
 {%- enddoc -%}
 
 {% liquid
@@ -31,6 +32,7 @@
   {% endif %}
   class="custom-menu-banner"
   style="--custom-menu-span: {{ span_desktop | default: 4 }};"
+  {{ block_attributes }}
 >
   <div class="custom-menu-banner__media">
     {%- if image != blank -%}

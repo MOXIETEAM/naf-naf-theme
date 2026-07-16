@@ -1,0 +1,53 @@
+{%- doc -%}
+  Grupo de cards del mega menu custom Moxie (ej. "POR OCASIONES DE USO" / "EXPLORA TUS FAVORITOS").
+
+  Hijo de `_custom_menu-item` (Fase 2.5 — bloques anidados con guardrails). Agrupa `_custom_menu-card`
+  hijos (Shopify no permite `max_blocks` en el schema de un theme block, así que la cantidad no
+  tiene tope explícito) y los reparte en una sub-grilla uniforme (CSS: grid-template-columns:
+  repeat(auto-fit, minmax(140px,1fr))) — cualquier cantidad de cards se autodistribuye y envuelve
+  a una fila nueva sin que el merchant elija un ancho manual por card.
+
+  Wrapper delgado: todo el markup vive en snippets/custom-menu-card-group.liquid.
+{%- enddoc -%}
+
+{% capture cards_content %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+{% render 'custom-menu-card-group',
+  heading: block.settings.heading,
+  span_desktop: block.settings.span_desktop,
+  content: cards_content,
+  block_attributes: block.shopify_attributes
+%}
+
+{% schema %}
+{
+  "name": "Moxie Grupo de cards",
+  "tag": null,
+  "blocks": [
+    { "type": "_custom_menu-card" }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título del grupo"
+    },
+    {
+      "type": "select",
+      "id": "span_desktop",
+      "label": "Ancho relativo en desktop",
+      "info": "Peso relativo frente a los demás bloques del ítem.",
+      "options": [
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" },
+        { "value": "6", "label": "6" },
+        { "value": "8", "label": "8" },
+        { "value": "12", "label": "12" }
+      ],
+      "default": "8"
+    }
+  ]
+}
+{% endschema %}

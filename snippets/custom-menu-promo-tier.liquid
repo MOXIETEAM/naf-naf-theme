@@ -8,9 +8,10 @@
   @param {object} [icon] - Ícono/imagen del tier.
   @param {string} title - Nombre del tier.
   @param {string} [text] - Descripción corta.
+  @param {string} [block_attributes] - `block.shopify_attributes` del theme block que renderiza este snippet.
 {%- enddoc -%}
 
-<div class="custom-menu-promo-tier">
+<div class="custom-menu-promo-tier" {{ block_attributes }}>
   {%- if icon != blank -%}
     <span class="custom-menu-promo-tier__icon">
       {{ icon | image_url: width: 48 | image_tag: widths: '24, 48', class: 'custom-menu-promo-tier__icon-image' }}

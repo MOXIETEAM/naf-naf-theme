@@ -81,13 +81,71 @@ Cada bloque de nivel superior (Ropa/Colecciones/Naf&Me/Sale) debería poder rend
 - Si "Rastrear Mi Pedido" y "Favoritos" son funcionalidad real (order tracking / wishlist) que hay que construir, o quedan fuera de alcance.
 - Si el copy/contenido de cada dropdown (textos, imágenes) ya existe o hay que pedirlo.
 
+## Fase 2.5 — bloques anidados con guardrails (reemplaza a "Fase 3 — layouts rígidos")
+
+Implementada 2026-07-14. El cliente pidió recuperar la flexibilidad de composición de Fase 2
+("n cantidad de bloques", reordenar, ítems "full imágenes"/"full columnas", ajustar cuántas
+columnas/cards tiene un layout) sin volver a poder romper el layout como pasaba antes de Fase 3.
+
+**Qué cambió:**
+- `_custom_menu-item.liquid` ya NO tiene el `select` `menu_layout` ni los ~140 settings
+  condicionados por `visible_if`. Ahora expone `content_for 'blocks'` y acepta bloques hijos
+  reales: `_custom_menu-column`, `_custom_menu-card-group`, `_custom_menu-banner`,
+  `_custom_menu-promo`. El merchant los agrega/quita/reordena libremente desde el Theme Editor.
+- Nuevos archivos: `blocks/_custom_menu-{column,card,card-group,banner,promo,promo-tier}.liquid`
+  — wrappers delgados que reutilizan tal cual los snippets de Fase 3
+  (`snippets/custom-menu-*.liquid`, ahora con parámetro `block_attributes` para selección/drag en
+  el editor). `_custom_menu-card` solo puede vivir dentro de `_custom_menu-card-group` (no es hijo
+  directo del ítem) para que sus hermanos siempre se autodistribuyan como grupo.
+- **`limit`/`max_blocks` NO se usaron**: se intentó (ver blueprint original evaluado) pero Theme
+  Check/`validate_theme` los rechaza — Shopify solo permite esas propiedades en el schema de una
+  **section**, no en el de un **theme block** (`blocks/*.liquid`). Confirmado en la práctica al
+  validar `_custom_menu-item.liquid`, `_custom_menu.liquid`, `_custom_menu-card-group.liquid` y
+  `_custom_menu-promo.liquid` (los 4 fallaron con "Property limit/max_blocks is not allowed").
+  Esto significa que la cantidad de ítems de nivel superior, columnas, cards, etc. no tiene un
+  tope explícito en el schema — solo el límite implícito de Shopify (50 bloques por
+  sección/contenedor, contando todos los niveles).
+- **El guardrail real está en el CSS, no en el schema**: `.custom-menu-item__grid`
+  (`src/styles/components/_header-mega-menu.scss`) pasó de `display: grid` con
+  `grid-column: span N` (exige que la suma de spans "cuadre" con 12) a `display: flex; flex-wrap:
+  wrap` con `flex: var(--custom-menu-span, 3) 1 0` — el "Ancho relativo en desktop" de cada
+  bloque (`span_desktop`, select de valores discretos 1/2/3/4/5/6/8/12 según el tipo) pasa a ser
+  un PESO relativo, no una fracción fija de 12. Con 2 columnas en vez de 4, se reparten 50/50
+  solas; un ítem "full imágenes" (solo `_custom_menu-card-group`) o "full columnas" (solo
+  `_custom_menu-column`) se autodistribuye sin configuración especial. `min-width` por tipo de
+  bloque (columna 140px, card-group 300px, banner 260px, promo 480px) es la válvula de seguridad:
+  si no cabe una fila, el flex-wrap envuelve a la siguiente en vez de aplastar el contenido.
+- `.custom-menu-card-group__cards` pasó de `grid-auto-flow: column` (sin wrap, se comprimía con
+  muchos cards) a `grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))`.
+- Fix de un riesgo real encontrado (no reportado por el cliente, pero real desde Fase 2):
+  `.custom-menu-banner__media`/`.custom-menu-promo__media` no tenían `aspect-ratio` fijo — una
+  imagen de proporción arbitraria podía descuadrar el alto de la fila frente a sus hermanos. Ahora
+  ambos tienen `aspect-ratio` fijo + `height: auto`.
+- `snippets/custom-menu-column.liquid`: si no hay `link_list` asignado y no es `request.design_mode`,
+  el snippet completo no renderiza nada — evita un heading flotando sobre un hueco vacío cuando el
+  merchant agrega el bloque pero olvida asignar el menú.
+- `sections/header-group.json`: los 4 ítems ya wireados (ROPA/COLECCIONES/NAF&ME/SALE) se
+  migraron de settings planos a árboles de bloques hijos equivalentes (mismos `span_desktop` que
+  antes estaban hardcodeados en el `{% case %}`), para que el resultado visual sea idéntico al de
+  antes del cambio.
+- **No se agregaron `presets` con sub-árboles de bloques predefinidos** en `_custom_menu-item`
+  (a diferencia de lo evaluado originalmente): el soporte de Shopify para presets de un *theme
+  block* (no de una sección) con bloques hijos anidados no está confirmado en la documentación
+  pública, y arriesgarlo sin poder validarlo de forma confiable no vale la pena. En su lugar, el
+  punto de partida para un ítem nuevo con un diseño ya armado es **duplicar** uno de los 4 ítems
+  existentes en el Theme Editor (acción nativa, sin riesgo) y editarlo desde ahí.
+- `assets/header-menu.js`, `assets/custom-header-drawer.js` y
+  `src/styles/components/_header-drawer.scss` **no requirieron cambios** — ya eran agnósticos a
+  la cantidad/combinación de bloques hijos (el drawer opera por clase + `order` según el tipo de
+  bloque, no por posición fija en el DOM).
+
 ## Archivos clave
 
 - `sections/header.liquid` — nativo, no tocar
 - `sections/custom_header-main.liquid` — header principal custom (wireado en vivo; Fase 2 reemplazó los `content_for` de `_header-menu` por `_custom_menu` y eliminó navigation_bar + settings `menu_highlight_*`)
 - `sections/custom_header-top-bar.liquid` + `blocks/custom_header-*.liquid` — barra superior (wireada en vivo)
 - `blocks/_custom_menu.liquid` — contenedor del menú custom (2 variantes; CSS nativo del dropdown copiado en su `{% stylesheet %}`)
-- `blocks/_custom_menu-item.liquid` + `_custom_menu-{column,card,card-group,banner,promo,promo-tier,utility-link}.liquid` — bloques anidados del mega menu
+- `blocks/_custom_menu-item.liquid` + `_custom_menu-{column,card,card-group,banner,promo,promo-tier,utility-link}.liquid` — bloques anidados del mega menu (Fase 2.5: bloques hijos reales que se agregan/reordenan libremente, sin `limit`/`max_blocks` — Shopify no lo permite en theme blocks — en vez de un `select` de layouts fijos)
 - `assets/custom-header-drawer.js` — componente del drawer con tabs (único JS custom del header)
 - `sections/header-group.json` — todo wireado, con árbol de ejemplo de los 4 dropdowns
 - `src/styles/components/_header-main.scss` — estilos Fase 1 (pill de búsqueda, cuenta oculta en desktop)

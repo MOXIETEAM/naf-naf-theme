@@ -57,17 +57,24 @@
   }
 }
 
-// Grilla del panel del dropdown: 12 columnas; cada bloque hijo define su span
-// vía --custom-menu-span (setting "Ancho en desktop" del bloque).
+// Grilla del panel del dropdown (Fase 2.5 — bloques anidados con guardrails).
+// Cada bloque hijo (columna/card-group/banner/promo) es un ítem flex cuyo peso
+// (--custom-menu-span, setting "Ancho relativo en desktop" del bloque) reparte
+// el espacio libre de forma RELATIVA, no como fracción fija de 12: con 2
+// columnas en vez de 4, las 2 presentes se reparten el ancho sin dejar hueco;
+// un ítem "full imágenes" o "full columnas" también se autodistribuye sin
+// configuración especial. flex-wrap + min-width por tipo (ver reglas de cada
+// bloque más abajo) es la válvula de seguridad: si la suma de min-widths no
+// cabe en una fila, envuelve a la siguiente en vez de aplastar el contenido.
 .custom-menu-item__grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: fluid(32) fluid(24);
   align-items: start;
   padding-block: fluid(28) fluid(40);
 
   > * {
-    grid-column: span var(--custom-menu-span, 3);
+    flex: var(--custom-menu-span, 3) 1 0;
   }
 }
 
@@ -76,6 +83,8 @@
 // El drill-row y el botón back solo existen para el drawer mobile (Hito 4);
 // la presentación por defecto es la de desktop.
 .custom-menu-column {
+  min-width: 140px;
+
   &__drill-row,
   &__back {
     display: none;
@@ -160,6 +169,8 @@
 // ---------------------------------------------------------------------------
 // Grupo de cards
 .custom-menu-card-group {
+  min-width: 300px;
+
   &__heading {
     margin: 0 0 fluid(16);
     font-size: fluid-type(12);
@@ -170,8 +181,10 @@
 
   &__cards {
     display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 1fr;
+    // MOXIE (Fase 2.5): auto-fit en vez de grid-auto-flow: column — con un
+    // número variable de cards reparte el ancho en partes iguales y envuelve
+    // a una fila nueva en vez de comprimir cards indefinidamente.
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: fluid(20);
   }
 }
@@ -183,9 +196,15 @@
   display: block;
   overflow: hidden;
   text-decoration: none;
+  min-width: 260px;
 
   &__media {
-    height: 100%;
+    // MOXIE (Fase 2.5): aspect-ratio fijo — sin esto, una imagen de proporción
+    // arbitraria (muy alta o muy ancha) descuadraba el alto de la fila frente
+    // a los demás bloques hermanos (riesgo real encontrado, no existía ni en
+    // Fase 2 ni en Fase 3).
+    aspect-ratio: 4 / 5;
+    height: auto;
   }
 
   &__image {
@@ -252,13 +271,16 @@
   display: grid;
   gap: fluid(32);
   align-items: start;
+  min-width: 480px;
 
   @media screen and (min-width: 750px) {
     grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 4fr);
   }
 
   &__media {
-    height: 100%;
+    // MOXIE (Fase 2.5): mismo fix de aspect-ratio que .custom-menu-banner.
+    aspect-ratio: 3 / 4;
+    height: auto;
   }
 
   &__image {

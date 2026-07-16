@@ -14,11 +14,17 @@
   @param {object} [menu] - link_list de Admin → Navegación con los enlaces de esta columna.
   @param {boolean} [bold_last_link] - Resalta en negrita el último enlace (ej. "Ver todo").
   @param {number} [span_desktop] - Columnas de la grilla de 12 que ocupa en desktop.
+  @param {string} [block_attributes] - `block.shopify_attributes` del theme block que renderiza este snippet (selección/drag en el editor).
+
+  MOXIE (Fase 2.5): sin menú asignado y fuera del editor, la columna no renderiza nada — evita un
+  heading flotando sobre un hueco vacío cuando el merchant agrega el bloque pero no asigna un link_list.
 {%- enddoc -%}
 
+{%- if menu.links.size > 0 or request.design_mode -%}
 <div
   class="custom-menu-column{% if bold_last_link %} custom-menu-column--bold-last{% endif %}"
   style="--custom-menu-span: {{ span_desktop | default: 1 }};"
+  {{ block_attributes }}
 >
   {%- if heading != blank -%}
     <p class="custom-menu-column__heading">{{ heading }}</p>
@@ -69,3 +75,4 @@
     </ul>
   </div>
 </div>
+{%- endif -%}

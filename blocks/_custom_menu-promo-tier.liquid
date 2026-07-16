@@ -1,0 +1,39 @@
+{%- doc -%}
+  Fila de tier del panel promocional Moxie (ej. MEMBER / SILVER / BLACK).
+
+  Hijo de `_custom_menu-promo` (Fase 2.5 — bloques anidados con guardrails).
+
+  Wrapper delgado: todo el markup vive en snippets/custom-menu-promo-tier.liquid.
+{%- enddoc -%}
+
+{% render 'custom-menu-promo-tier',
+  icon: block.settings.icon,
+  title: block.settings.title,
+  text: block.settings.text,
+  block_attributes: block.shopify_attributes
+%}
+
+{% schema %}
+{
+  "name": "Moxie Tier de membresía",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "icon",
+      "label": "Ícono"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Nombre",
+      "default": "TIER"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Descripción"
+    }
+  ]
+}
+{% endschema %}
