@@ -5,3 +5,35 @@
 .hdt-slider__dots {
     width: 100%;
 }
+
+// MOXIE: en templates JSON, Shopify prefija el id de la sección con
+// "template--<id>__" (ej. shopify-section-template--123__promo_banner_ana_vacanza),
+// nunca es solo "shopify-section-<clave>". Se usa selector por atributo (sufijo)
+// para no depender de ese id numérico, que varía por tienda/entorno.
+
+// MOXIE: Horizon alinea el texto según --horizontal-alignment del group padre,
+// pero ese valor no es responsive (mismo left-align en desktop y mobile).
+// El diseño pide left-align en desktop y center en mobile para esta franja promo.
+[id^='shopify-section-'][id$='__promo_banner_ana_vacanza'] {
+    @media screen and (max-width: 749px) {
+        .mobile-column {
+            align-items: center;
+        }
+
+        .text-block,
+        .text-block > * {
+            text-align: center;
+        }
+    }
+}
+
+// MOXIE: Horizon oculta las flechas del carrusel (opacity:0) y solo las revela con
+// :hover/:focus-within (assets/base.css). En mobile no hay hover, así que sin esto
+// las flechas nunca se ven en touch aunque el swipe sí funcione.
+[id^='shopify-section-'][id$='__carousel_capsulas_temporada'] {
+    @media screen and (max-width: 749px) {
+        .slideshow-control {
+            opacity: 1;
+        }
+    }
+}

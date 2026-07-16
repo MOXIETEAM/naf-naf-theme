@@ -1,0 +1,90 @@
+{%- doc -%}
+  MOXIE: reemplaza el quick-add nativo en la card para el catálogo NafNaf (solo maneja la opción Talla).
+  - Desktop: hover/focus en el botón "+" muestra un overlay de tallas disponibles sobre la imagen;
+    clic en una talla agrega esa variante al carrito directo (sin ir a la PDP).
+  - Mobile: el mismo botón "+" abre el modal "Compra rápida" (custom_quick-view-modal.liquid) en vez del overlay.
+
+  @param {object} product - The product resource
+  @param {string} section_id - The section ID, used for the product form
+{%- enddoc -%}
+
+{% liquid
+  assign variant = product.selected_or_first_available_variant
+  assign size_option = product.options_with_values | first
+  assign product_form_id = 'CardSizeSelect-ProductForm-' | append: product.id
+%}
+
+<product-card-size-select
+  class="product-card-size-select"
+  data-product-id="{{ product.id }}"
+>
+  <button
+    ref="trigger"
+    type="button"
+    class="product-card-size-select__trigger quick-add__button"
+    aria-label="{{ 'content.select_size_label' | t }}"
+    on:click="/handleTriggerClick"
+  >
+    <span
+      class="svg-wrapper"
+      aria-hidden="true"
+    >
+      {{- 'icon-add-to-cart.svg' | inline_asset_content -}}
+    </span>
+  </button>
+
+  <div
+    ref="overlay"
+    class="product-card-size-select__overlay"
+  >
+    <product-form-component
+      data-section-id="{{ section_id }}"
+      data-product-id="{{ product.id }}"
+      on:submit="/handleSubmit"
+      class="product-card-size-select__form"
+    >
+      <div
+        class="visually-hidden"
+        aria-live="assertive"
+        role="status"
+        aria-atomic="true"
+        ref="liveRegion"
+      ></div>
+      {%- form 'product', product, id: product_form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+        <input
+          type="hidden"
+          name="id"
+          ref="variantId"
+          value="{{ variant.id }}"
+        >
+        <input
+          type="hidden"
+          name="quantity"
+          value="1"
+        >
+        <ul class="product-card-size-select__sizes">
+          {%- for value in size_option.values -%}
+            {%- if value.available -%}
+              <li>
+                <button
+                  type="button"
+                  class="product-card-size-select__size"
+                  data-variant-id="{{ value.variant.id }}"
+                  on:click="/selectSize"
+                >
+                  {{- value -}}
+                </button>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endform -%}
+    </product-form-component>
+  </div>
+</product-card-size-select>
+
+<script
+  src="{{ 'custom-product-card-size-select.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>

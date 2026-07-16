@@ -19,6 +19,11 @@
     assign show_compare_price = true
   endif
 
+  # MOXIE: badge de % de descuento junto al precio, no existe nativo en Horizon
+  if show_compare_price
+    assign discount_percent = compare_at_price | minus: price | times: 100 | divided_by: compare_at_price | round
+  endif
+
   if product_resource == blank
     assign price = 1999
   endif
@@ -88,6 +93,8 @@
   {% else %}
     {% comment %} Standard pricing display: render only the active branch (regular or sale) {% endcomment %}
     {% if show_compare_price %}
+      {%- comment -%} MOXIE: badge de % de descuento junto al precio, no existe nativo en Horizon {%- endcomment -%}
+      <span class="price-item__group price-discount-badge">-{{ discount_percent }}%</span>
       {% if show_sale_price_first %}
         <span class="price-item__group price">
           <span class="visually-hidden">{{ 'content.price_sale' | t }}&nbsp;</span>

@@ -118,10 +118,20 @@
     "show_all_options": "Mostrar todas las opciones",
     "open": "Abrir",
     "back_to": "Volver a {{ title }}",
-    "zoom_media": "Ampliar {{ index }} multimedia"
+    "zoom_media": "Ampliar {{ index }} multimedia",
+    "add_to_wishlist": "Agregar a favoritos",
+    "remove_from_wishlist": "Quitar de favoritos"
   },
   "content": {
     "reviews": "reseñas",
+    "quick_view_title": "Compra rápida",
+    "select_size_label": "Selecciona la talla",
+    "size_guide": "Guía de tallas",
+    "notify_when_available": "Avísame cuando esté disponible",
+    "last_units_left": {
+      "one": "Última {{ count }} unidad",
+      "other": "Últimas {{ count }} unidades"
+    },
     "language": "Idioma",
     "localization_region_and_language": "Región e idioma",
     "no_results_found": "No se han encontrado resultados",

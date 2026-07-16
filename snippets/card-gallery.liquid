@@ -17,7 +17,8 @@
   assign has_badges = false
   assign badge_position = null
   if product != blank
-    if product.available == false or product.compare_at_price > product.price
+    # MOXIE: incluir el flag de campaña personalizable (metafield custom.flag) en la detección de badges
+    if product.available == false or product.metafields.custom.flag.value != blank or product.compare_at_price > product.price
       assign has_badges = true
       assign badge_position = settings.badge_position
     endif

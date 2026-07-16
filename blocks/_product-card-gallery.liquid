@@ -1,8 +1,13 @@
-{% assign product = closest.product %}
+{% liquid
+  assign product = closest.product
+  # MOXIE: flag de campaña personalizable (metaobject product_flag referenciado en el metafield custom.flag).
+  # Prioridad fija acordada con el cliente: Sold out siempre gana > flag custom > Sale automático.
+  assign campaign_flag = product.metafields.custom.flag.value
+%}
 
 {% capture children %}
   {% unless product == blank %}
-    {%- if product.available == false or product.compare_at_price > product.price -%}
+    {%- if product.available == false or campaign_flag != blank or product.compare_at_price > product.price -%}
       <div
         class="product-badges product-badges--{{ settings.badge_position }}"
         style="
@@ -10,22 +15,34 @@
             --badge-font-family: var(--font-{{ settings.badge_font_family }}--family); --badge-font-weight: var(--font-{{ settings.badge_font_family }}--weight); --badge-text-transform: {{ settings.badge_text_transform }};
         "
       >
-        <div
-          class="
-            product-badges__badge product-badges__badge--rectangle
-            {% if product.available == false %} color-custom-badge-sold-out{% elsif product.compare_at_price > product.price %} color-custom-badge-sale{% endif %}
-          "
-        >
-          {%- if product.available == false -%}
+        {%- if product.available == false -%}
+          <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sold-out">
             {{ 'content.product_badge_sold_out' | t }}
-          {%- elsif product.compare_at_price > product.price -%}
+          </div>
+        {%- elsif campaign_flag != blank -%}
+          <div
+            class="product-badges__badge product-badges__badge--rectangle"
+            style="background-color: {{ campaign_flag.background_color }}; color: {{ campaign_flag.text_color }};"
+          >
+            {{ campaign_flag.label }}
+          </div>
+        {%- elsif product.compare_at_price > product.price -%}
+          <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sale">
             {{ 'content.product_badge_sale' | t }}
-          {%- endif -%}
-        </div>
+          </div>
+        {%- endif -%}
       </div>
     {%- endif -%}
+    {%- comment -%} MOXIE: wishlist mobile, absoluta sobre la imagen (oculta en desktop vía CSS, ver blocks/custom_wishlist.liquid para la versión desktop) {%- endcomment -%}
+    {% render 'custom_wishlist-button', product: product, variant: 'mobile' %}
+    {%- comment -%}
+      MOXIE: el catálogo NafNaf solo maneja la opción Talla, así que se reemplaza el quick-add nativo
+      (snippets/quick-add.liquid, que abriría el modal "Choose" para 2+ opciones) por un selector de
+      talla propio: overlay inline en hover para desktop, y trigger del modal "Compra rápida" en mobile.
+    {%- endcomment -%}
     {% if product.available and settings.quick_add or settings.mobile_quick_add %}
-      {% render 'quick-add', product: product, section_id: section.id %}
+      {% render 'custom_product-card-size-select', product: product, section_id: section.id %}
+      {% render 'custom_quick-view-modal', product: product, section_id: section.id %}
     {% endif %}
   {% endunless %}
 {% endcapture %}
@@ -52,6 +69,27 @@
     {
       "type": "paragraph",
       "content": "t:content.resource_reference_product_media"
+    },
+    {
+      "type": "header",
+      "content": "Moxie: Compra rápida (mobile)"
+    },
+    {
+      "type": "range",
+      "id": "low_stock_threshold",
+      "label": "Últimas unidades (umbral)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 3,
+      "info": "Debajo de esta cantidad se muestra \"Últimas N unidades\" junto a la talla."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_size_guide",
+      "label": "Mostrar botón \"Guía de tallas\"",
+      "default": false,
+      "info": "Deshabilitado por defecto: pendiente de definir la fuente de datos de la tabla de medidas."
     },
     {
       "type": "select",

@@ -1,0 +1,147 @@
+{%- doc -%}
+  MOXIE: modal "Compra rápida" (mobile) — se abre al tocar el "+" de la card
+  (ver assets/custom-product-card-size-select.js). Extiende la clase base DialogComponent
+  (assets/dialog.js) sin tocarla. Todo el contenido ya está disponible en el producto de la card,
+  no requiere fetch como el quick-add nativo.
+
+  La sub-vista "Guía de tallas" está fuera de alcance por ahora (pendiente de que el cliente defina
+  la fuente de datos de la tabla de medidas) — el botón queda oculto tras block.settings.show_size_guide.
+
+  @param {object} product - The product resource
+  @param {string} section_id - The section ID, used for the product form
+  @param {object} [block] - The enclosing _product-card-gallery block, for its low_stock_threshold/show_size_guide settings
+{%- enddoc -%}
+
+{% liquid
+  assign variant = product.selected_or_first_available_variant
+  assign size_option = product.options_with_values | first
+  assign campaign_flag = product.metafields.custom.flag.value
+  assign low_stock_threshold = block.settings.low_stock_threshold | default: 3
+  assign product_form_id = 'QuickView-ProductForm-' | append: product.id
+%}
+
+<custom-quick-view-modal
+  id="QuickViewModal-{{ product.id }}"
+  class="quick-view-modal-component"
+>
+  <dialog
+    ref="dialog"
+    class="quick-view-modal"
+    aria-label="{{ 'content.quick_view_title' | t }}"
+  >
+    <button
+      ref="closeButton"
+      type="button"
+      class="quick-view-modal__close button-unstyled"
+      aria-label="{{ 'actions.close' | t }}"
+      on:click="/closeDialog"
+    >
+      {{- 'icon-close.svg' | inline_asset_content -}}
+    </button>
+
+    <h2 class="quick-view-modal__title">{{ 'content.quick_view_title' | t }}</h2>
+
+    <div class="quick-view-modal__content">
+      <div class="quick-view-modal__media">
+        {% render 'product-media',
+          media: product.featured_media,
+          sizes: '150px',
+          loading: 'lazy',
+          preview_image_only: true
+        %}
+      </div>
+
+      <div class="quick-view-modal__details">
+        {%- if product.available == false -%}
+          <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sold-out">
+            {{ 'content.product_badge_sold_out' | t }}
+          </div>
+        {%- elsif campaign_flag != blank -%}
+          <div
+            class="product-badges__badge product-badges__badge--rectangle"
+            style="background-color: {{ campaign_flag.background_color }}; color: {{ campaign_flag.text_color }};"
+          >
+            {{ campaign_flag.label }}
+          </div>
+        {%- elsif product.compare_at_price > product.price -%}
+          <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sale">
+            {{ 'content.product_badge_sale' | t }}
+          </div>
+        {%- endif -%}
+
+        <p class="quick-view-modal__product-title">{{ product.title }}</p>
+        {% render 'price', product_resource: product %}
+      </div>
+    </div>
+
+    <div class="quick-view-modal__size-header">
+      <span>{{ 'content.select_size_label' | t }}</span>
+      {%- if block.settings.show_size_guide -%}
+        <button
+          type="button"
+          class="button-unstyled quick-view-modal__size-guide"
+          on:click="/showSizeGuide"
+        >
+          {{ 'content.size_guide' | t }}
+        </button>
+      {%- endif -%}
+    </div>
+
+    <product-form-component
+      data-section-id="{{ section_id }}"
+      data-product-id="{{ product.id }}"
+      on:submit="/handleSubmit"
+    >
+      <div
+        class="visually-hidden"
+        aria-live="assertive"
+        role="status"
+        aria-atomic="true"
+        ref="liveRegion"
+      ></div>
+      {%- form 'product', product, id: product_form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+        <input
+          type="hidden"
+          name="id"
+          ref="variantId"
+          value="{{ variant.id }}"
+        >
+        <input
+          type="hidden"
+          name="quantity"
+          value="1"
+        >
+        <ul class="quick-view-modal__sizes">
+          {%- for value in size_option.values -%}
+            <li class="quick-view-modal__size-row">
+              <button
+                type="button"
+                class="quick-view-modal__size-button"
+                data-variant-id="{{ value.variant.id }}"
+                {% unless value.available %}
+                  disabled
+                {% endunless %}
+                on:click="/selectSize"
+              >
+                {{- value -}}
+              </button>
+              <span class="quick-view-modal__size-status">
+                {%- if value.available == false -%}
+                  {{ 'content.notify_when_available' | t }}
+                {%- elsif value.variant.inventory_quantity <= low_stock_threshold and value.variant.inventory_quantity > 0 -%}
+                  {{ 'content.last_units_left' | t: count: value.variant.inventory_quantity }}
+                {%- endif -%}
+              </span>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endform -%}
+    </product-form-component>
+  </dialog>
+</custom-quick-view-modal>
+
+<script
+  src="{{ 'custom-quick-view-modal.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>

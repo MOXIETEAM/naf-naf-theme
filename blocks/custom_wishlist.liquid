@@ -1,0 +1,32 @@
+{%- doc -%}
+  MOXIE: desktop wishlist toggle for the product card, placed via block_order next to the title/price.
+  The mobile instance is rendered separately, absolutely positioned over the gallery image
+  (see blocks/_product-card-gallery.liquid), and hidden on desktop via CSS.
+{%- enddoc -%}
+
+{% liquid
+  assign product = closest.product
+%}
+
+{% unless product == blank %}
+  {% render 'custom_wishlist-button', product: product, variant: 'desktop' %}
+{% endunless %}
+
+{% schema %}
+{
+  "name": "Moxie Wishlist",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Botón de favoritos (solo desktop). La versión mobile ya viene incluida dentro de la imagen de la card."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Moxie Wishlist",
+      "category": "Moxie"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,38 @@
+{%- doc -%}
+  Wishlist toggle button (heart icon) for the product card.
+  UI and ARIA state only for now — the toggleWishlist() logic in custom-wishlist.js is a
+  stub until the real localStorage-backed wishlist (already built on another store) is migrated here.
+
+  @param {object} product - The product resource
+  @param {string} variant - 'mobile' or 'desktop', controls which breakpoint shows this instance
+
+  @example
+  {% render 'custom_wishlist-button', product: product, variant: 'mobile' %}
+{%- enddoc -%}
+
+<wishlist-button
+  class="wishlist-button wishlist-button--{{ variant }}"
+  data-product-id="{{ product.id }}"
+>
+  <button
+    ref="button"
+    type="button"
+    class="wishlist-button__control"
+    aria-pressed="false"
+    aria-label="{{ 'actions.add_to_wishlist' | t }}"
+    on:click="/toggleWishlist"
+  >
+    <span
+      class="svg-wrapper wishlist-button__icon"
+      aria-hidden="true"
+    >
+      {% render 'icon', icon: 'heart' %}
+    </span>
+  </button>
+</wishlist-button>
+
+<script
+  src="{{ 'custom-wishlist.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>

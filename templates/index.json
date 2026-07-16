@@ -9,83 +9,727 @@
  */
 {
   "sections": {
-    "hero_jVaWmY": {
-      "type": "hero",
+    "hero_slider_home": {
+      "type": "custom_hero-slider",
       "blocks": {
-        "text_YLPk4p": {
-          "type": "text",
-          "name": "t:names.heading",
+        "slide_1": {
+          "type": "_custom_hero-slide",
           "settings": {
-            "text": "<p>Browse our latest products</p>",
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-end",
+            "padding-inline-start": 48,
+            "padding-inline-end": 48,
+            "padding-block-start": 48,
+            "padding-block-end": 64
+          },
+          "blocks": {
+            "eyebrow": {
+              "type": "text",
+              "name": "Eyebrow",
+              "settings": {
+                "text": "<p>with love</p>",
+                "type_preset": "custom",
+                "font_size": "0.875rem",
+                "case": "lowercase",
+                "letter_spacing": "loose",
+                "padding-block-end": 8
+              },
+              "blocks": {}
+            },
+            "heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>Ana Beliza</h2>",
+                "padding-block-end": 20
+              },
+              "blocks": {}
+            },
+            "button": {
+              "type": "button",
+              "settings": {
+                "label": "Comprar ahora",
+                "link": "shopify://collections/all",
+                "style_class": "button-secondary"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": ["eyebrow", "heading", "button"]
+        },
+        "slide_2": {
+          "type": "_custom_hero-slide",
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-end",
+            "padding-inline-start": 48,
+            "padding-inline-end": 48,
+            "padding-block-start": 48,
+            "padding-block-end": 64
+          },
+          "blocks": {
+            "eyebrow": {
+              "type": "text",
+              "name": "Eyebrow",
+              "settings": {
+                "text": "<p>floral print</p>",
+                "type_preset": "custom",
+                "font_size": "0.875rem",
+                "case": "uppercase",
+                "letter_spacing": "loose",
+                "padding-block-end": 8
+              },
+              "blocks": {}
+            },
+            "heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>La Vacanza</h2>",
+                "padding-block-end": 20
+              },
+              "blocks": {}
+            },
+            "button": {
+              "type": "button",
+              "settings": {
+                "label": "Comprar ahora",
+                "link": "shopify://collections/all",
+                "style_class": "button-secondary"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": ["eyebrow", "heading", "button"]
+        },
+        "slide_3": {
+          "type": "_custom_hero-slide",
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-end",
+            "padding-inline-start": 48,
+            "padding-inline-end": 48,
+            "padding-block-start": 48,
+            "padding-block-end": 64
+          },
+          "blocks": {
+            "heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>New drop</h2>",
+                "padding-block-end": 20
+              },
+              "blocks": {}
+            },
+            "button": {
+              "type": "button",
+              "settings": {
+                "label": "Comprar ahora",
+                "link": "shopify://collections/all",
+                "style_class": "button-secondary"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": ["heading", "button"]
+        }
+      },
+      "block_order": ["slide_1", "slide_2", "slide_3"],
+      "name": "Moxie Hero Slider",
+      "settings": {
+        "slideshow_gap": 12,
+        "corner_radius": 16,
+        "slide_height": "large",
+        "background_media": "none",
+        "icons_style": "arrows_large",
+        "icons_shape": "circle",
+        "slideshow_controls_style": "dots",
+        "autoplay": false,
+        "autoplay_speed": 5,
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "promo_banner_ana_vacanza": {
+      "type": "section",
+      "blocks": {
+        "group_content": {
+          "type": "group",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 8,
             "width": "fit-content",
-            "max_width": "normal",
-            "alignment": "left",
-            "type_preset": "h2",
-            "font": "var(--font-body--family)",
-            "font_size": "1rem",
-            "line_height": "normal",
-            "letter_spacing": "normal",
-            "case": "none",
-            "wrap": "pretty",
-            "text_color": "{{ settings.color_palette.background }}",
-            "background": false,
-            "background_color": "#00000026",
-            "corner_radius": 0,
+            "custom_width": 100,
+            "width_mobile": "fit-content",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
             "padding-block-start": 0,
             "padding-block-end": 0,
             "padding-inline-start": 0,
             "padding-inline-end": 0
           },
-          "blocks": {}
+          "blocks": {
+            "text_eyebrow": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<p>Colección Ana Beliza&nbsp;&nbsp;|&nbsp;&nbsp;La Vacanza</p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<p>HASTA UN <strong>70%OFF</strong> EN REFERECIAS SELECCIONADAS</p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "type_preset": "h4",
+                "font": "var(--font-body--family)",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_body": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<p>Lorem Ipsum is simply dummy text of the printing.</p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "type_preset": "paragraph",
+                "font": "var(--font-body--family)",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": ["text_eyebrow", "text_heading", "text_body"]
         },
-        "button_H9gpTf": {
-          "type": "button",
-          "name": "t:names.button",
+        "group_ctas": {
+          "type": "group",
           "settings": {
-            "label": "Shop all",
-            "link": "shopify://collections/all",
-            "open_in_new_tab": false,
-            "style_class": "button-custom",
-            "custom_button_background": "rgba(0, 0, 0, 0)",
-            "custom_button_text": "{{ settings.color_palette.background }}",
-            "custom_button_border": "{{ settings.color_palette.background }}",
+            "content_direction": "row",
+            "vertical_on_mobile": true,
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "center",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 24,
             "width": "fit-content",
             "custom_width": 100,
             "width_mobile": "fit-content",
-            "custom_width_mobile": 100
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
           },
-          "blocks": {}
+          "blocks": {
+            "button_1": {
+              "type": "button",
+              "name": "t:names.button",
+              "settings": {
+                "label": "Comprar Ana Beliza",
+                "link": "shopify://collections/all",
+                "open_in_new_tab": false,
+                "style_class": "button-unstyled",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            },
+            "button_2": {
+              "type": "button",
+              "name": "t:names.button",
+              "settings": {
+                "label": "Comprar La Vacanza",
+                "link": "shopify://collections/all",
+                "open_in_new_tab": false,
+                "style_class": "button-unstyled",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": ["button_1", "button_2"]
         }
       },
-      "block_order": [
-        "text_YLPk4p",
-        "button_H9gpTf"
-      ],
-      "name": "t:names.hero",
+      "block_order": ["group_content", "group_ctas"],
+      "name": "t:names.section",
       "settings": {
-        "media_type_1": "image",
-        "media_type_2": "image",
-        "link": "",
-        "open_in_new_tab": false,
-        "content_direction": "column",
+        "content_direction": "row",
         "vertical_on_mobile": true,
         "horizontal_alignment": "space-between",
-        "vertical_alignment": "flex-end",
-        "align_baseline": true,
+        "vertical_alignment": "center",
         "horizontal_alignment_flex_direction_column": "center",
-        "vertical_alignment_flex_direction_column": "flex-end",
-        "gap": 24,
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 32,
         "section_width": "page-width",
-        "section_height": "medium",
-        "section_height_custom": 50,
-        "toggle_overlay": true,
-        "overlay_color": "#12121266",
-        "overlay_style": "solid",
-        "gradient_direction": "to bottom",
-        "blurred_reflection": false,
-        "reflection_opacity": 75,
-        "padding-block-start": 100,
-        "padding-block-end": 72
+        "section_height": "",
+        "background_media": "none",
+        "background_color": "#EDE7E0",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "padding-block-start": 32,
+        "padding-block-end": 32
+      }
+    },
+    "carousel_capsulas_temporada": {
+      "type": "carousel",
+      "blocks": {
+        "static-header": {
+          "type": "group",
+          "name": "t:names.header",
+          "static": true,
+          "settings": {
+            "content_direction": "row",
+            "vertical_on_mobile": false,
+            "horizontal_alignment": "space-between",
+            "vertical_alignment": "flex-end",
+            "align_baseline": true,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 24,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<p>La Temporada en Dos Claves</p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h2",
+                "font": "var(--font-body--family)",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": ["heading"]
+        },
+        "static-carousel-content": {
+          "type": "_carousel-content",
+          "name": "t:names.carousel_content",
+          "static": true,
+          "settings": {
+            "position": "top",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0,
+            "height": "fit"
+          },
+          "blocks": {
+            "card_lino": {
+              "type": "_card",
+              "name": "t:names.card",
+              "settings": {
+                "content_direction": "column",
+                "vertical_alignment_flex_direction_column": "flex-end",
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "gap": 8,
+                "background_media": "image",
+                "background_image_position": "cover",
+                "aspect_ratio": "portrait",
+                "toggle_overlay": true,
+                "overlay_color": "#00000033",
+                "overlay_style": "gradient",
+                "gradient_direction": "to top",
+                "link": "shopify://collections/all",
+                "open_in_new_tab": false,
+                "padding-block-start": 0,
+                "padding-block-end": 40,
+                "padding-inline-start": 40,
+                "padding-inline-end": 40
+              },
+              "blocks": {
+                "eyebrow": {
+                  "type": "text",
+                  "name": "t:names.text",
+                  "settings": {
+                    "text": "<p>Cápsula</p>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "paragraph",
+                    "font": "var(--font-body--family)",
+                    "font_size": "",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "#ffffff",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "title": {
+                  "type": "text",
+                  "name": "t:names.heading",
+                  "settings": {
+                    "text": "<p>Lino</p>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "h2",
+                    "font": "var(--font-body--family)",
+                    "font_size": "",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "#ffffff",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "link": {
+                  "type": "text",
+                  "name": "t:names.text",
+                  "settings": {
+                    "text": "<p><a href=\"shopify://collections/all\">Ver todo</a></p>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "paragraph",
+                    "font": "var(--font-body--family)",
+                    "font_size": "",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "#ffffff",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": ["eyebrow", "title", "link"]
+            },
+            "card_denim": {
+              "type": "_card",
+              "name": "t:names.card",
+              "settings": {
+                "content_direction": "column",
+                "vertical_alignment_flex_direction_column": "flex-end",
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "gap": 8,
+                "background_media": "image",
+                "background_image_position": "cover",
+                "aspect_ratio": "portrait",
+                "toggle_overlay": true,
+                "overlay_color": "#00000033",
+                "overlay_style": "gradient",
+                "gradient_direction": "to top",
+                "link": "shopify://collections/all",
+                "open_in_new_tab": false,
+                "padding-block-start": 0,
+                "padding-block-end": 40,
+                "padding-inline-start": 40,
+                "padding-inline-end": 40
+              },
+              "blocks": {
+                "eyebrow": {
+                  "type": "text",
+                  "name": "t:names.text",
+                  "settings": {
+                    "text": "<p>Piezas icónicas</p>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "paragraph",
+                    "font": "var(--font-body--family)",
+                    "font_size": "",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "#ffffff",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "title": {
+                  "type": "text",
+                  "name": "t:names.heading",
+                  "settings": {
+                    "text": "<p>Denim</p>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "h2",
+                    "font": "var(--font-body--family)",
+                    "font_size": "",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "#ffffff",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "link": {
+                  "type": "text",
+                  "name": "t:names.text",
+                  "settings": {
+                    "text": "<p><a href=\"shopify://collections/all\">Ver todo</a></p>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "paragraph",
+                    "font": "var(--font-body--family)",
+                    "font_size": "",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "#ffffff",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": ["eyebrow", "title", "link"]
+            }
+          },
+          "block_order": ["card_lino", "card_denim"]
+        }
+      },
+      "block_order": ["static-header", "static-carousel-content"],
+      "name": "t:names.carousel",
+      "settings": {
+        "columns": 2,
+        "mobile_columns": "1",
+        "section_width": "page-width",
+        "columns_gap": 24,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_h4Xr2p": {
+      "type": "collection-list",
+      "blocks": {
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "on_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "flex-end",
+            "collection_card_gap": 8,
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0
+          },
+          "blocks": {
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "portrait",
+                "toggle_overlay": true,
+                "overlay_color": "#00000026",
+                "overlay_style": "gradient",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0
+              },
+              "blocks": {}
+            },
+            "collection-title": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "center",
+                "type_preset": "custom",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "uppercase",
+                "wrap": "nowrap",
+                "background": false,
+                "background_color": "#ffffff",
+                "text_color": "#ffffff",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 24,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": ["collection-title"]
+        }
+      },
+      "name": "t:names.collection_list",
+      "settings": {
+        "collection_list": [],
+        "layout_type": "grid",
+        "carousel_on_mobile": true,
+        "columns": 4,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "rows_gap": 8,
+        "icons_style": "none",
+        "icons_shape": "none",
+        "section_width": "page-width",
+        "gap": 12,
+        "padding-block-start": 0,
+        "padding-block-end": 0
       }
     },
     "product_list_fa6P9H": {
@@ -276,7 +920,10 @@
     }
   },
   "order": [
-    "hero_jVaWmY",
+    "hero_slider_home",
+    "promo_banner_ana_vacanza",
+    "carousel_capsulas_temporada",
+    "collection_list_h4Xr2p",
     "product_list_fa6P9H"
   ]
 }

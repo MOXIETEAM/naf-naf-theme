@@ -72,6 +72,9 @@
     "add_to_cart": "Add to cart",
     // Success message shown after adding item to cart
     "added": "Added",
+    // Wishlist toggle button on the product card
+    "add_to_wishlist": "Add to wishlist",
+    "remove_from_wishlist": "Remove from wishlist",
     // Button to apply discount code to cart
     "apply": "Apply",
     "back": "Back",
@@ -163,6 +166,15 @@
   "content": {
     "cancel": "Cancel",
     "discount": "Discount",
+    // Mobile quick view modal opened from the product card "+" button
+    "quick_view_title": "Quick view",
+    "select_size_label": "Select your size",
+    "size_guide": "Size guide",
+    "notify_when_available": "Notify me when available",
+    "last_units_left": {
+      "one": "Last {{ count }} unit left",
+      "other": "Last {{ count }} units left"
+    },
     "account_title": "Account",
     "terms_and_policies": "Terms and Policies",
     "account_title_personalized": "Hi {{ first_name }}",

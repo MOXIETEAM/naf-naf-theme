@@ -20,6 +20,7 @@
 {% render 'variant-picker-styles' %}
 {% render 'product-badges-styles' %}
 
+{%- comment -%} MOXIE: se agregó el bloque hijo "custom_wishlist" (blocks/custom_wishlist.liquid) a la lista de blocks del schema para poder ubicar el botón de wishlist desktop junto al título vía block_order {%- endcomment -%}
 {% schema %}
 {
   "name": "t:names.product_card",
@@ -53,6 +54,9 @@
     },
     {
       "type": "product-title"
+    },
+    {
+      "type": "custom_wishlist"
     },
     {
       "type": "custom-liquid"

@@ -1,0 +1,538 @@
+{%- comment -%}
+  MOXIE: custom hero slider — layout ("peek" de slides vecinos, flechas circulares sobre
+  la media) replica el patrón nativo de `slideshow.liquid` en `display_mode: with_hints`
+  (page-margin + slide width = 100vw - margins), pero la transición es crossfade puro
+  (sin scroll/translate lateral) vía el custom element `hero-fade-slider`
+  (assets/custom-hero-slider.js), ya que el `slideshow-component` nativo siempre se mueve
+  por scroll-snap. Reutiliza sin modificar: slideshow-arrows, slideshow-controls (dots/
+  counter), background-media, contrast-override — el `on:click="/metodo"` del theme es
+  genérico y no está atado a `slideshow-component`.
+{%- endcomment -%}
+{% liquid
+  assign show_controls = false
+  if section.blocks.size > 1
+    assign show_controls = true
+  endif
+
+  # MOXIE: valores en dvh (no los rem fijos que trae `slideshow.liquid`, pensados
+  # para carruseles chicos) — este hero debe sentirse full-bleed en ambos breakpoints,
+  # tal como lo muestra el Figma (media ocupa casi todo el alto de viewport).
+  assign slide_min_height = '55dvh'
+  assign slide_min_height_desktop = '65dvh'
+  case section.settings.slide_height
+    when 'small'
+      assign slide_min_height = '45dvh'
+      assign slide_min_height_desktop = '55dvh'
+    when 'medium'
+      assign slide_min_height = '55dvh'
+      assign slide_min_height_desktop = '65dvh'
+    when 'large'
+      assign slide_min_height = '70dvh'
+      assign slide_min_height_desktop = '85dvh'
+  endcase
+%}
+
+{% capture controls %}
+  {% if show_controls %}
+    {%- render 'slideshow-controls',
+      style: section.settings.slideshow_controls_style,
+      autoplay: false,
+      item_count: section.blocks.size,
+      show_arrows: false,
+      arrows_on_media: true,
+      controls_on_media: true,
+      pagination_position: 'center',
+      icon_style: section.settings.icons_style
+    -%}
+  {% endif %}
+{% endcapture %}
+
+{% capture slides %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+{% liquid
+  # Content siempre se renderiza sobre la media (on-media): el contraste automático
+  # del theme se salta porque cada slide resuelve su propio contraste vía overlay/color.
+  render 'contrast-override', background_color: section.settings.background_color, section_id: section.id, skip_contrast: true
+%}
+
+<div class="section-background color-custom-{{ section.id }}"></div>
+<div
+  class="hero-fade-slider-section spacing-style section section--full-width color-custom-{{ section.id }} disable-section-top-offset"
+  style="{% render 'spacing-padding', settings: section.settings %}; --slideshow-gap: {{ section.settings.slideshow_gap }}px; --corner-radius: {{ section.settings.corner_radius }}px; --slide-min-height: {{ slide_min_height }}; --slide-min-height-desktop: {{ slide_min_height_desktop }};"
+>
+  <h2 class="visually-hidden">{{ 'accessibility.slideshow' | t }}</h2>
+
+  {% if section.settings.background_media != blank and section.settings.background_media != 'none' %}
+    <div class="custom-section-background">
+      {% render 'background-media',
+        background_media: section.settings.background_media,
+        background_image: section.settings.background_image,
+        background_image_position: section.settings.background_image_position
+      %}
+    </div>
+  {% endif %}
+
+  <hero-fade-slider
+    class="hero-fade-slider"
+    {% if section.settings.autoplay %}
+      autoplay="{{ section.settings.autoplay_speed }}"
+    {% endif %}
+  >
+    <div
+      class="hero-fade-slider__peek hero-fade-slider__peek--previous"
+      ref="peekPrevious"
+      aria-hidden="true"
+      tabindex="-1"
+      on:click="/previous"
+    ></div>
+
+    <div class="hero-fade-slider__stage">
+      {% if show_controls and section.settings.icons_style != 'none' %}
+        {%- render 'slideshow-arrows', icon_style: section.settings.icons_style, icon_shape: section.settings.icons_shape -%}
+      {% endif %}
+      <div class="hero-fade-slider__slides">
+        {{ slides }}
+      </div>
+      {{ controls }}
+    </div>
+
+    <div
+      class="hero-fade-slider__peek hero-fade-slider__peek--next"
+      ref="peekNext"
+      aria-hidden="true"
+      tabindex="-1"
+      on:click="/next"
+    ></div>
+  </hero-fade-slider>
+</div>
+
+<script src="{{ 'custom-hero-slider.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .hero-fade-slider-section {
+    position: relative;
+  }
+
+  .hero-fade-slider {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    gap: var(--slideshow-gap, 0);
+  }
+
+  .hero-fade-slider__peek {
+    flex: 1 1 auto;
+    min-width: 0;
+    background-image: var(--peek-image, none);
+    background-size: cover;
+    background-position: center center;
+    background-color: var(--color-background);
+    cursor: pointer;
+    border-radius: var(--corner-radius, 0);
+  }
+
+  .hero-fade-slider__stage {
+    position: relative;
+    flex: 0 0 auto;
+    width: 64%;
+    min-height: var(--slide-min-height-desktop);
+    border-radius: var(--corner-radius, 0);
+    overflow: hidden;
+  }
+
+  .hero-fade-slider__slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  /*
+   * MOXIE: el diseño pide flechas circulares siempre visibles (no el hover-reveal
+   * nativo de `slideshow-component:hover`, que además está scoped a ese tag y no
+   * aplicaría aquí), en círculo blanco con ícono oscuro (el Figma no usa el color
+   * de botón primario del tema, que aquí es negro).
+   */
+  .hero-fade-slider slideshow-arrows .slideshow-control {
+    opacity: 1;
+  }
+
+  .hero-fade-slider slideshow-arrows .slideshow-control.slideshow-control--shape-circle {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  .hero-fade-slider slideshow-arrows .slideshow-control:first-of-type {
+    margin-inline-start: var(--padding-xs);
+  }
+
+  .hero-fade-slider slideshow-arrows .slideshow-control:last-of-type {
+    margin-inline-end: var(--padding-xs);
+  }
+
+  @media screen and (max-width: 749px) {
+    .hero-fade-slider__stage {
+      width: 86%;
+      min-height: var(--slide-min-height);
+    }
+
+    .hero-fade-slider__peek {
+      flex-basis: 7%;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Moxie Hero Slider",
+  "class": "container-background-image",
+  "blocks": [
+    {
+      "type": "_custom_hero-slide"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "range",
+      "id": "slideshow_gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "t:settings.corner_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "slide_height",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:options.large"
+        }
+      ],
+      "default": "large",
+      "label": "t:settings.media_height"
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "select",
+      "id": "background_media",
+      "label": "t:settings.background_media",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "image",
+          "label": "t:options.image"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:settings.background_color",
+      "placeholder": "t:settings.default",
+      "visible_if": "{{ section.settings.background_media == 'none' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "t:settings.image",
+      "visible_if": "{{ section.settings.background_media == 'image' }}"
+    },
+    {
+      "type": "select",
+      "id": "background_image_position",
+      "label": "t:settings.image_position",
+      "options": [
+        {
+          "value": "cover",
+          "label": "t:options.cover"
+        },
+        {
+          "value": "fit",
+          "label": "t:options.fit"
+        }
+      ],
+      "default": "cover",
+      "visible_if": "{{ section.settings.background_media == 'image' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.navigation"
+    },
+    {
+      "type": "select",
+      "id": "icons_style",
+      "label": "t:settings.icons",
+      "options": [
+        {
+          "value": "arrow",
+          "label": "t:options.arrows"
+        },
+        {
+          "value": "chevron",
+          "label": "t:options.chevrons"
+        },
+        {
+          "value": "arrows_large",
+          "label": "t:options.large_arrows"
+        },
+        {
+          "value": "chevron_large",
+          "label": "t:options.large_chevrons"
+        },
+        {
+          "value": "none",
+          "label": "t:options.none"
+        }
+      ],
+      "default": "arrows_large"
+    },
+    {
+      "type": "select",
+      "id": "icons_shape",
+      "label": "t:settings.icon_background",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "circle",
+          "label": "t:options.circle"
+        },
+        {
+          "value": "square",
+          "label": "t:options.square"
+        }
+      ],
+      "default": "circle",
+      "visible_if": "{{ section.settings.icons_style != 'none' }}"
+    },
+    {
+      "type": "select",
+      "id": "slideshow_controls_style",
+      "label": "t:settings.pagination",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "dots",
+          "label": "t:options.dots"
+        },
+        {
+          "value": "counter",
+          "label": "t:options.counter"
+        }
+      ],
+      "default": "dots"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:settings.auto_rotate_slides",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "t:settings.speed",
+      "min": 3,
+      "max": 7,
+      "step": 1,
+      "unit": "s",
+      "default": 4,
+      "visible_if": "{{ section.settings.autoplay }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Moxie Hero Slider",
+      "category": "Moxie",
+      "settings": {
+        "slide_height": "large",
+        "corner_radius": 16,
+        "icons_style": "arrows_large",
+        "icons_shape": "circle",
+        "slideshow_controls_style": "dots",
+        "autoplay": false,
+        "autoplay_speed": 5
+      },
+      "blocks": {
+        "slide_1": {
+          "type": "_custom_hero-slide",
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-end",
+            "padding-inline-start": 48,
+            "padding-inline-end": 48,
+            "padding-block-start": 48,
+            "padding-block-end": 64
+          },
+          "blocks": {
+            "eyebrow": {
+              "type": "text",
+              "name": "Eyebrow",
+              "settings": {
+                "text": "<p>with love</p>",
+                "type_preset": "custom",
+                "font_size": "0.875rem",
+                "case": "lowercase",
+                "letter_spacing": "loose",
+                "padding-block-end": 8
+              }
+            },
+            "heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>Ana Beliza</h2>",
+                "padding-block-end": 20
+              }
+            },
+            "button": {
+              "type": "button",
+              "settings": {
+                "label": "Comprar ahora",
+                "link": "shopify://collections/all",
+                "style_class": "button-secondary"
+              }
+            }
+          },
+          "block_order": ["eyebrow", "heading", "button"]
+        },
+        "slide_2": {
+          "type": "_custom_hero-slide",
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-end",
+            "padding-inline-start": 48,
+            "padding-inline-end": 48,
+            "padding-block-start": 48,
+            "padding-block-end": 64
+          },
+          "blocks": {
+            "eyebrow": {
+              "type": "text",
+              "name": "Eyebrow",
+              "settings": {
+                "text": "<p>floral print</p>",
+                "type_preset": "custom",
+                "font_size": "0.875rem",
+                "case": "uppercase",
+                "letter_spacing": "loose",
+                "padding-block-end": 8
+              }
+            },
+            "heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>La Vacanza</h2>",
+                "padding-block-end": 20
+              }
+            },
+            "button": {
+              "type": "button",
+              "settings": {
+                "label": "Comprar ahora",
+                "link": "shopify://collections/all",
+                "style_class": "button-secondary"
+              }
+            }
+          },
+          "block_order": ["eyebrow", "heading", "button"]
+        },
+        "slide_3": {
+          "type": "_custom_hero-slide",
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-end",
+            "padding-inline-start": 48,
+            "padding-inline-end": 48,
+            "padding-block-start": 48,
+            "padding-block-end": 64
+          },
+          "blocks": {
+            "heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>New drop</h2>",
+                "padding-block-end": 20
+              }
+            },
+            "button": {
+              "type": "button",
+              "settings": {
+                "label": "Comprar ahora",
+                "link": "shopify://collections/all",
+                "style_class": "button-secondary"
+              }
+            }
+          },
+          "block_order": ["heading", "button"]
+        }
+      },
+      "block_order": ["slide_1", "slide_2", "slide_3"]
+    }
+  ]
+}
+{% endschema %}
