@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Shopify Horizon theme base (v3.4.0) with a custom Sass + PostCSS build pipeline. Maintained separately from upstream Horizon using a structured git workflow.
+Shopify Horizon theme base (v3.4.0). CSS lives natively per component via `{% stylesheet %}` (see `docs/css-architecture.md`) — a legacy Sass + PostCSS pipeline still runs during the migration off the old single-bundle model, but it is not where new CSS goes. Maintained separately from upstream Horizon using a structured git workflow.
 
 ## Commands
 
@@ -22,18 +22,9 @@ Requires `.env` with `SHOPIFY_STORE=<store-slug>` (no `.myshopify.com`).
 
 ## CSS Architecture
 
-- **Entry:** `src/styles/main.scss`
-- **Output:** `assets/mox-custom-styles.css`
-- **Pipeline:** Sass → PostCSS (autoprefixer) → cssnano (prod only)
+**Estándar vigente: CSS por componente vía `{% stylesheet %}` nativo, en el propio `.liquid` de la sección/bloque/snippet.** Ver `docs/css-architecture.md` para la guía completa (patrón "afuera y lo llamo" con snippets dedicados, tokens de diseño, checklist de migración). Esa doc es la fuente de verdad — este archivo solo resume.
 
-```
-src/styles/
-├── base/         # _variables.scss (CSS custom props), _mixins.scss, _reset.scss
-├── components/   # _header.scss, _footer.scss
-└── pages/        # _home.scss, _plp.scss
-```
-
-The `container` mixin in `_mixins.scss` is the standard layout wrapper (`max-width: 1200px`).
+`src/styles/` (Sass → PostCSS → `assets/mox-custom-styles.css`, cargado global en `layout/theme.liquid`) es **legacy en transición**, no el modelo a seguir para código nuevo. Se mantiene activo solo mientras dura la migración de los componentes que aún dependen de él (ver checklist en `docs/css-architecture.md`); se retira en un PR aparte cuando esa lista llegue a cero. El `container` mixin en `_mixins.scss` sigue siendo el wrapper de layout de referencia (`max-width: 1200px`) hasta que se documente su equivalente nativo.
 
 ### Fluid scaling (valores fijos de Figma → CSS responsivo)
 
@@ -41,27 +32,19 @@ Figma siempre entrega valores fijos en px para el desktop. Antes de hardcodear u
 
 **1. Texto que es h1-h6 o párrafo (dentro de la escala de Theme Editor):** ya es fluido nativo. Horizon genera `--font-size--h1` … `--font-size--h6` y `--font-size--paragraph` como `clamp()` en `snippets/theme-styles-variables.liquid` (a partir de `settings.type_size_*`), con lógica anti-solapamiento entre tamaños vecinos. **Usar esas variables (`var(--font-size--h1)`, etc.), nunca reimplementar esto** — ya es más completo que cualquier función custom (está atado al Theme Editor).
 
-**2. Todo lo que Horizon NO cubre** — tamaños de fuente fuera de esa escala (badges, eyebrows, números de stat, etc.) y cualquier valor de layout (padding, gap, width, height, etc.) — usar las funciones Sass en `src/styles/base/_mixins.scss`:
+**2. Todo lo que Horizon NO cubre** — tamaños de fuente fuera de esa escala (badges, eyebrows, números de stat, etc.) y cualquier valor de layout (padding, gap, width, height, etc.) — calcular el `clamp()` con el helper standalone `tools/fluid.js` (no corre en el build, se ejecuta manualmente) y pegar el resultado literal dentro del `{% stylesheet %}`:
 
-- `fluid($px)` — layout (padding, gap, width, height, etc.)
-- `fluid-type($px)` — font-size fuera de la escala h1-h6/paragraph (piso de legibilidad más conservador, 85% fijo)
-
-Ambas generan un `clamp()` entre el ancho de referencia de Figma (`$ref-w: 1440px`) y el breakpoint nativo de Horizon (`$min-w: 990px`, definidos en `_variables.scss`). Por debajo de 990px siguen mandando los breakpoints fijos de Horizon (750px/990px) — `fluid()` no los reemplaza, solo cubre el rango 990–1440px donde el tema no tiene escalado propio.
-
-Uso en un partial nuevo:
-```scss
-@use '../base/mixins' as *;
-
-.mi-componente {
-  padding: fluid(20);
-  font-size: fluid-type(16); // solo si NO es h1-h6/paragraph
-}
+```bash
+node tools/fluid.js 20          # -> clamp(14px, 1.39vw, 20px)   layout: padding, gap, width, height
+node tools/fluid.js 16 --type   # -> clamp(14px, 1.11vw, 16px)   font-size fuera de h1-h6/paragraph
 ```
+
+El script replica la misma fórmula que antes vivía en `src/styles/base/_mixins.scss` (`fluid()`/`fluid-type()`, ahora legacy): ancho de referencia de Figma `$ref-w: 1440px`, breakpoint nativo de Horizon `$min-w: 990px`, piso de legibilidad 85% fijo para `fluid-type`. Por debajo de 990px siguen mandando los breakpoints fijos de Horizon (750px/990px) — esto no los reemplaza, solo cubre el rango 990–1440px donde el tema no tiene escalado propio.
 
 ## Theme Structure
 
 Standard Shopify Liquid theme layout:
-- `layout/theme.liquid` — master HTML template, loads `mox-custom-styles.css`
+- `layout/theme.liquid` — master HTML template; still loads the legacy `mox-custom-styles.css` bundle during the migration (see `docs/css-architecture.md`)
 - `sections/` — theme editor sections (43 files)
 - `blocks/` — reusable section blocks (114 files)
 - `snippets/` — Liquid partials (93 files)
@@ -92,21 +75,21 @@ Resolve conflicts in `development`, never in `main`.
 ## Rules
 
 - Never modify Horizon core files — extend instead
-- Custom styles go in `src/styles/`, never inline in Liquid files
-- Keep SCSS modular; add new partials under the appropriate subfolder and `@use` them in `main.scss`
+- CSS nuevo va en un `{% stylesheet %}` nativo dentro del componente (ver `docs/css-architecture.md`), nunca en `src/styles/`
+- `src/styles/` (SCSS) es legacy en transición — solo se toca para retirar código a medida que se migra, no para agregar código nuevo
 
 ## CORE RULES (CRITICAL)
 
 - Never modify Horizon core files
 - Always extend instead of overwrite
-- All custom CSS goes in src/styles/
-- Do not inline CSS in Liquid
+- CSS nuevo: `{% stylesheet %}` nativo por componente — no `src/styles/` (ver `docs/css-architecture.md`)
+- Do not inline CSS in Liquid outside of `{% stylesheet %}`/`{% style %}` tags
 - Always check existing theme implementation before building new logic
 
 ## CUSTOMIZATION DECISION TREE
 
 1. Can it be solved with CSS?
-   → Use src/styles/
+   → `{% stylesheet %}` nativo en el componente (sección/bloque/snippet). Si el marcado ya es grande, usar un snippet dedicado `custom_[nombre]-styles.liquid` (patrón "afuera y lo llamo", ver `docs/css-architecture.md`).
 
 2. Small Liquid change?
    → Modify minimally + add comment:
@@ -158,7 +141,7 @@ El objetivo es **nunca romper el tema base** para que actualizaciones upstream s
 
 ### Árbol de decisión (en orden de prioridad)
 
-1. **¿Se resuelve solo con CSS?** → Override en `src/styles/`. No tocar el Liquid original.
+1. **¿Se resuelve solo con CSS?** → `{% stylesheet %}` nativo en el componente (ver `docs/css-architecture.md`). Si es un archivo nativo de Horizon, se agrega el bloque marcado `MOXIE:`; si el marcado ya es grande, usar un snippet dedicado `custom_[nombre]-styles.liquid` en vez de inflar el archivo. `src/styles/` es legacy en transición, no el destino de CSS nuevo.
 2. **¿Requiere un cambio mínimo en Liquid?** → Modificar el original con el cambio más pequeño posible. Marcar con `{%- comment -%} MOXIE: [descripción] {%- endcomment -%}`.
 3. **¿Requiere un cambio estructural?** → Crear archivo custom nuevo basado en el original. No modificar el original.
 

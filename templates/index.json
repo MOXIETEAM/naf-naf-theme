@@ -886,15 +886,20 @@
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
-                "padding-inline-end": 0
+                "padding-inline-end": 32
               },
               "blocks": {}
+            },
+            "custom_wishlist_block": {
+              "type": "custom_wishlist",
+              "settings": {}
             }
           },
           "block_order": [
             "product_card_gallery_677WP3",
             "product_title_YXxMTj",
-            "price_JQzVV4"
+            "price_JQzVV4",
+            "custom_wishlist_block"
           ]
         }
       },
@@ -922,8 +927,8 @@
   "order": [
     "hero_slider_home",
     "promo_banner_ana_vacanza",
+    "product_list_fa6P9H",
     "carousel_capsulas_temporada",
-    "collection_list_h4Xr2p",
-    "product_list_fa6P9H"
+    "collection_list_h4Xr2p"
   ]
 }

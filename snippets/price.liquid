@@ -137,3 +137,19 @@
     {{- 'content.volume_pricing_available' | t -}}
   </small>
 {%- endif -%}
+
+{%- comment -%} MOXIE: badge de % de descuento junto al precio, no existe nativo en Horizon {%- endcomment -%}
+{% stylesheet %}
+  .price-discount-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    order: -1;
+    padding: 0.2em 0.5em;
+    border-radius: 2px;
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    font-size: var(--font-size--xs);
+    line-height: 1;
+  }
+{% endstylesheet %}

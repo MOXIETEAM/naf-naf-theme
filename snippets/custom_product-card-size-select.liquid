@@ -10,7 +10,9 @@
 
 {% liquid
   assign variant = product.selected_or_first_available_variant
-  assign size_option = product.options_with_values | first
+  # MOXIE: buscar la opción "Talla" explícita, no asumir que es la primera —
+  # productos con otra opción primero (color, etc.) mostrarían esa por error.
+  assign size_option = product.options_with_values | where: 'name', 'Talla' | first
   assign product_form_id = 'CardSizeSelect-ProductForm-' | append: product.id
 %}
 
@@ -88,3 +90,96 @@
   type="module"
   fetchpriority="low"
 ></script>
+
+{% stylesheet %}
+  /* MOXIE: <product-card-size-select> es un custom element sin display propio
+     (inline por default) y sus 2 hijos (trigger, overlay) son position:absolute,
+     así que sin esto su caja colapsa a width:0 y el overlay (inset-inline:0)
+     hereda ese 0 — hay que anclarlo él mismo al área completa de la imagen. */
+  .product-card-size-select {
+    position: absolute;
+    inset: 0;
+    z-index: var(--layer-raised);
+    pointer-events: none;
+  }
+
+  /* MOXIE: Figma pinta este trigger como un chip gris (#8e8e8e) casi sin radio,
+     no la píldora blanca nativa de quick-add — se sobreescribe con doble clase
+     para no tocar .quick-add__button en el resto del tema.
+     El positioning nativo (inset-inline-end/inset-block-end) depende de custom
+     properties (--quick-add-inset-inline-end, etc.) que solo existen dentro del
+     wrapper nativo ".quick-add" — como no lo usamos, esas vars quedan inválidas
+     y el botón caía en flujo normal (arriba-izq). Se fija un offset propio. */
+  .product-card-size-select__trigger.quick-add__button {
+    background: #8e8e8e;
+    border: none;
+    border-radius: 2px;
+    color: var(--color-background);
+    inset-inline-end: var(--padding-sm);
+    inset-block-end: var(--padding-sm);
+  }
+
+  /* MOXIE: en desktop el chip "+" siempre está visible (Figma) — el quick-add
+     nativo lo oculta (opacity:0) hasta hacer hover sobre toda la card; acá se
+     fuerza visible siempre y el hover solo revela las tallas debajo. */
+  @media screen and (min-width: 750px) {
+    .product-card-size-select__trigger.quick-add__button {
+      opacity: 1;
+    }
+  }
+
+  .product-card-size-select__overlay {
+    display: none;
+
+    @media screen and (min-width: 750px) {
+      display: block;
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      z-index: var(--layer-raised);
+      background-color: rgb(var(--color-background-rgb) / var(--opacity-40));
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px);
+      transition:
+        opacity 0.15s var(--animation-easing),
+        transform 0.15s var(--animation-easing),
+        visibility 0.15s;
+    }
+  }
+
+  .product-card-size-select:is(:hover, :focus-within) .product-card-size-select__overlay {
+    @media screen and (min-width: 750px) {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+  }
+
+  .product-card-size-select__sizes {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.5625rem, 2.5vw, 2.25rem);
+    margin: 0;
+    padding: var(--padding-sm);
+    list-style: none;
+  }
+
+  .product-card-size-select__size {
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--color-foreground);
+    font-size: var(--font-size--sm);
+    font-weight: var(--font-weight-medium, 500);
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+{% endstylesheet %}

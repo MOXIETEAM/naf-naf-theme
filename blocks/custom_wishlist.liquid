@@ -12,6 +12,23 @@
   {% render 'custom_wishlist-button', product: product, variant: 'desktop' %}
 {% endunless %}
 
+{% stylesheet %}
+  /* MOXIE: en Figma el corazón va en la misma fila que el precio, alineado a la
+     derecha (no flotando sobre la imagen como en mobile). Se ancla al borde
+     inferior/derecho de la card — como price es el último bloque en flujo antes
+     de este, coincide con la línea del precio. Ver padding-inline-end del bloque
+     price en el template para dejarle espacio al ícono. */
+  .product-card__content {
+    position: relative;
+  }
+
+  .wishlist-button--desktop {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-end: 0;
+  }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "Moxie Wishlist",
