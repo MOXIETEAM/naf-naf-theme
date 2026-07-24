@@ -4,15 +4,25 @@
     clic en una talla agrega esa variante al carrito directo (sin ir a la PDP).
   - Mobile: el mismo botón "+" abre el modal "Compra rápida" (custom_quick-view-modal.liquid) en vez del overlay.
 
+  Los botones de talla usan on:click="product-card-size-select/selectSize" con selector explícito
+  (no "/selectSize") porque quedan anidados dentro de <product-form-component>, que también extiende
+  Component — el resolver de assets/component.js sube por los ancestros y se queda con el primer
+  Component que encuentra, así que sin el selector explícito el click resolvía contra
+  product-form-component (sin método selectSize) y no hacía nada, silenciosamente.
+
   @param {object} product - The product resource
   @param {string} section_id - The section ID, used for the product form
 {%- enddoc -%}
 
 {% liquid
   assign variant = product.selected_or_first_available_variant
-  # MOXIE: buscar la opción "Talla" explícita, no asumir que es la primera —
+  # MOXIE: buscar la opción de talla explícita, no asumir que es la primera —
   # productos con otra opción primero (color, etc.) mostrarían esa por error.
-  assign size_option = product.options_with_values | where: 'name', 'Talla' | first
+  # El catálogo real mezcla nombres "Talla" y "Size" para la misma opción
+  # (confirmado contra /collections/mujeres-ropa), así que se matchean ambos.
+  assign size_option_talla = product.options_with_values | where: 'name', 'Talla' | first
+  assign size_option_size = product.options_with_values | where: 'name', 'Size' | first
+  assign size_option = size_option_talla | default: size_option_size
   assign product_form_id = 'CardSizeSelect-ProductForm-' | append: product.id
 %}
 
@@ -28,11 +38,9 @@
     on:click="/handleTriggerClick"
   >
     <span
-      class="svg-wrapper"
+      class="product-card-size-select__trigger-icon"
       aria-hidden="true"
-    >
-      {{- 'icon-add-to-cart.svg' | inline_asset_content -}}
-    </span>
+    >+</span>
   </button>
 
   <div
@@ -72,9 +80,9 @@
                   type="button"
                   class="product-card-size-select__size"
                   data-variant-id="{{ value.variant.id }}"
-                  on:click="/selectSize"
+                  on:click="product-card-size-select/selectSize"
                 >
-                  {{- value -}}
+                  {{- value | escape -}}
                 </button>
               </li>
             {%- endif -%}
@@ -109,30 +117,74 @@
      El positioning nativo (inset-inline-end/inset-block-end) depende de custom
      properties (--quick-add-inset-inline-end, etc.) que solo existen dentro del
      wrapper nativo ".quick-add" — como no lo usamos, esas vars quedan inválidas
-     y el botón caía en flujo normal (arriba-izq). Se fija un offset propio. */
+     y el botón caía en flujo normal (arriba-izq). Se fija un offset propio.
+     display/opacity: la clase nativa .quick-add__button usa
+     `display: var(--quick-add-mobile-display, none)` y
+     `opacity: var(--quick-add-mobile-opacity, 0)` — esas variables las define
+     snippets/product-card.liquid nativo (que no usamos), así que sin este
+     override el trigger quedaba display:none/opacity:0 en mobile (invisible e
+     inaccesible al tap). Se fuerza visible siempre, en ambos breakpoints
+     (el chip "+" siempre está visible en el Figma, no solo en hover). */
   .product-card-size-select__trigger.quick-add__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    width: auto;
+    height: auto;
+    padding: 4px 7px;
     background: #8e8e8e;
     border: none;
     border-radius: 2px;
-    color: var(--color-background);
-    inset-inline-end: var(--padding-sm);
-    inset-block-end: var(--padding-sm);
+    color: #ffffff;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      opacity 0.15s var(--animation-easing),
+      visibility 0.15s;
+
+    @media screen and (max-width: 749px) {
+      inset-inline-end: 17px;
+      inset-block-end: 15.38px;
+    }
+
+    @media screen and (min-width: 750px) {
+      inset-inline-end: 24px;
+      inset-block-end: 24px;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-foreground);
+      outline-offset: 2px;
+    }
   }
 
-  /* MOXIE: en desktop el chip "+" siempre está visible (Figma) — el quick-add
-     nativo lo oculta (opacity:0) hasta hacer hover sobre toda la card; acá se
-     fuerza visible siempre y el hover solo revela las tallas debajo. */
-  @media screen and (min-width: 750px) {
-    .product-card-size-select__trigger.quick-add__button {
-      opacity: 1;
+  /* MOXIE: en el Figma el "+" desaparece por completo cuando el overlay de
+     tallas se revela — antes quedaba superpuesto sobre el overlay. */
+  .product-card-size-select:is(:hover, :focus-within) .product-card-size-select__trigger {
+    @media screen and (min-width: 750px) {
+      opacity: 0;
+      visibility: hidden;
     }
+  }
+
+  /* MOXIE: ícono real del Figma — el "+" es texto (Host Grotesk), no un SVG. */
+  .product-card-size-select__trigger-icon {
+    font-family: var(--font-body--family);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 0.94;
+    letter-spacing: 0;
+    vertical-align: middle;
   }
 
   .product-card-size-select__overlay {
     display: none;
 
     @media screen and (min-width: 750px) {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 72px;
       position: absolute;
       inset-inline: 0;
       bottom: 0;
@@ -173,13 +225,23 @@
     border: none;
     background: none;
     padding: 0;
-    color: var(--color-foreground);
-    font-size: var(--font-size--sm);
-    font-weight: var(--font-weight-medium, 500);
+    color: #000000;
+    font-family: var(--font-body--family);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 0;
+    vertical-align: middle;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 
     &:hover {
       text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-foreground);
+      outline-offset: 2px;
     }
   }
 {% endstylesheet %}

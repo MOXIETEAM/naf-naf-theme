@@ -29,7 +29,9 @@ export class ProductCardSizeSelect extends Component {
    * @param {PointerEvent} event
    */
   selectSize(event) {
-    const target = /** @type {HTMLElement | null} */ (event.currentTarget);
+    // MOXIE: event.currentTarget is document (the delegated listener root, see
+    // assets/component.js) — the clicked button only comes through as event.target.
+    const target = /** @type {HTMLElement | null} */ (event.target);
     const variantId = target?.dataset.variantId;
     if (!variantId) return;
 

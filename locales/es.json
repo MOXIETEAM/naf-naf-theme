@@ -127,10 +127,18 @@
     "quick_view_title": "Compra rápida",
     "select_size_label": "Selecciona la talla",
     "size_guide": "Guía de tallas",
-    "notify_when_available": "Avísame cuando esté disponible",
+    "size_guide_back": "Atrás",
+    "size_guide_question": "¿Cómo deseas ver las medidas?",
+    "size_guide_unit_cm": "CM",
+    "size_guide_unit_in": "IN",
+    "size_guide_table_size": "Talla",
+    "size_guide_table_bust": "Busto",
+    "size_guide_table_waist": "Cintura",
+    "size_guide_table_hip": "Cadera",
+    "notify_when_available": "Avísame Cuando Esté Disponible",
     "last_units_left": {
-      "one": "Última {{ count }} unidad",
-      "other": "Últimas {{ count }} unidades"
+      "one": "Última {{ count }} Unidad",
+      "other": "Últimas {{ count }} Unidades"
     },
     "language": "Idioma",
     "localization_region_and_language": "Región e idioma",

@@ -4,22 +4,47 @@
   (assets/dialog.js) sin tocarla. Todo el contenido ya está disponible en el producto de la card,
   no requiere fetch como el quick-add nativo.
 
-  La sub-vista "Guía de tallas" está fuera de alcance por ahora (pendiente de que el cliente defina
-  la fuente de datos de la tabla de medidas) — el botón queda oculto tras block.settings.show_size_guide.
+  Guía de tallas: metaobject reusable "size_guide" (mismo patrón que product_flag/custom.flag
+  para el badge) referenciado vía product.metafields.custom.size_guide — así el cliente arma una
+  guía una vez y la reusa en varios productos del mismo corte. Campos esperados del metaobject:
+  - "measurements" (json): array de filas [{size, bust_cm, waist_cm, hip_cm, bust_in, waist_in, hip_in}]
+  - "image" (file_reference): foto instructiva con las zonas de medición marcadas
+  - "instructions" (rich_text): texto de "cómo medir" — NO son 3 bloques fijos Busto/Cintura/Cadera
+    en locale, porque una guía de otra categoría (ej. hombre, calzado) puede no tener esas 3 zonas.
+    El merchant escribe lo que aplique para esa guía puntual, se renderiza con metafield_tag.
+  El botón "Guía de tallas" solo aparece si el producto tiene esa referencia asignada (sin setting
+  manual — igual que el badge de campaign_flag). Sub-vista con toggle CM/IN: los valores de ambas
+  unidades ya vienen precalculados en el metaobject (no se convierte en runtime) y el toggle solo
+  alterna qué data-attribute se muestra vía CSS/JS (ver assets/custom-quick-view-modal.js).
+
+  Los botones de talla usan on:click="custom-quick-view-modal/selectSize" con selector explícito
+  (no "/selectSize") porque quedan anidados dentro de <product-form-component>, que también extiende
+  Component — el resolver de assets/component.js sube por los ancestros y se queda con el primer
+  Component que encuentra, así que sin el selector explícito el click resolvía contra
+  product-form-component (sin método selectSize) y no hacía nada, silenciosamente.
 
   @param {object} product - The product resource
   @param {string} section_id - The section ID, used for the product form
-  @param {object} [block] - The enclosing _product-card-gallery block, for its low_stock_threshold/show_size_guide settings
+  @param {object} [block] - The enclosing _product-card-gallery block, for su setting low_stock_threshold
 {%- enddoc -%}
 
 {% liquid
   assign variant = product.selected_or_first_available_variant
-  # MOXIE: buscar la opción "Talla" explícita, no asumir que es la primera —
+  # MOXIE: buscar la opción de talla explícita, no asumir que es la primera —
   # productos con otra opción primero (color, etc.) mostrarían esa por error.
-  assign size_option = product.options_with_values | where: 'name', 'Talla' | first
+  # El catálogo real mezcla nombres "Talla" y "Size" para la misma opción
+  # (confirmado contra /collections/mujeres-ropa), así que se matchean ambos.
+  assign size_option_talla = product.options_with_values | where: 'name', 'Talla' | first
+  assign size_option_size = product.options_with_values | where: 'name', 'Size' | first
+  assign size_option = size_option_talla | default: size_option_size
   assign campaign_flag = product.metafields.custom.flag.value
+  assign size_guide = product.metafields.custom.size_guide.value
   assign low_stock_threshold = block.settings.low_stock_threshold | default: 3
   assign product_form_id = 'QuickView-ProductForm-' | append: product.id
+  assign size_guide_image_alt = size_guide.image.value.alt
+  unless size_guide_image_alt != blank
+    assign size_guide_image_alt = 'content.size_guide' | t
+  endunless
 %}
 
 <custom-quick-view-modal
@@ -30,6 +55,7 @@
     ref="dialog"
     class="quick-view-modal"
     aria-label="{{ 'content.quick_view_title' | t }}"
+    aria-modal="true"
   >
     <button
       ref="closeButton"
@@ -41,104 +67,181 @@
       {{- 'icon-close.svg' | inline_asset_content -}}
     </button>
 
-    <h2 class="quick-view-modal__title">{{ 'content.quick_view_title' | t }}</h2>
+    <div ref="sizesView" class="quick-view-modal__view quick-view-modal__view--sizes">
+      <div class="quick-view-modal__title">{{ 'content.quick_view_title' | t }}</div>
 
-    <div class="quick-view-modal__content">
-      <div class="quick-view-modal__media">
-        {% render 'product-media',
-          media: product.featured_media,
-          sizes: '150px',
-          loading: 'lazy',
-          preview_image_only: true
-        %}
+      <div class="quick-view-modal__content">
+        <div class="quick-view-modal__media">
+          {% render 'product-media',
+            media: product.featured_media,
+            sizes: '150px',
+            loading: 'lazy',
+            preview_image_only: true
+          %}
+        </div>
+
+        <div class="quick-view-modal__details">
+          {%- if product.available == false -%}
+            <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sold-out">
+              {{ 'content.product_badge_sold_out' | t }}
+            </div>
+          {%- elsif campaign_flag != blank -%}
+            <div
+              class="product-badges__badge product-badges__badge--rectangle"
+              style="background-color: {{ campaign_flag.background_color | escape }}; color: {{ campaign_flag.text_color | escape }};"
+            >
+              {{ campaign_flag.label }}
+            </div>
+          {%- elsif product.compare_at_price > product.price -%}
+            <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sale">
+              {{ 'content.product_badge_sale' | t }}
+            </div>
+          {%- endif -%}
+
+          <h3 class="quick-view-modal__product-title">{{ product.title }}</h3>
+          {% render 'price', product_resource: product %}
+        </div>
       </div>
 
-      <div class="quick-view-modal__details">
-        {%- if product.available == false -%}
-          <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sold-out">
-            {{ 'content.product_badge_sold_out' | t }}
-          </div>
-        {%- elsif campaign_flag != blank -%}
-          <div
-            class="product-badges__badge product-badges__badge--rectangle"
-            style="background-color: {{ campaign_flag.background_color }}; color: {{ campaign_flag.text_color }};"
+      <div class="quick-view-modal__size-header">
+        <span class="quick-view-modal__size-header-label">{{ 'content.select_size_label' | t }}</span>
+        {%- if size_guide != blank -%}
+          <button
+            type="button"
+            class="button-unstyled quick-view-modal__size-guide"
+            on:click="custom-quick-view-modal/showSizeGuide"
           >
-            {{ campaign_flag.label }}
-          </div>
-        {%- elsif product.compare_at_price > product.price -%}
-          <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sale">
-            {{ 'content.product_badge_sale' | t }}
+            {{ 'content.size_guide' | t }}
+          </button>
+        {%- endif -%}
+      </div>
+
+      <product-form-component
+        data-section-id="{{ section_id }}"
+        data-product-id="{{ product.id }}"
+        on:submit="/handleSubmit"
+      >
+        <div
+          class="visually-hidden"
+          aria-live="assertive"
+          role="status"
+          aria-atomic="true"
+          ref="liveRegion"
+        ></div>
+        {%- form 'product', product, id: product_form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+          <input
+            type="hidden"
+            name="id"
+            ref="variantId"
+            value="{{ variant.id }}"
+          >
+          <input
+            type="hidden"
+            name="quantity"
+            value="1"
+          >
+          <ul class="quick-view-modal__sizes">
+            {%- for value in size_option.values -%}
+              <li class="quick-view-modal__size-row">
+                <button
+                  type="button"
+                  class="quick-view-modal__size-button"
+                  data-variant-id="{{ value.variant.id }}"
+                  {% unless value.available %}
+                    disabled
+                  {% endunless %}
+                  on:click="custom-quick-view-modal/selectSize"
+                >
+                  {{- value | escape -}}
+                </button>
+                {%- if value.available == false -%}
+                  <span class="quick-view-modal__size-status quick-view-modal__size-status--muted">
+                    {{ 'content.notify_when_available' | t }}
+                  </span>
+                {%- elsif value.variant.inventory_quantity <= low_stock_threshold and value.variant.inventory_quantity > 0 -%}
+                  <span class="quick-view-modal__size-status">
+                    {{ 'content.last_units_left' | t: count: value.variant.inventory_quantity }}
+                  </span>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endform -%}
+      </product-form-component>
+    </div>
+
+    {%- if size_guide != blank -%}
+      <div ref="guideView" class="quick-view-modal__view quick-view-modal__view--guide" hidden>
+        <button
+          type="button"
+          class="quick-view-modal__guide-back button-unstyled"
+          on:click="custom-quick-view-modal/backToSizes"
+        >
+          {{- 'icon-chevron-left.svg' | inline_asset_content -}}
+          {{ 'content.size_guide_back' | t }}
+        </button>
+
+        <h2 class="quick-view-modal__guide-question">{{ 'content.size_guide_question' | t }}</h2>
+
+        <div ref="unitToggle" class="quick-view-modal__guide-units" data-active-unit="cm">
+          <button
+            type="button"
+            class="quick-view-modal__guide-unit"
+            data-unit="cm"
+            aria-pressed="true"
+            on:click="custom-quick-view-modal/setUnit"
+          >
+            {{ 'content.size_guide_unit_cm' | t }}
+          </button>
+          <button
+            type="button"
+            class="quick-view-modal__guide-unit"
+            data-unit="in"
+            aria-pressed="false"
+            on:click="custom-quick-view-modal/setUnit"
+          >
+            {{ 'content.size_guide_unit_in' | t }}
+          </button>
+        </div>
+
+        <table class="quick-view-modal__guide-table">
+          <thead>
+            <tr>
+              <th>{{ 'content.size_guide_table_size' | t }}</th>
+              <th>{{ 'content.size_guide_table_bust' | t }}</th>
+              <th>{{ 'content.size_guide_table_waist' | t }}</th>
+              <th>{{ 'content.size_guide_table_hip' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for row in size_guide.measurements.value -%}
+              <tr>
+                <td class="quick-view-modal__guide-table-size">{{ row.size }}</td>
+                <td data-cm="{{ row.bust_cm }}" data-in="{{ row.bust_in }}">{{ row.bust_cm }}</td>
+                <td data-cm="{{ row.waist_cm }}" data-in="{{ row.waist_in }}">{{ row.waist_cm }}</td>
+                <td data-cm="{{ row.hip_cm }}" data-in="{{ row.hip_in }}">{{ row.hip_cm }}</td>
+              </tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+
+        {%- if size_guide.image.value != blank -%}
+          <div class="quick-view-modal__guide-image">
+            {{
+              size_guide.image.value
+              | image_url: width: 700
+              | image_tag: loading: 'lazy', widths: '350,700', alt: size_guide_image_alt
+            }}
           </div>
         {%- endif -%}
 
-        <p class="quick-view-modal__product-title">{{ product.title }}</p>
-        {% render 'price', product_resource: product %}
+        {%- if size_guide.instructions.value != blank -%}
+          <div class="quick-view-modal__guide-instructions">
+            {{ size_guide.instructions | metafield_tag }}
+          </div>
+        {%- endif -%}
       </div>
-    </div>
-
-    <div class="quick-view-modal__size-header">
-      <span>{{ 'content.select_size_label' | t }}</span>
-      {%- if block.settings.show_size_guide -%}
-        <button
-          type="button"
-          class="button-unstyled quick-view-modal__size-guide"
-          on:click="/showSizeGuide"
-        >
-          {{ 'content.size_guide' | t }}
-        </button>
-      {%- endif -%}
-    </div>
-
-    <product-form-component
-      data-section-id="{{ section_id }}"
-      data-product-id="{{ product.id }}"
-      on:submit="/handleSubmit"
-    >
-      <div
-        class="visually-hidden"
-        aria-live="assertive"
-        role="status"
-        aria-atomic="true"
-        ref="liveRegion"
-      ></div>
-      {%- form 'product', product, id: product_form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
-        <input
-          type="hidden"
-          name="id"
-          ref="variantId"
-          value="{{ variant.id }}"
-        >
-        <input
-          type="hidden"
-          name="quantity"
-          value="1"
-        >
-        <ul class="quick-view-modal__sizes">
-          {%- for value in size_option.values -%}
-            <li class="quick-view-modal__size-row">
-              <button
-                type="button"
-                class="quick-view-modal__size-button"
-                data-variant-id="{{ value.variant.id }}"
-                {% unless value.available %}
-                  disabled
-                {% endunless %}
-                on:click="/selectSize"
-              >
-                {{- value -}}
-              </button>
-              <span class="quick-view-modal__size-status">
-                {%- if value.available == false -%}
-                  {{ 'content.notify_when_available' | t }}
-                {%- elsif value.variant.inventory_quantity <= low_stock_threshold and value.variant.inventory_quantity > 0 -%}
-                  {{ 'content.last_units_left' | t: count: value.variant.inventory_quantity }}
-                {%- endif -%}
-              </span>
-            </li>
-          {%- endfor -%}
-        </ul>
-      {%- endform -%}
-    </product-form-component>
+    {%- endif -%}
   </dialog>
 </custom-quick-view-modal>
 
@@ -149,6 +252,17 @@
 ></script>
 
 {% stylesheet %}
+  /* MOXIE: DialogComponent.showDialog() (assets/dialog.js) hace
+     this.addEventListener('click', ...) sobre este wrapper (custom element
+     completo) para detectar clicks fuera del dialog y cerrarlo. Un elemento
+     con un listener de click nativo adjunto recibe el tap-highlight por
+     defecto de WebKit/Chrome mobile en toda su superficie, no solo en los
+     botones — por eso el flash azul cubría toda la sub-vista de guía (tabla,
+     imagen, texto) y no solo los 5 botones que ya tienen el reset puntual. */
+  .quick-view-modal-component {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .quick-view-modal {
     padding: var(--padding-xl);
     border: none;
@@ -207,10 +321,25 @@
     border: none;
     background: none;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-foreground);
+      outline-offset: 2px;
+    }
   }
 
+  /* MOXIE: spec exacta del Figma (nodo 1610:8968, Body_SM SemiBold) — el h2 nativo
+     heredaba el heading font-family/tamaño del tema (mucho más grande) y alineación
+     izquierda por default. */
   .quick-view-modal__title {
     margin-block-end: var(--gap-md);
+    font-family: var(--font-body--family);
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold, 600);
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-align: center;
   }
 
   .quick-view-modal__content {
@@ -219,15 +348,29 @@
     margin-block-end: var(--gap-lg);
   }
 
+  /* MOXIE: 110x173 exacto del Figma (Rectangle 23) — antes 6rem (96px) genérico. */
   .quick-view-modal__media {
     flex-shrink: 0;
-    width: 6rem;
+    width: 110px;
+    aspect-ratio: 110 / 173;
   }
 
   .quick-view-modal__details {
     display: flex;
     flex-direction: column;
     gap: var(--gap-2xs);
+  }
+
+  /* MOXIE: <h3> por semántica (era <p>) — resetea la escala h3 nativa del tema
+     (base.css) para conservar el tamaño de texto de párrafo original del Figma. */
+  .quick-view-modal__product-title {
+    margin: 0;
+    font-family: inherit;
+    font-size: var(--font-size--paragraph);
+    font-weight: normal;
+    line-height: inherit;
+    letter-spacing: normal;
+    text-transform: none;
   }
 
   .quick-view-modal__size-header {
@@ -237,12 +380,32 @@
     margin-block-end: var(--gap-sm);
   }
 
+  /* MOXIE: "Selecciona la talla" va apagado en el Figma (1615:9059), no en
+     var(--color-foreground) por default. */
+  .quick-view-modal__size-header-label {
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-40));
+  }
+
+  /* MOXIE: spec exacta del componente "Button/Ghost" del Figma (nodo 1812:7649) — es un
+     botón con borde, no el link subrayado del primer borrador; radio/padding/tipografía
+     fijos del diseño en vez de los genéricos de settings del tema. */
   .quick-view-modal__size-guide {
-    border: none;
+    border: 0.3px solid var(--color-foreground);
+    border-radius: 6px;
     background: none;
+    padding: 8px 16px;
     color: var(--color-foreground);
-    text-decoration: underline;
+    font-family: var(--font-body--family);
+    font-size: 14px;
+    font-weight: var(--font-weight-medium, 500);
+    line-height: 1;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-foreground);
+      outline-offset: 2px;
+    }
   }
 
   .quick-view-modal__sizes {
@@ -267,15 +430,141 @@
     font-size: var(--font-size--md);
     text-align: left;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 
     &:disabled {
       color: rgb(var(--color-foreground-rgb) / var(--opacity-40));
       cursor: not-allowed;
     }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-foreground);
+      outline-offset: 2px;
+    }
   }
 
+  /* MOXIE: "Últimas N Unidades" va en negro pleno + bold en el Figma (1615:9059),
+     no atenuado — antes compartía la misma opacidad reducida que el estado agotado. */
   .quick-view-modal__size-status {
-    color: rgb(var(--color-foreground-rgb) / var(--opacity-60));
+    color: var(--color-foreground);
     font-size: var(--font-size--xs);
+    font-weight: var(--font-weight-medium, 500);
+  }
+
+  /* MOXIE: en el Figma el status de agotado ("Avísame...") va más apagado que el
+     de últimas unidades — antes ambos compartían la misma opacidad. */
+  .quick-view-modal__size-status--muted {
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-40));
+  }
+
+  /* MOXIE: Guía de tallas — sub-vista que reemplaza a quick-view-modal__view--sizes
+     dentro del mismo modal (ver assets/custom-quick-view-modal.js showSizeGuide/backToSizes).
+     :not([hidden]) es necesario: una clase con display:flex tiene más especificidad que el
+     display:none del atributo [hidden] nativo y lo pisaría, dejando la vista siempre visible. */
+  .quick-view-modal__view--guide:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+  }
+
+  .quick-view-modal__guide-back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-2xs);
+    align-self: flex-start;
+    border: none;
+    background: none;
+    color: var(--color-foreground);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-foreground);
+      outline-offset: 2px;
+    }
+  }
+
+  .quick-view-modal__guide-back svg {
+    width: 8px;
+    height: 12px;
+  }
+
+  .quick-view-modal__guide-question {
+    font-size: var(--font-size--md);
+    font-weight: var(--font-weight-bold, 700);
+    text-align: center;
+  }
+
+  .quick-view-modal__guide-units {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gap-md);
+  }
+
+  .quick-view-modal__guide-unit {
+    border: none;
+    background: none;
+    padding: 0 0 var(--padding-2xs);
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-40));
+    font-size: var(--font-size--sm);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    &[aria-pressed='true'] {
+      color: var(--color-foreground);
+      border-bottom: 1px solid var(--color-foreground);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-foreground);
+      outline-offset: 2px;
+    }
+  }
+
+  .quick-view-modal__guide-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size--sm);
+  }
+
+  .quick-view-modal__guide-table th,
+  .quick-view-modal__guide-table td {
+    padding: var(--padding-xs);
+    text-align: center;
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-60));
+    border: 1px solid rgb(var(--color-foreground-rgb) / var(--opacity-10));
+  }
+
+  /* MOXIE: en el Figma solo el header y la columna "Talla" van bold/negro pleno —
+     las medidas (números) van en un gris más apagado. */
+  .quick-view-modal__guide-table th,
+  .quick-view-modal__guide-table-size {
+    color: var(--color-foreground);
+    font-weight: var(--font-weight-medium, 500);
+  }
+
+  .quick-view-modal__guide-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* MOXIE: contenido libre del merchant (metaobject size_guide.instructions, rich text) —
+     sin bloques fijos Busto/Cintura/Cadera en locale, otra guía puede no tener esas 3 zonas. */
+  .quick-view-modal__guide-instructions {
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-60));
+    font-size: var(--font-size--sm);
+  }
+
+  .quick-view-modal__guide-instructions :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--color-foreground);
+    font-size: var(--font-size--md);
+    font-weight: var(--font-weight-medium, 500);
+    margin-block-end: var(--gap-3xs, 0.25rem);
+  }
+
+  .quick-view-modal__guide-instructions p {
+    margin-block-end: var(--gap-sm);
   }
 {% endstylesheet %}

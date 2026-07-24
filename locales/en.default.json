@@ -170,10 +170,18 @@
     "quick_view_title": "Quick view",
     "select_size_label": "Select your size",
     "size_guide": "Size guide",
-    "notify_when_available": "Notify me when available",
+    "size_guide_back": "Back",
+    "size_guide_question": "How would you like to see the measurements?",
+    "size_guide_unit_cm": "CM",
+    "size_guide_unit_in": "IN",
+    "size_guide_table_size": "Size",
+    "size_guide_table_bust": "Bust",
+    "size_guide_table_waist": "Waist",
+    "size_guide_table_hip": "Hip",
+    "notify_when_available": "Notify Me When Available",
     "last_units_left": {
-      "one": "Last {{ count }} unit left",
-      "other": "Last {{ count }} units left"
+      "one": "Last {{ count }} Unit Left",
+      "other": "Last {{ count }} Units Left"
     },
     "account_title": "Account",
     "terms_and_policies": "Terms and Policies",

@@ -1,13 +1,18 @@
 {% liquid
   assign product = closest.product
-  # MOXIE: flag de campaña personalizable (metaobject product_flag referenciado en el metafield custom.flag).
-  # Prioridad fija acordada con el cliente: Sold out siempre gana > flag custom > Sale automático.
-  assign campaign_flag = product.metafields.custom.flag.value
+  # MOXIE: flags de campaña, 2 fuentes que coexisten (metaobject product_flag, mismo que antes):
+  # - product.metafields.custom.flag: asignación directa a un producto puntual (legacy, un producto suelto).
+  # - collection.metafields.custom.flag: asignación por colección completa (requiere la MISMA definición
+  #   de metafield custom.flag creada también a nivel Collection en el Admin, apuntando al mismo
+  #   metaobject product_flag) — un producto puede pertenecer a 2+ colecciones flageadas a la vez, en
+  #   ese caso se muestran TODAS, apiladas (ver --stylesheet), sin duplicar si comparten la misma entrada.
+  # Prioridad fija acordada con el cliente: Sold out siempre gana > flags (producto + colecciones) > Sale automático.
+  assign product_flag = product.metafields.custom.flag.value
 %}
 
 {% capture children %}
   {% unless product == blank %}
-    {%- if product.available == false or campaign_flag != blank or product.compare_at_price > product.price -%}
+    {%- if product.available == false -%}
       <div
         class="product-badges product-badges--{{ settings.badge_position }}"
         style="
@@ -15,23 +20,54 @@
             --badge-font-family: var(--font-{{ settings.badge_font_family }}--family); --badge-font-weight: var(--font-{{ settings.badge_font_family }}--weight); --badge-text-transform: {{ settings.badge_text_transform }};
         "
       >
-        {%- if product.available == false -%}
-          <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sold-out">
-            {{ 'content.product_badge_sold_out' | t }}
-          </div>
-        {%- elsif campaign_flag != blank -%}
-          <div
-            class="product-badges__badge product-badges__badge--rectangle"
-            style="background-color: {{ campaign_flag.background_color }}; color: {{ campaign_flag.text_color }};"
-          >
-            {{ campaign_flag.label }}
-          </div>
-        {%- elsif product.compare_at_price > product.price -%}
-          <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sale">
-            {{ 'content.product_badge_sale' | t }}
-          </div>
-        {%- endif -%}
+        <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sold-out">
+          {{ 'content.product_badge_sold_out' | t }}
+        </div>
       </div>
+    {%- else -%}
+      {% liquid
+        assign has_flag = false
+        if product_flag != blank
+          assign has_flag = true
+        endif
+        for collection in product.collections
+          if collection.metafields.custom.flag.value != blank
+            assign has_flag = true
+          endif
+        endfor
+      %}
+      {%- if has_flag or product.compare_at_price > product.price -%}
+        <div
+          class="product-badges product-badges--{{ settings.badge_position }}"
+          style="
+              --badge-border-radius: {{ settings.badge_corner_radius }}px;
+              --badge-font-family: var(--font-{{ settings.badge_font_family }}--family); --badge-font-weight: var(--font-{{ settings.badge_font_family }}--weight); --badge-text-transform: {{ settings.badge_text_transform }};
+          "
+        >
+          {%- liquid
+            assign flag_ids_shown = ''
+          -%}
+          {%- if product_flag != blank -%}
+            {%- render 'custom_product-flag-badge', flag: product_flag -%}
+            {%- assign flag_ids_shown = flag_ids_shown | append: product_flag.system.id | append: '|' -%}
+          {%- endif -%}
+          {%- for collection in product.collections -%}
+            {%- assign collection_flag = collection.metafields.custom.flag.value -%}
+            {%- if collection_flag != blank -%}
+              {%- assign flag_marker = collection_flag.system.id | append: '|' -%}
+              {%- unless flag_ids_shown contains flag_marker -%}
+                {%- render 'custom_product-flag-badge', flag: collection_flag -%}
+                {%- assign flag_ids_shown = flag_ids_shown | append: flag_marker -%}
+              {%- endunless -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if has_flag == false and product.compare_at_price > product.price -%}
+            <div class="product-badges__badge product-badges__badge--rectangle color-custom-badge-sale">
+              {{ 'content.product_badge_sale' | t }}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
     {%- endif -%}
     {%- comment -%} MOXIE: wishlist mobile, absoluta sobre la imagen (oculta en desktop vía CSS, ver blocks/custom_wishlist.liquid para la versión desktop) {%- endcomment -%}
     {% render 'custom_wishlist-button', product: product, variant: 'mobile' %}
@@ -40,9 +76,11 @@
       (snippets/quick-add.liquid, que abriría el modal "Choose" para 2+ opciones) por un selector de
       talla propio: overlay inline en hover para desktop, y trigger del modal "Compra rápida" en mobile.
     {%- endcomment -%}
-    {% if product.available and settings.quick_add or settings.mobile_quick_add %}
-      {% render 'custom_product-card-size-select', product: product, section_id: section.id %}
-      {% render 'custom_quick-view-modal', product: product, section_id: section.id %}
+    {% if product.available %}
+      {% if settings.quick_add or settings.mobile_quick_add %}
+        {% render 'custom_product-card-size-select', product: product, section_id: section.id %}
+        {% render 'custom_quick-view-modal', product: product, section_id: section.id, block: block %}
+      {% endif %}
     {% endif %}
   {% endunless %}
 {% endcapture %}
@@ -61,6 +99,73 @@
 {% render 'product-card-gallery-zoom-details-styles' %}
 {% render 'product-badges-styles' %}
 
+{% stylesheet %}
+  /* MOXIE: el <a ref="cardGalleryLink"> nativo (snippets/card-gallery.liquid) que envuelve
+     toda la card no resetea el tap-highlight de WebKit/Chrome mobile — al tocar la card (o
+     los overlays absolutos encima: flags, wishlist, "+") el navegador pinta un rectángulo
+     azul translúcido sobre toda la card. No se toca el snippet nativo, se resetea acá. */
+  .card-gallery a.contents {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* MOXIE: separación e tamaño exactos del Figma para las flags (NEW IN/SALE/SOLD OUT) —
+     --badge-inset reemplaza la fórmula nativa basada en --border-radius, min-height/radius
+     ajustan el tamaño mínimo del chip. Selector con doble clase para ganarle en
+     especificidad a snippets/product-badges-styles.liquid (nativo, no se toca) sin
+     depender del orden de bundling de los stylesheets. */
+  /* MOXIE: un producto puede traer 2+ flags simultáneas si pertenece a varias colecciones
+     flageadas — no hay spec de Figma para este caso (el diseño solo contempla una flag a la
+     vez), se apilan verticalmente con un gap chico entre chips. */
+  .card-gallery .product-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .card-gallery .product-badges {
+      --badge-inset: 18px;
+    }
+
+    .card-gallery .product-badges__badge {
+      min-height: 21.43px;
+    }
+
+    .card-gallery .product-badges__badge--image img {
+      height: 21.43px;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .card-gallery .product-badges {
+      --badge-inset: 24px;
+    }
+
+    .card-gallery .product-badges__badge {
+      min-height: 22px;
+      border-radius: 2px;
+    }
+
+    .card-gallery .product-badges__badge--image img {
+      height: 22px;
+    }
+  }
+
+  /* MOXIE: flag con imagen/gif (metaobject product_flag, campo `image`) — alternativa al chip de
+     texto, pedido por el cliente ad-hoc (no hay spec de Figma). Alto igual al chip de texto por
+     breakpoint (ver arriba), ancho libre según aspect ratio del archivo. */
+  .card-gallery .product-badges__badge--image {
+    padding: 0;
+    background: none;
+  }
+
+  .card-gallery .product-badges__badge--image img {
+    display: block;
+    width: auto;
+    object-fit: contain;
+  }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "t:names.product_image",
@@ -72,24 +177,17 @@
     },
     {
       "type": "header",
-      "content": "Moxie: Compra rápida (mobile)"
+      "content": "t:content.moxie_quick_add_header"
     },
     {
       "type": "range",
       "id": "low_stock_threshold",
-      "label": "Últimas unidades (umbral)",
+      "label": "t:settings.low_stock_threshold",
       "min": 1,
       "max": 10,
       "step": 1,
       "default": 3,
-      "info": "Debajo de esta cantidad se muestra \"Últimas N unidades\" junto a la talla."
-    },
-    {
-      "type": "checkbox",
-      "id": "show_size_guide",
-      "label": "Mostrar botón \"Guía de tallas\"",
-      "default": false,
-      "info": "Deshabilitado por defecto: pendiente de definir la fuente de datos de la tabla de medidas."
+      "info": "t:info.low_stock_threshold"
     },
     {
       "type": "select",

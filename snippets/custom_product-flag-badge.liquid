@@ -1,0 +1,24 @@
+{%- doc -%}
+  MOXIE: renderiza una entrada del metaobject product_flag — imagen/gif si el campo `image` viene
+  cargado, chip de texto + colores (comportamiento original) si no. Reusado desde blocks/_product-card-gallery.liquid
+  tanto para la flag directa de producto (product.metafields.custom.flag) como para cada flag de
+  colección (collection.metafields.custom.flag) — un solo lugar para no duplicar la rama imagen/texto.
+
+  @param {object} flag - una entrada del metaobject product_flag (ya resuelta vía .value)
+
+  @example
+  {% render 'custom_product-flag-badge', flag: product_flag %}
+{%- enddoc -%}
+
+{%- if flag.image != blank -%}
+  <div class="product-badges__badge product-badges__badge--image">
+    {{ flag.image | image_url: width: 200 | image_tag: alt: flag.label, loading: 'lazy' }}
+  </div>
+{%- else -%}
+  <div
+    class="product-badges__badge product-badges__badge--rectangle"
+    style="background-color: {{ flag.background_color | escape }}; color: {{ flag.text_color | escape }};"
+  >
+    {{ flag.label }}
+  </div>
+{%- endif -%}
