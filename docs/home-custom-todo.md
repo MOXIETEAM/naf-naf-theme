@@ -11,7 +11,7 @@ Header y footer **fuera de alcance** en este doc — ya resueltos en otras ramas
 
 ## Decisiones confirmadas por el cliente/usuario
 
-1. **Hero:** el slider de 3 slides ya construido (`custom_hero-slider`, Ana Beliza / La Vacanza / New drop) se mantiene tal cual. El Figma de este archivo muestra un hero estático distinto ("Love is where mom is") — se asume desactualizado o de otro brief y se ignora. No se retrabaja el Hero.
+1. **Hero:** ~~el slider de 3 slides ya construido (`custom_hero-slider`, Ana Beliza / La Vacanza / New drop) se mantiene tal cual. El Figma de este archivo muestra un hero estático distinto ("Love is where mom is") — se asume desactualizado o de otro brief y se ignora. No se retrabaja el Hero.~~ **Actualizado (2026-07-24):** el cliente confirmó que el Figma "Love is where mom is" (desktop `2140:3812` / mobile `1563:4852`) **sí es el vigente** — la suposición anterior era incorrecta. Se retrabajó el Hero para calzar con ese Figma (full-bleed + botón `button-ghost` + copy de `slide_1`). Ver detalle completo en "Hero — pivote a full-bleed + botón Ghost" más abajo.
 2. **`product_list_fa6P9H`** (stock `product-list`) se repositiona como la sección "New Arrivals" del Figma (reubicado en `order` de `templates/index.json`, antes de `carousel_capsulas_temporada`). Sigue con `collection: "all"` de placeholder — **falta que el cliente confirme la colección real** para esta franja.
 3. **`collection_list_h4Xr2p`** (stock `collection-list`, vacío) no tiene match directo con ningún módulo del Figma. El diseño trae un carrusel de colecciones ("Módulo colección 01") y una grilla de banners curados ("Módulo colección 02"), ninguno es un grid stock de 4 columnas. Se decide su destino (reusar como base o eliminar) al construir esas dos secciones.
 4. **Orden de construcción:** top-to-bottom siguiendo el Figma.
@@ -168,17 +168,85 @@ hardcodeado), replicando el patrón ya usado para el badge NEW IN/SALE (`product
 
 **Pendiente conocido, aceptado por ahora — no bloqueante:** el badge dentro del **Quick View modal** (`snippets/custom_quick-view-modal.liquid`, variable `campaign_flag`) todavía solo lee `product.metafields.custom.flag` — no revisa `product.collections` ni soporta el campo `image`. Si un producto tiene flag solo por colección (o con imagen), la card del grid la muestra pero el Quick View no. Se preguntó 2 veces si igualarlo y no hubo confirmación explícita — queda documentado para no re-descubrirlo en una sesión futura, se iguala cuando el cliente lo pida.
 
+**Nombre de producto largo se sobreponía al wishlist en desktop (2026-07-24):** el cliente encontró un caso no cubierto en la validación anterior — un título de 2-3 líneas (sin límite nativo de wrap) invadía visualmente el ícono de wishlist (touch target de 44px, `snippets/custom_wishlist-button.liquid`), anclado al borde inferior de `.product-card__content` (`blocks/custom_wishlist.liquid`). El bloque `price` ya reservaba `padding-inline-end: 32px` para convivir con ese ícono; el título nunca tuvo ese resguardo ni truncamiento. Corregido extendiendo el `{% stylesheet %}` ya existente en `blocks/custom_wishlist.liquid` (sin tocar el `product-title.liquid` nativo ni `snippets/text.liquid`): `[role="heading"]` dentro de `.product-card__content`, solo desktop (`min-width: 750px`), pasa a `white-space: nowrap; overflow: hidden; text-overflow: ellipsis;` + `padding-inline-end: 32px` (mismo valor que price). Un nombre largo ahora trunca con "…" en 1 línea en vez de wrappear y solaparse. Theme Check limpio. Validado visualmente en desktop por el cliente (2026-07-24).
+
 **Fuera de alcance (decisión del usuario):** persistencia real de wishlist (sigue stub, solo `aria-pressed`).
+
+## Hero — pivote a full-bleed + botón Ghost (2026-07-24)
+
+Contradice la decisión previa de este mismo doc (ver "Decisiones confirmadas", punto 1) — el
+cliente confirmó que el Figma "Love is where mom is" (desktop `2140:3812` / mobile `1563:4852`,
+mismo file key) **sí es el vigente** para el Hero, no uno desactualizado/de otro brief como se
+había asumido. Se retrabajó `hero_slider_home` en consecuencia.
+
+**Hallazgo de partida:** el hero (`sections/custom_hero-slider.liquid` +
+`blocks/_custom_hero-slide.liquid`) ya existía y ya soportaba lo pedido — múltiples slides,
+imagen o video por slide, media mobile independiente de desktop (checkbox
+`custom_mobile_media`). El preset del bloque ya traía el copy exacto de este Figma (eyebrow
+"NEW DROP", heading "Love is where mom is", botón "Comprar ahora"), señal de que se había
+construido pensando en este mismo diseño en algún momento anterior no documentado.
+
+**2 huecos de fidelidad encontrados y resueltos (decisión del cliente, no asumidos):**
+1. **Carrusel "peek" → full-bleed:** el layout anterior mostraba el slide activo al 64% del
+   ancho (86% en mobile) con paneles laterales (`.hero-fade-slider__peek`) mostrando un recorte
+   del slide anterior/siguiente + flechas circulares siempre visibles — de ahí que se viera
+   "como 3 banners cortados al tiempo". El Figma muestra el banner a ancho completo, sin peek ni
+   flechas. Se quitaron los divs de peek del markup, `.hero-fade-slider__stage` pasó de
+   `width: 64%` a `100%`, se eliminó el setting `slideshow_gap` (quedaba muerto sin peek al
+   lado), y los defaults de `icons_style`/`corner_radius` pasaron a `none`/`0` (antes
+   `arrows_large`/`16`).
+2. **Botón "Ghost":** el Figma pide fondo `rgba(23,23,23,0.1)` + `backdrop-filter: blur(2px)` +
+   borde blanco + radius 6px + ícono chevron. Ninguna clase nativa (`.button`/`.button-secondary`/
+   `.button-custom`, ver `assets/base.css`) tiene blur. Se agregó una variante nueva
+   `button-ghost` — opción nueva en el schema de `blocks/button.liquid` + `{% stylesheet %}`
+   autocontenido en `snippets/button.liquid` (no toca `assets/base.css`, core de Horizon).
+   El ícono reutiliza `assets/icon-caret.svg` (mismo asset que `snippets/slideshow-arrow.liquid`),
+   rotado -90° para apuntar a la derecha.
+
+**Wireo en vivo (`templates/index.json` → `hero_slider_home`):** `icons_style: none`,
+`corner_radius: 0`; los 3 slides con `style_class: button-ghost` (consistencia visual del
+carrusel — no tenía sentido mezclar estilos de CTA entre slides de un mismo hero); `slide_1`
+actualizado al copy exacto de este Figma (`NEW DROP` / `Love is where mom is`). `slide_2`
+("floral print"/"La Vacanza") y `slide_3` ("New drop") **no se tocaron en el copy** — podían ser
+campañas de negocio ya aprobadas; si el cliente quiere ese mismo copy en los 3, es un cambio de
+texto simple.
+
+No se subieron imágenes/video reales — el cliente las carga desde el Theme Editor (Shopify no
+permite referenciar `image_picker`/`video` por URL externa).
+
+Theme Check (Dev MCP `validate_theme`) limpio en los 4 archivos tocados:
+`sections/custom_hero-slider.liquid`, `blocks/button.liquid`, `snippets/button.liquid`,
+`templates/index.json`.
+
+## New Arrivals (fila #5) — cerrado 100% con copia del stock `product-list` (2026-07-24)
+
+Se auditó el schema completo de `sections/product-list.liquid` (nativo) contra el Figma (`2138:4736` desktop / `2152:362` mobile): layout carrusel, heading+subtítulo, columnas, gap y CTA son 100% configurables por Theme Editor/JSON — no se necesitaba una sección custom desde cero. **Regla de oro del proyecto: nunca tocar un archivo nativo, ni con un `{% stylesheet %}` marcado MOXIE** — así que en vez de agregar el CSS del CTA por breakpoint directo en `sections/product-list.liquid`, se hizo una copia 1:1 (`sections/custom_product-list.liquid`) y el ajuste se aplicó solo ahí. `sections/product-list.liquid` queda intacto en el repo. `templates/index.json` → `product_list_fa6P9H` ahora usa `"type": "custom_product-list"`.
+
+Cambios en `product_list_fa6P9H`:
+- `layout_type`: `grid` → `carousel` (el Figma usa flecha de navegación en desktop y scroll horizontal en mobile — nativo de `carousel`, no de `grid`). `icons_style: arrow`, `icons_shape: circle`.
+- Header: el bloque `_product-list-text` (antes `<h3>{{ closest.collection.title }}</h3>`) pasó a texto literal `<h1>New Arrivals</h1><p>Las últimas tendencias de ropa para mujer.</p>` con `type_preset: "rte"` — la clase `.rte` nativa (confirmado en `snippets/text.liquid`) hereda el escalado tipográfico fluido del tema para `h1`/`p` anidados sin necesitar bloques anidados ni CSS custom.
+- CTA por breakpoint (Figma pide dos botones distintos, no hay toggle nativo "ocultar en mobile/desktop"):
+  - Desktop ("Ver lo nuevo ›", pill negro, arriba-derecha): bloque `home_new_arrivals_cta_desktop` dentro del header. **Bug encontrado durante la verificación**: se intentó primero con el bloque semántico `_product-list-button` (auto-oculta si la colección no tiene más productos que `max_products` y auto-linkea a `closest.collection`) — el botón nunca renderizaba (0 apariciones en el HTML servido). Causa: dentro de un bloque **estático** (`static-header`), `closest.collection` no resuelve de forma confiable a `section.settings.collection` (mismo motivo documentado por el que `carousel_capsulas_temporada` usa un link literal `<a href="shopify://collections/all">` en vez de este mecanismo). Corregido usando un bloque `button` genérico con `link: "shopify://collections/all"` explícito — mismo patrón que ya usa `carousel_capsulas_temporada`.
+  - Mobile ("Comprar todo", outline, full-width, debajo del grid): bloque `home_new_arrivals_cta_mobile`, tipo `button` genérico agregado al slot `content_for 'blocks'` que la sección ya renderiza después del grid (confirmado leyendo el liquid) — `_product-list-button` no está en el whitelist de bloques de ese slot, solo dentro de `_product-list-content`.
+  - Alternancia por breakpoint: `{% stylesheet %}` en `custom_product-list.liquid` con selectores `[class*="__home_new_arrivals_cta_desktop"]`/`[class*="__home_new_arrivals_cta_mobile"]` + `@media (min-width: 750px)`. **Detalle no obvio**: la clase por-instancia que emite `snippets/button.liquid` (`{{ style_class }}--{{ block.id }}`) trae un hash generado por Shopify antepuesto al id de bloque (ej. `button-secondary--AMi8rQmcxWEdIZm9BV__home_new_arrivals_cta_mobile`) — un selector exacto con el id literal no matchea nunca; se resolvió con selector de substring `[class*="__<id>"]` y `display: revert` (en vez de forzar `inline-flex`/`grid` a mano) para no adivinar el `display` real del componente.
+- Verificado en navegador (Chrome DevTools MCP) en 1440px, 749px y 750px exactos: el CTA correcto aparece/desaparece justo en el breakpoint, carrusel funciona, arrow nav presente (opacity 0 por defecto, aparece en hover — comportamiento nativo, no bug).
+- **Proporción de cards en mobile, ajustada a 1:1 (2026-07-24):** el cliente notó que el Figma muestra ~1.4 productos visibles en mobile (1 completo + un tercio del siguiente), no los ~1.6 que daba el default. Medido por pixel-scan sobre el screenshot de Figma (New Arrivals `2152:362`): card 243px / gap 12px sobre 345px de ancho total → card ≈ 70.4% del contenedor. El setting nativo `mobile_card_size` solo expone 2 valores en el dropdown del Theme Editor (`60cqw`/`44cqw`, ninguno da 70%) — como es un `select` cuyo valor sigue siendo un string libre a nivel de Liquid/JSON, se puede asignar `"70cqw"` directamente en `templates/index.json` sin problema de renderizado (el theme no valida el string contra las opciones del dropdown al renderizar, solo la UI del Theme Editor restringe qué se puede *elegir* ahí). Verificado con `getBoundingClientRect()`: card 350/500 = 70%, ratio visible resultante ≈ 1.36 cards, calza con el Figma. **Nota para el cliente:** si alguien abre este control en el Theme Editor y lo toca, el dropdown solo ofrece 60/44 — perdería el 70% custom; documentado acá para no perderlo de vista.
+- **Peek de la 5ta card en desktop, eliminado para calzar 1:1 con Figma (2026-07-24):** el cliente notó "veo más de 4 en desktop" — el Figma (`2138:4736`) muestra exactamente 4 cards sin ninguna asomando, mientras el build mostraba 4 + ~25% de una 5ta. Causa raíz (pixel-scan del Figma confirmó 4 cards + 3 gaps = exactamente el ancho del frame, 0 peek): Horizon define el "peek" de todos sus carousels vía 2 mecanismos **globales y nativos** (`snippets/theme-styles-variables.liquid`: `--peek-next-slide-size: 3rem`; `assets/base.css`: clase `.force-full-width` que expande el carousel a `grid-column: 1/-1`, fuera del ancho de contenido, para que el peek sangre en el gutter de la página). Sobreescribir esto en un `.liquid` nativo violaría la regla de oro (nunca tocar nativo) y afectaría TODOS los carousels del sitio. Se sobreescribieron los 3 custom properties involucrados (`--peek-next-slide-size: 0px`, `.force-full-width { grid-column: 2 }`, `--gutter-slide-width: 0px`) **solo dentro del `{% stylesheet %}` de `sections/custom_product-list.liquid`**, scoped por `[data-testid="product-list"]` — no toca ningún archivo nativo, y como las custom properties CSS resuelven por proximidad en el DOM (no por especificidad/orden de carga), este override local le gana al valor global sin `!important`. Verificado con `getBoundingClientRect()`: card4 termina exactamente en el borde derecho del contenedor (x=1400 en viewport 1440), card5 queda fuera del área visible — 0 peek. Mobile no se vio afectado (usa una fórmula de ancho completamente distinta, basada en `--mobile-card-size`, no en `--peek-next-slide-size`).
+
+**Pendiente, no bloqueante:**
+- `collection: "all"` sigue de placeholder — cambio de 1 setting cuando el cliente confirme la colección real de New Arrivals (y el `link` de ambos botones CTA, hoy `shopify://collections/all`, debería apuntar a esa misma colección).
+- El chevron `›` del botón "Ver lo nuevo" es carácter literal en el `label` (no hay slot de ícono nativo en `snippets/button.liquid`) — visualmente calza bien, pero no es un ícono real.
+- Theme Check reporta `ERROR: The id 'static-product-card' is already being used by another static block` en `custom_product-list.liquid` — falso positivo pre-existente del `product-list` nativo (sus 3 presets comparten los mismos ids de static block, normal porque son alternativas mutuamente excluyentes al agregar sección nueva vía Theme Editor). Confirmado con `git show HEAD:sections/product-list.liquid` que ya estaba así antes de esta sesión — no se modificó ni se puede modificar (archivo nativo).
 
 ## Inventario de secciones (Figma ↔ built)
 
 | # | Sección | Nodo desktop | Nodo mobile | Estado | Archivo / nota |
 |---|---------|-------------|-------------|--------|-----------------|
-| 1 | Hero ("Love is where mom is" en Figma / slider real) | `1668:6288` | `1563:4852` | ✅ Hecho | `sections/custom_hero-slider.liquid` — decisión: mantener slider, ignorar hero estático del Figma |
+| 1 | Hero ("Love is where mom is") | `2140:3812` | `1563:4852` | ✅ Hecho (retrabajado 2026-07-24) | `sections/custom_hero-slider.liquid` + `blocks/button.liquid`/`snippets/button.liquid` (`button-ghost`) — full-bleed + copy del Figma en `slide_1`, ver detalle abajo |
 | 2 | Franja promocional (70% off + 2 CTA) | `1668:6289` | `1670:6329` | ✅ Hecho | `promo_banner_ana_vacanza` en `index.json` |
 | 3 | Categorías principales (Camisas/Tejidos/Jeans/Pantalones) | sin frame propio — hijos sueltos del root, confirmar wrapper real en extracción | `1476:8375` | ⏳ Pendiente | nuevo |
 | 4 | Módulo colección 01 (carrusel de colecciones, `Colecciones_carrusel`) | `2138:5623` | `1476:8829` | ⏳ Pendiente | nuevo — evaluar reuso de `collection_list_h4Xr2p` |
-| 5 | New Arrivals | `2138:4736` | `2152:362` | 🔶 Reposicionado | `product_list_fa6P9H` — falta asignar colección real (hoy `"all"`) |
+| 5 | New Arrivals | `2138:4736` | `2152:362` | ✅ Hecho | `product_list_fa6P9H`, ahora `type: custom_product-list` — falta asignar colección real (hoy `"all"`) |
 | 6 | Carrusel tabs (Más vendidos/Más vistos/Tendencia/Sale) | `1668:6291` | `1671:6360` | ⏳ Pendiente | nuevo — requiere `moxie-interactions` (tabs + carrusel). Confirmar con cliente qué define productos de cada tab (colección/tag/metafield) |
 | 7 | Banners cápsulas (La Temporada en Dos Claves: Lino/Denim) | `1670:6292` | `1476:8863` | ✅ Hecho | `carousel_capsulas_temporada` en `index.json` |
 | 8 | Módulo colección 02 (New Collection: 4 banners asimétricos) | `1670:6293` | `1671:6343` | ⏳ Pendiente | nuevo — evaluar reuso de `collection_list_h4Xr2p` |
@@ -192,7 +260,7 @@ hardcodeado), replicando el patrón ya usado para el badge NEW IN/SALE (`product
 | 16 | #NAFGirls (grid de imágenes) | `1670:6319` | `1476:8706` | ⏳ Pendiente | nuevo |
 | 17 | Atributos marca (4 beneficios: compra/cambios/beneficios/múltiples) | `1509:12614` | `2149:3876` | ⏳ Pendiente | nuevo |
 
-**Resumen:** 3 secciones hechas, 1 reposicionada (pendiente dato del cliente), 13 nuevas por construir.
+**Resumen:** 4 secciones hechas, 13 nuevas por construir.
 
 ## Flujo por sección
 
@@ -207,10 +275,10 @@ Al cerrar todas las secciones, correr `/qa home` — deja el status en `docs/qa/
 ## Archivos clave
 
 - `templates/index.json` — orden de secciones del home (single source of truth del layout final)
-- `sections/custom_hero-slider.liquid` + `blocks/_custom_hero-slide.liquid` + `assets/custom-hero-slider.js` — Hero (hecho)
+- `sections/custom_hero-slider.liquid` + `blocks/_custom_hero-slide.liquid` + `assets/custom-hero-slider.js` — Hero (hecho, retrabajado a full-bleed 2026-07-24, ver detalle arriba); botón `button-ghost` nuevo en `blocks/button.liquid` + `snippets/button.liquid` (reusable en cualquier bloque `button` del tema, no exclusivo del Hero)
 - `promo_banner_ana_vacanza` (sección `type: section` genérica, no archivo custom propio) — Franja promocional (hecho)
 - `carousel_capsulas_temporada` (sección `type: carousel` stock) — Banners cápsulas (hecho)
-- `product_list_fa6P9H` (sección `type: product-list` stock) — repositionado como New Arrivals, falta colección real
+- `product_list_fa6P9H` (sección `type: custom_product-list`) — New Arrivals (✅ hecho, ver detalle abajo), falta colección real
 - `collection_list_h4Xr2p` (sección `type: collection-list` stock, vacía) — destino a decidir en secciones 4/8
 - `src/styles/pages/_home.scss` — fixes puntuales ya aplicados (slider next button, promo banner mobile alignment, flechas del carousel de cápsulas en mobile); wireado en `src/styles/main.scss`
 - Product Card (compartido, no exclusivo de home — 100%, ver sección arriba): `blocks/_product-card-gallery.liquid`, `blocks/custom_wishlist.liquid`, `snippets/custom_wishlist-button.liquid`, `snippets/custom_product-card-size-select.liquid`, `snippets/custom_quick-view-modal.liquid`, `snippets/custom_product-flag-badge.liquid` (todos ya con `{% stylesheet %}` nativo migrado); `templates/collection.json` (PLP) wireado también. `src/styles/components/_product-card.scss` quedó vacío (migrado)

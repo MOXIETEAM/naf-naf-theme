@@ -30,5 +30,62 @@
   {%- endif -%}
   {{ block.shopify_attributes }}
 >
-  {{ block_settings.label }}
+  {%- if block_settings.style_class == 'button-ghost' -%}
+    <span class="button-ghost__label">{{ block_settings.label }}</span>
+    <span class="svg-wrapper svg-wrapper--smaller button-ghost__icon" aria-hidden="true">
+      {{- 'icon-caret.svg' | inline_asset_content -}}
+    </span>
+  {%- else -%}
+    {{ block_settings.label }}
+  {%- endif -%}
 </a>
+
+{%- comment -%}
+  MOXIE: variante "Ghost" (fondo translúcido + blur + borde blanco) pedida por el Figma del
+  hero (banner ppal) — ninguna de las clases nativas (.button/.button-secondary/.button-custom,
+  ver assets/base.css) tiene backdrop-filter, así que se autocontiene acá en vez de tocar el
+  archivo core. El ícono reutiliza assets/icon-caret.svg (mismo asset que
+  snippets/slideshow-arrow.liquid), rotado -90deg para apuntar a la derecha.
+{%- endcomment -%}
+{% stylesheet %}
+  .button-ghost {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+    margin-block: 0;
+    padding-block: 8px;
+    padding-inline: 16px;
+    background-color: rgba(23, 23, 23, 0.1);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    border: 1px solid #ffffff;
+    border-radius: 6px;
+    color: #ffffff;
+    text-decoration: none;
+    text-align: center;
+    font-family: var(--font-paragraph--family);
+    font-style: var(--font-paragraph--style);
+    font-weight: var(--font-paragraph--weight);
+    font-size: var(--font-paragraph--size);
+    line-height: var(--font-paragraph--line-height);
+    cursor: pointer;
+    transition: background-color var(--animation-speed) var(--animation-easing),
+      border-color var(--animation-speed) var(--animation-easing);
+  }
+
+  .button-ghost:hover {
+    background-color: rgba(23, 23, 23, 0.2);
+  }
+
+  .button-ghost[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .button-ghost__icon {
+    color: currentcolor;
+    rotate: -90deg;
+  }
+{% endstylesheet %}

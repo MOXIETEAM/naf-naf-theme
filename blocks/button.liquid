@@ -1,6 +1,7 @@
 {% render 'button', link: block.settings.link %}
 
 {%- comment -%} MOXIE: defaults de color literales — Shopify rechaza refs dinámicas a la paleta ({{ settings.color_palette.* }}) en schemas de block/section {%- endcomment -%}
+{%- comment -%} MOXIE: opción "button-ghost" agregada para el hero (Figma banner ppal) — CSS en snippets/button.liquid {%- endcomment -%}
 {% schema %}
 {
   "name": "t:names.button",
@@ -43,6 +44,10 @@
         {
           "value": "button-custom",
           "label": "t:options.custom"
+        },
+        {
+          "value": "button-ghost",
+          "label": "Ghost"
         }
       ],
       "default": "button",

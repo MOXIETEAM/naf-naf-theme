@@ -1,12 +1,13 @@
 {%- comment -%}
-  MOXIE: custom hero slider — layout ("peek" de slides vecinos, flechas circulares sobre
-  la media) replica el patrón nativo de `slideshow.liquid` en `display_mode: with_hints`
-  (page-margin + slide width = 100vw - margins), pero la transición es crossfade puro
-  (sin scroll/translate lateral) vía el custom element `hero-fade-slider`
-  (assets/custom-hero-slider.js), ya que el `slideshow-component` nativo siempre se mueve
-  por scroll-snap. Reutiliza sin modificar: slideshow-arrows, slideshow-controls (dots/
-  counter), background-media, contrast-override — el `on:click="/metodo"` del theme es
-  genérico y no está atado a `slideshow-component`.
+  MOXIE: custom hero slider — full-bleed (100% width, sin "peek" de slides vecinos), matching
+  el Figma final aprobado (node-id 2140:3812 desktop / 1563:4852 mobile). Versión anterior
+  usaba un layout tipo "peek" (stage 64%/86% + paneles laterales clicables) inspirado en
+  `slideshow.liquid` display_mode `with_hints`; se retiró porque el Figma no lo contempla.
+  La transición sigue siendo crossfade puro (sin scroll/translate lateral) vía el custom
+  element `hero-fade-slider` (assets/custom-hero-slider.js), ya que el `slideshow-component`
+  nativo siempre se mueve por scroll-snap. Reutiliza sin modificar: slideshow-arrows,
+  slideshow-controls (dots/counter), background-media, contrast-override — el
+  `on:click="/metodo"` del theme es genérico y no está atado a `slideshow-component`.
 {%- endcomment -%}
 {% liquid
   assign show_controls = false
@@ -60,7 +61,7 @@
 <div class="section-background color-custom-{{ section.id }}"></div>
 <div
   class="hero-fade-slider-section spacing-style section section--full-width color-custom-{{ section.id }} disable-section-top-offset"
-  style="{% render 'spacing-padding', settings: section.settings %}; --slideshow-gap: {{ section.settings.slideshow_gap }}px; --corner-radius: {{ section.settings.corner_radius }}px; --slide-min-height: {{ slide_min_height }}; --slide-min-height-desktop: {{ slide_min_height_desktop }};"
+  style="{% render 'spacing-padding', settings: section.settings %}; --corner-radius: {{ section.settings.corner_radius }}px; --slide-min-height: {{ slide_min_height }}; --slide-min-height-desktop: {{ slide_min_height_desktop }};"
 >
   <h2 class="visually-hidden">{{ 'accessibility.slideshow' | t }}</h2>
 
@@ -80,14 +81,6 @@
       autoplay="{{ section.settings.autoplay_speed }}"
     {% endif %}
   >
-    <div
-      class="hero-fade-slider__peek hero-fade-slider__peek--previous"
-      ref="peekPrevious"
-      aria-hidden="true"
-      tabindex="-1"
-      on:click="/previous"
-    ></div>
-
     <div class="hero-fade-slider__stage">
       {% if show_controls and section.settings.icons_style != 'none' %}
         {%- render 'slideshow-arrows', icon_style: section.settings.icons_style, icon_shape: section.settings.icons_shape -%}
@@ -97,14 +90,6 @@
       </div>
       {{ controls }}
     </div>
-
-    <div
-      class="hero-fade-slider__peek hero-fade-slider__peek--next"
-      ref="peekNext"
-      aria-hidden="true"
-      tabindex="-1"
-      on:click="/next"
-    ></div>
   </hero-fade-slider>
 </div>
 
@@ -120,24 +105,12 @@
     display: flex;
     align-items: stretch;
     overflow: hidden;
-    gap: var(--slideshow-gap, 0);
-  }
-
-  .hero-fade-slider__peek {
-    flex: 1 1 auto;
-    min-width: 0;
-    background-image: var(--peek-image, none);
-    background-size: cover;
-    background-position: center center;
-    background-color: var(--color-background);
-    cursor: pointer;
-    border-radius: var(--corner-radius, 0);
   }
 
   .hero-fade-slider__stage {
     position: relative;
     flex: 0 0 auto;
-    width: 64%;
+    width: 100%;
     min-height: var(--slide-min-height-desktop);
     border-radius: var(--corner-radius, 0);
     overflow: hidden;
@@ -150,10 +123,11 @@
   }
 
   /*
-   * MOXIE: el diseño pide flechas circulares siempre visibles (no el hover-reveal
-   * nativo de `slideshow-component:hover`, que además está scoped a ese tag y no
-   * aplicaría aquí), en círculo blanco con ícono oscuro (el Figma no usa el color
-   * de botón primario del tema, que aquí es negro).
+   * MOXIE: el Figma full-bleed no muestra flechas (navegación queda en los dots,
+   * `icons_style` default "none"), pero si el merchant las reactiva desde el Theme
+   * Editor deben verse en círculo blanco con ícono oscuro — no el hover-reveal nativo
+   * de `slideshow-component:hover`, que además está scoped a ese tag y no aplicaría
+   * aquí — y no el color de botón primario del tema, que aquí es negro.
    */
   .hero-fade-slider slideshow-arrows .slideshow-control {
     opacity: 1;
@@ -174,12 +148,7 @@
 
   @media screen and (max-width: 749px) {
     .hero-fade-slider__stage {
-      width: 86%;
       min-height: var(--slide-min-height);
-    }
-
-    .hero-fade-slider__peek {
-      flex-basis: 7%;
     }
   }
 {% endstylesheet %}
@@ -197,16 +166,6 @@
     "groups": ["header", "footer"]
   },
   "settings": [
-    {
-      "type": "range",
-      "id": "slideshow_gap",
-      "label": "t:settings.gap",
-      "min": 0,
-      "max": 30,
-      "step": 1,
-      "unit": "px",
-      "default": 12
-    },
     {
       "type": "range",
       "id": "corner_radius",
@@ -317,7 +276,7 @@
           "label": "t:options.none"
         }
       ],
-      "default": "arrows_large"
+      "default": "none"
     },
     {
       "type": "select",
@@ -408,8 +367,8 @@
       "category": "Moxie",
       "settings": {
         "slide_height": "large",
-        "corner_radius": 16,
-        "icons_style": "arrows_large",
+        "corner_radius": 0,
+        "icons_style": "none",
         "icons_shape": "circle",
         "slideshow_controls_style": "dots",
         "autoplay": false,

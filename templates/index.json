@@ -27,10 +27,10 @@
               "type": "text",
               "name": "Eyebrow",
               "settings": {
-                "text": "<p>with love</p>",
+                "text": "<p>NEW DROP</p>",
                 "type_preset": "custom",
                 "font_size": "0.875rem",
-                "case": "lowercase",
+                "case": "uppercase",
                 "letter_spacing": "loose",
                 "padding-block-end": 8
               },
@@ -40,7 +40,7 @@
               "type": "text",
               "name": "t:names.heading",
               "settings": {
-                "text": "<h2>Ana Beliza</h2>",
+                "text": "<h2>Love is where mom is</h2>",
                 "padding-block-end": 20
               },
               "blocks": {}
@@ -50,7 +50,7 @@
               "settings": {
                 "label": "Comprar ahora",
                 "link": "shopify://collections/all",
-                "style_class": "button-secondary"
+                "style_class": "button-ghost"
               },
               "blocks": {}
             }
@@ -95,7 +95,7 @@
               "settings": {
                 "label": "Comprar ahora",
                 "link": "shopify://collections/all",
-                "style_class": "button-secondary"
+                "style_class": "button-ghost"
               },
               "blocks": {}
             }
@@ -127,7 +127,7 @@
               "settings": {
                 "label": "Comprar ahora",
                 "link": "shopify://collections/all",
-                "style_class": "button-secondary"
+                "style_class": "button-ghost"
               },
               "blocks": {}
             }
@@ -138,11 +138,10 @@
       "block_order": ["slide_1", "slide_2", "slide_3"],
       "name": "Moxie Hero Slider",
       "settings": {
-        "slideshow_gap": 12,
-        "corner_radius": 16,
+        "corner_radius": 0,
         "slide_height": "large",
         "background_media": "none",
-        "icons_style": "arrows_large",
+        "icons_style": "none",
         "icons_shape": "circle",
         "slideshow_controls_style": "dots",
         "autoplay": false,
@@ -733,7 +732,7 @@
       }
     },
     "product_list_fa6P9H": {
-      "type": "product-list",
+      "type": "custom_product-list",
       "blocks": {
         "static-header": {
           "type": "_product-list-content",
@@ -771,11 +770,11 @@
               "type": "_product-list-text",
               "name": "t:names.collection_title",
               "settings": {
-                "text": "<h3>{{ closest.collection.title }}</h3>",
+                "text": "<h1>New Arrivals</h1><p>Las últimas tendencias de ropa para mujer.</p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
-                "type_preset": "h4",
+                "type_preset": "rte",
                 "font": "var(--font-body--family)",
                 "font_size": "",
                 "line_height": "normal",
@@ -792,13 +791,14 @@
               },
               "blocks": {}
             },
-            "product_list_button_MWeP9V": {
-              "type": "_product-list-button",
-              "name": "t:names.product_list_button",
+            "home_new_arrivals_cta_desktop": {
+              "type": "button",
+              "name": "t:names.button",
               "settings": {
-                "label": "View all",
+                "label": "Ver lo nuevo ›",
+                "link": "shopify://collections/all",
                 "open_in_new_tab": false,
-                "style_class": "button-unstyled",
+                "style_class": "button",
                 "width": "fit-content",
                 "custom_width": 100,
                 "width_mobile": "fit-content",
@@ -809,7 +809,7 @@
           },
           "block_order": [
             "product_list_text_YFtzcL",
-            "product_list_button_MWeP9V"
+            "home_new_arrivals_cta_desktop"
           ]
         },
         "static-product-card": {
@@ -901,21 +901,35 @@
             "price_JQzVV4",
             "custom_wishlist_block"
           ]
+        },
+        "home_new_arrivals_cta_mobile": {
+          "type": "button",
+          "name": "t:names.button",
+          "settings": {
+            "label": "Comprar todo",
+            "link": "shopify://collections/all",
+            "open_in_new_tab": false,
+            "style_class": "button-secondary",
+            "width": "fit-content",
+            "custom_width": 100,
+            "width_mobile": "custom",
+            "custom_width_mobile": 100
+          }
         }
       },
+      "block_order": ["home_new_arrivals_cta_mobile"],
       "name": "t:names.featured_collection",
       "settings": {
         "collection": "all",
-        "layout_type": "grid",
-        "carousel_on_mobile": false,
+        "layout_type": "carousel",
         "max_products": 8,
         "columns": 4,
         "mobile_columns": "2",
-        "mobile_card_size": "60cqw",
+        "mobile_card_size": "70cqw",
         "columns_gap": 8,
         "rows_gap": 24,
         "icons_style": "arrow",
-        "icons_shape": "none",
+        "icons_shape": "circle",
         "section_width": "page-width",
         "horizontal_alignment": "flex-start",
         "gap": 28,

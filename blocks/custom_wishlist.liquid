@@ -27,6 +27,20 @@
     inset-block-end: 0;
     inset-inline-end: 0;
   }
+
+  /* MOXIE: un nombre de producto largo wrappeaba libre a 2-3 líneas (sin límite
+     nativo) y con el gap de 4px del card, su última línea invadía el ícono de
+     44px de touch target de arriba. Se trunca a 1 línea + ellipsis y se le
+     reserva el mismo padding-inline-end que ya usa price, para que título y
+     wishlist siempre tengan su propio espacio. */
+  @media screen and (min-width: 750px) {
+    .product-card__content [role="heading"] {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding-inline-end: 32px;
+    }
+  }
 {% endstylesheet %}
 
 {% schema %}
