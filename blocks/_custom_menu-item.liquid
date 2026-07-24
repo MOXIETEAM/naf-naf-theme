@@ -95,6 +95,134 @@
   {%- endif -%}
 </li>
 
+{% stylesheet %}
+  /* Migrado desde src/styles/components/_header-mega-menu.scss y _header-drawer.scss,
+     ver docs/css-architecture.md. */
+
+  /* Tab del drawer: oculto por defecto (copia desktop); se muestra dentro del drawer. */
+  .custom-menu-item__tab {
+    display: none;
+  }
+
+  .custom-menu-drawer .custom-menu-item {
+    display: contents;
+  }
+
+  /* El link de navegación desktop no participa en el drawer (los tabs lo reemplazan). */
+  .custom-menu-drawer .custom-menu-item__link {
+    display: none;
+  }
+
+  .custom-menu-drawer .custom-menu-item__tab {
+    display: inline-flex;
+    order: 1;
+    align-items: center;
+    padding: 12px 10px;
+    font-family: var(--menu-top-level-font-family);
+    font-size: 14px;
+    text-transform: var(--menu-top-level-font-case);
+    color: var(--color-foreground);
+    border-block-end: 2px solid transparent;
+  }
+
+  .custom-menu-drawer .custom-menu-item[data-active] > .custom-menu-item__tab {
+    border-block-end-color: currentColor;
+    font-weight: 700;
+  }
+
+  /* Tab destacado (SALE) como pill invertida (Figma mobile). */
+  .custom-menu-drawer .custom-menu-item--highlight > .custom-menu-item__tab {
+    padding: 4px 10px;
+    margin-inline-start: 6px;
+    border-radius: 2px;
+    border-block-end: none;
+    background-color: #141414;
+    color: #ffffff;
+  }
+
+  /* Panel del tab: anula la maquinaria del dropdown desktop (absolute + clip-path + visibility
+     de blocks/_custom_menu.liquid) y lo muestra como bloque normal. */
+  .custom-menu-drawer .custom-menu-item__panel {
+    display: none;
+    order: 2;
+    width: 100%;
+
+    /* El stylesheet nativo copiado en blocks/_custom_menu.liquid (dropdown desktop) define
+       `.menu-list__submenu` con la MISMA especificidad (2 clases) que esta regla — el empate
+       lo gana el que se inyecta más tarde en el <head>, que no es predecible entre un
+       stylesheet de bloque y otro. Sin !important el panel del tab heredaba
+       `position: absolute` + `clip-path` del desktop y quedaba literalmente fuera del
+       viewport (bug encontrado en sesión de QA mobile). */
+    position: static !important;
+    clip-path: none !important;
+    transition: none !important;
+    visibility: visible;
+  }
+
+  .custom-menu-drawer .custom-menu-item[data-active] > .custom-menu-item__panel {
+    display: block;
+  }
+
+  .custom-menu-drawer .menu-list__submenu-inner {
+    opacity: 1;
+    transform: none;
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+    display: block;
+  }
+
+  /* El wrapper .section trae la grilla global de página; en el drawer es un bloque simple. */
+  .custom-menu-drawer .custom-menu-item__panel .section {
+    display: block;
+    padding-inline: 0;
+    margin: 0;
+  }
+
+  /* Grilla del panel del dropdown desktop (Fase 2.5 — bloques anidados con guardrails). Cada
+     bloque hijo (columna/card-group/banner/promo) es un ítem flex cuyo peso
+     (--custom-menu-span, setting "Ancho relativo en desktop" del bloque) reparte el espacio
+     libre de forma RELATIVA, no como fracción fija de 12: con 2 columnas en vez de 4, las 2
+     presentes se reparten el ancho sin dejar hueco; un ítem "full imágenes" o "full columnas"
+     también se autodistribuye sin configuración especial. flex-wrap + min-width por tipo (ver
+     reglas de cada bloque) es la válvula de seguridad: si la suma de min-widths no cabe en una
+     fila, envuelve a la siguiente en vez de aplastar el contenido. */
+  .custom-menu-item__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(22px, 2.22vw, 32px) clamp(17px, 1.67vw, 24px);
+    align-items: start;
+    padding-block: clamp(19px, 1.94vw, 28px) clamp(28px, 2.78vw, 40px);
+
+    > * {
+      flex: var(--custom-menu-span, 3) 1 0;
+    }
+  }
+
+  /* Contenido del tab en una columna: cards/grupos primero, banner/promo después, columnas
+     (filas drill-down) al final — orden del Figma mobile. */
+  .custom-menu-drawer .custom-menu-item__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-block: 8px 24px;
+
+    > .custom-menu-card,
+    > .custom-menu-card-group {
+      order: 1;
+    }
+
+    > .custom-menu-banner,
+    > .custom-menu-promo {
+      order: 2;
+    }
+
+    > .custom-menu-column {
+      order: 3;
+    }
+  }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "Moxie Ítem de menú",

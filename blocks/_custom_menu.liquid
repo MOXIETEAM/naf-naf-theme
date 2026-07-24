@@ -445,6 +445,170 @@
   .menu-list__list-item[slot='overflow'] .section .custom-menu-item__grid {
     grid-column: 1;
   }
+
+  /* Estilos propios del menú custom Moxie (pill destacada + shell del drawer mobile) —
+     migrados desde src/styles/components/_header-mega-menu.scss y _header-drawer.scss,
+     ver docs/css-architecture.md. */
+  #header-component {
+    @media screen and (min-width: 750px) {
+      /* El <li> es flex-direction: column (nativo), el eje principal es vertical: márgenes
+         auto centran el pill dentro del alto completo del <li>. */
+      &[data-menu-style='menu'] .custom-menu-item--highlight > .menu-list__link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-block: auto;
+        gap: 10px;
+        padding: 2px 6px;
+        border-radius: 2px;
+        max-height: 20px;
+        background-color: var(--menu-highlight-background, #ffffff);
+        color: var(--menu-highlight-text, #000000);
+      }
+
+      /* Pill con header sólido (Figma): fondo/texto fijos, no los de la config del bloque
+         (que solo aplican sobre el overlay transparente). "Sólido" = header nunca
+         transparente, o transparente que se volvió sólido por scroll. */
+      &[data-menu-style='menu']:not([transparent]) .custom-menu-item--highlight > .menu-list__link,
+      &[data-menu-style='menu'][transparent='not-sticky'][data-sticky-state='active']
+        .custom-menu-item--highlight
+        > .menu-list__link {
+        background-color: #a3a3a3;
+        color: #ffffff;
+      }
+
+      /* Tab activo (dropdown abierto) — Figma: bold + underline en el label. El pill (SALE)
+         no lleva underline, cambia de color. */
+      &[data-menu-style='menu']
+        .custom-menu-item:not(.custom-menu-item--highlight)
+        > .menu-list__link[aria-expanded='true']
+        .menu-list__link-title {
+        font-weight: 700;
+        text-decoration: underline;
+        text-underline-offset: 6px;
+      }
+
+      &[data-menu-style='menu'] .custom-menu-item--highlight > .menu-list__link[aria-expanded='true'] {
+        background-color: #000000;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .custom-menu-drawer {
+    display: flex;
+    align-items: center;
+  }
+
+  /* MOXIE: `&__foo` (concatenación tipo Sass) no es válido en CSS nesting nativo — el
+     nesting selector `&` solo puede seguirse de pseudo-clases/pseudo-elementos/atributos
+     (`&:hover`, `&::after`, `&[attr]`), no de un identificador suelto. El navegador
+     descarta la regla entera en silencio. Selectores completos, sin `&` BEM. */
+  .custom-menu-drawer__summary {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .custom-menu-drawer__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .custom-menu-drawer__icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+
+  .custom-menu-drawer__icon--close {
+    display: none;
+  }
+
+  .custom-menu-drawer__container[open] .custom-menu-drawer__icon--open {
+    display: none;
+  }
+
+  .custom-menu-drawer__container[open] .custom-menu-drawer__icon--close {
+    display: block;
+  }
+
+  /* Panel principal del drawer: pantalla completa bajo el header, fondo blanco fijo (Figma)
+     independiente del estado transparente del header. Colores hardcodeados a propósito
+     hasta la pasada de estilos exactos. */
+  .custom-menu-drawer__panel {
+    --color-foreground: #141414;
+    --color-foreground-rgb: 20 20 20;
+
+    position: fixed;
+    inset-inline: 0;
+    /* #header-component nativo tiene `contain: layout style` (sections/header.liquid), lo que
+       lo convierte en containing block de este `position: fixed` en vez del viewport. Con
+       top+bottom la altura se calcularía contra los 60px del header, no del viewport,
+       colapsando el panel a 0px. Altura explícita contra 100dvh evita eso. */
+    top: var(--header-height, 60px);
+    height: calc(100dvh - var(--header-height, 60px));
+    z-index: var(--layer-header-menu, 3);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background-color: #ffffff;
+    color: var(--color-foreground);
+    animation: custom-menu-drawer-in 0.25s var(--ease-out-cubic, ease-out);
+  }
+
+  /* Buscador como pill (mismo patrón del header desktop: botón nativo que abre #search-modal,
+     vestido por CSS; el copy vive en CSS porque snippets/search.liquid no se toca). */
+  .custom-menu-drawer__search {
+    padding: 16px;
+
+    .search-action {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background-color: rgb(var(--color-foreground-rgb) / 0.06);
+
+      &::after {
+        content: '¿Qué buscas hoy?';
+        font-family: var(--font-body--family);
+        font-size: 14px;
+        color: rgb(var(--color-foreground-rgb) / 0.55);
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .custom-menu-drawer__nav {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+  }
+
+  /* Cada ítem aporta su tab (fila 1, vía order) y su panel (fila 2); los utility links van
+     al final (footer). display:contents en .custom-menu-item + flex-wrap acá. */
+  .custom-menu-drawer__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1 0 auto;
+    align-content: flex-start;
+    padding-inline: 16px;
+  }
+
+  @keyframes custom-menu-drawer-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .custom-menu-drawer__panel {
+      animation: none;
+    }
+  }
 {% endstylesheet %}
 
 {%- comment -%} MOXIE: defaults de color literales — Shopify rechaza refs dinámicas a la paleta ({{ settings.color_palette.* }}) en schemas de block/section {%- endcomment -%}

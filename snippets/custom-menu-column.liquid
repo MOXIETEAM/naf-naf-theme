@@ -76,3 +76,139 @@
   </div>
 </div>
 {%- endif -%}
+
+{% stylesheet %}
+  /* Migrado desde src/styles/components/_header-mega-menu.scss y _header-drawer.scss,
+     ver docs/css-architecture.md. */
+  .custom-menu-column {
+    min-width: 140px;
+  }
+
+  .custom-menu-column__drill-row,
+  .custom-menu-column__back {
+    display: none;
+  }
+
+  .custom-menu-column__heading {
+    margin: 0 0 clamp(11px, 1.11vw, 16px);
+    font-size: clamp(10px, 0.83vw, 12px);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+  }
+
+  .custom-menu-column__list {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 0.83vw, 12px);
+  }
+
+  .custom-menu-column__link {
+    font-family: var(--menu-child-font-family);
+    font-size: var(--menu-child-font-size, clamp(11px, 0.9vw, 13px));
+    color: var(--menu-child-font-color, var(--color-foreground));
+    text-decoration: none;
+  }
+
+  .custom-menu-column__link:hover {
+    color: var(--menu-child-active-font-color, var(--color-foreground));
+  }
+
+  .custom-menu-column__link--placeholder {
+    color: rgb(var(--color-foreground-rgb) / 0.4);
+  }
+
+  .custom-menu-column--bold-last .custom-menu-column__list-item:last-child .custom-menu-column__link {
+    font-weight: 700;
+  }
+
+  /* Divisor vertical entre columnas adyacentes (Figma: ROPA / SALE). */
+  @media screen and (min-width: 750px) {
+    .custom-menu-column + .custom-menu-column {
+      border-inline-start: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+      padding-inline-start: clamp(17px, 1.67vw, 24px);
+    }
+  }
+
+  /* Columna → fila con chevron + subpanel drill-down a pantalla completa (drawer mobile). */
+  .custom-menu-drawer .custom-menu-column {
+    border: 0;
+    padding-inline-start: 0;
+
+    .custom-menu-column__heading {
+      display: none;
+    }
+
+    .custom-menu-column__drill-row {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      padding-block: 16px;
+      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+      font-size: 15px;
+      color: var(--color-foreground);
+    }
+
+    .custom-menu-column__drill-icon svg,
+    .custom-menu-column__back-icon svg {
+      display: block;
+      width: 14px;
+      height: 14px;
+    }
+
+    .custom-menu-column__panel {
+      position: fixed;
+      inset-inline: 0;
+      /* Mismo problema de containing block que .custom-menu-drawer__panel en
+         blocks/_custom_menu.liquid — ver comentario ahí. */
+      top: var(--header-height, 60px);
+      height: calc(100dvh - var(--header-height, 60px));
+      z-index: calc(var(--layer-header-menu, 3) + 1);
+      overflow-y: auto;
+      padding: 0 16px 24px;
+      background-color: #ffffff;
+      visibility: hidden;
+      transform: translateX(100%);
+      transition: transform 0.25s var(--ease-out-cubic, ease-out), visibility 0.25s;
+    }
+
+    &[data-drill-open] .custom-menu-column__panel {
+      visibility: visible;
+      transform: none;
+    }
+
+    .custom-menu-column__back {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: 10px;
+      padding-block: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-foreground);
+      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+    }
+
+    .custom-menu-column__list {
+      gap: 0;
+    }
+
+    .custom-menu-column__list-item {
+      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+    }
+
+    .custom-menu-column__link {
+      display: block;
+      padding-block: 16px;
+      font-size: 15px;
+    }
+  }
+
+  /* Convención Moxie: siempre fallback para prefers-reduced-motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .custom-menu-drawer .custom-menu-column .custom-menu-column__panel {
+      transition: none;
+    }
+  }
+{% endstylesheet %}

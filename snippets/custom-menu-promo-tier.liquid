@@ -22,3 +22,37 @@
     <span class="custom-menu-promo-tier__text">{{ text }}</span>
   {%- endif -%}
 </div>
+
+{% stylesheet %}
+  /* Migrado desde src/styles/components/_header-mega-menu.scss, ver docs/css-architecture.md. */
+  .custom-menu-promo-tier {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 2fr);
+    align-items: center;
+    gap: clamp(10px, 0.97vw, 14px);
+    padding-block: clamp(11px, 1.11vw, 16px);
+  }
+
+  .custom-menu-promo-tier:not(:first-child) {
+    border-block-start: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+  }
+
+  .custom-menu-promo-tier__icon-image {
+    display: block;
+    width: clamp(17px, 1.67vw, 24px);
+    height: clamp(17px, 1.67vw, 24px);
+    object-fit: contain;
+  }
+
+  .custom-menu-promo-tier__title {
+    font-size: clamp(11px, 0.9vw, 13px);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .custom-menu-promo-tier__text {
+    font-size: clamp(11px, 0.9vw, 13px);
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+  }
+{% endstylesheet %}

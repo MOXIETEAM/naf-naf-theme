@@ -118,20 +118,20 @@ El script replica exactamente la matemática de `_mixins.scss` (mismo `$ref-w: 1
 
 ## Checklist de migración del legacy Sass
 
-El pipeline Sass (`src/styles/`, `assets/mox-custom-styles.css`, scripts `sass:*`/`post:*` de `package.json`) **se mantiene activo durante la transición** — no se rompe nada a mitad de camino. Se retira en un PR dedicado cuando esta lista llegue a cero.
+El pipeline Sass (`src/styles/`, `assets/mox-custom-styles.css`, scripts `sass:*`/`post:*` de `package.json`) **se mantiene activo durante la transición** — no se rompe nada a mitad de camino. Se retira en un PR dedicado ahora que esta lista llegó a cero.
 
 Regla de migración: **al tocar una sección por cualquier feature o fix, esa es la oportunidad de migrar su CSS — no se migra todo de golpe.**
 
 | Partial | Estado | Nota |
 |---|---|---|
-| `components/_header.scss` | CSS muerto confirmado | Se elimina sin migrar (comentario propio ya lo marca "CSS muerto de otro tema, no tocar") |
-| `components/_footer.scss` | CSS muerto confirmado | Cero referencias en `.liquid` (`hdt-footer-main`, `hdt-toolbar*`) — eliminar en la próxima limpieza, no migrar |
-| `components/_header-main.scss` | Pendiente | Vivo — usado por `custom_header-main.liquid` |
-| `components/_header-mega-menu.scss` | Pendiente | Vivo — reutiliza clases nativas `.menu-list__*` |
-| `components/_header-drawer.scss` | Pendiente | Vivo |
+| `components/_header.scss` | Eliminado, código muerto | Cero referencias en `.liquid`/`.js` (`hdt-site-top_nav`, `clx-menu-item__*`, etc. — prefijo de otro tema) |
+| `components/_footer.scss` | Eliminado, código muerto | Cero referencias en `.liquid` (`hdt-footer-main`, `hdt-toolbar*`) |
+| `components/_header-main.scss` | Migrado (archivo vacío, queda en `@use` sin romper nada) | Alturas fijas, glass mobile y buscador-pill del header → `sections/custom_header-main.liquid` |
+| `components/_header-mega-menu.scss` | Migrado (archivo vacío, queda en `@use` sin romper nada) | Pill destacada (SALE) y tab activo → `blocks/_custom_menu.liquid`/`blocks/_custom_menu-item.liquid`. Grilla del dropdown → `blocks/_custom_menu-item.liquid`. Columna/card/card-group/banner/promo/promo-tier → `snippets/custom-menu-column.liquid`, `snippets/custom-menu-card.liquid`, `snippets/custom-menu-card-group.liquid`, `snippets/custom-menu-banner.liquid`, `snippets/custom-menu-promo.liquid`, `snippets/custom-menu-promo-tier.liquid` |
+| `components/_header-drawer.scss` | Migrado (archivo vacío, queda en `@use` sin romper nada) | Shell del drawer (summary/icon/panel/search/nav/list + animación) → `blocks/_custom_menu.liquid`. Variante drawer de tab/panel/grid → `blocks/_custom_menu-item.liquid`. Drill-down de columna → `snippets/custom-menu-column.liquid`. Scroll horizontal de cards → `snippets/custom-menu-card-group.liquid`. Footer de utilidades → `blocks/_custom_menu-utility-link.liquid` |
 | `components/_product-card.scss` | Migrado (archivo vacío, queda en `@use` sin romper nada) | Badge de descuento → `snippets/price.liquid`. Wishlist → `snippets/custom_wishlist-button.liquid` (de paso se corrigió un bug: el ícono se renderizaba sin `<svg>` envolvente y no pintaba). Size-select → `snippets/custom_product-card-size-select.liquid` (de paso, el trigger "+" se restyleó a chip gris `#8e8e8e`/radio 2px fiel a Figma, en vez de la píldora blanca nativa). Quick-view modal → `snippets/custom_quick-view-modal.liquid` |
-| `pages/_home.scss` | Pendiente | Vivo |
-| `pages/_plp.scss` | Pendiente | Vivo |
+| `pages/_home.scss` | Migrado (archivo vacío, queda en `@use` sin romper nada) | Alineación mobile del promo banner → `sections/section.liquid`. Flechas visibles en mobile del carousel → `sections/carousel.liquid`. `.hdt-slider__button--next`/`.hdt-slider__dots` eliminados sin migrar (código muerto, mismo prefijo `hdt-*`) |
+| `pages/_plp.scss` | Eliminado, código muerto | Cero referencias en `.liquid`/`.js` (`hdt-collection-product-row`, `hdt-card-product__*`, `hdt-collection-products-list-mb` — nunca tocado por un commit de Moxie) |
 
 ## Ejemplo de referencia ya migrado
 

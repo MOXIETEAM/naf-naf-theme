@@ -36,6 +36,44 @@
   </{{ util_tag }}>
 </li>
 
+{% stylesheet %}
+  /* Migrado desde src/styles/components/_header-drawer.scss, ver docs/css-architecture.md.
+     Solo visible dentro del drawer: en la copia desktop del menú queda oculto — NO
+     display:none, para que overflow-list lo cuente como visible de forma estable y nunca lo
+     mueva al slot "More". */
+  .custom-menu-utility-link {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* Footer de utilidades del drawer. */
+  .custom-menu-drawer .custom-menu-utility-link {
+    position: static;
+    visibility: visible;
+    pointer-events: auto;
+    order: 4;
+    width: 100%;
+  }
+
+  .custom-menu-drawer .custom-menu-utility-link__inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-block: 12px;
+    color: var(--color-foreground);
+    text-decoration: none;
+  }
+
+  .custom-menu-drawer .custom-menu-utility-link__icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "Moxie Link de utilidad",

@@ -1167,6 +1167,125 @@
     font-family: var(--menu-localization-font);
     font-size: var(--menu-localization-font-size);
   }
+
+  /* MOXIE: alturas fijas de header (fallback pre-JS: assets/utilities.js recalcula --header-height
+     real al cargar, esto solo evita salto de layout en el primer paint — mantener sincronizado con
+     el resto de valores 80px/60px de este stylesheet). */
+  html body {
+    @media screen and (min-width: 750px) {
+      --header-height: 80px;
+    }
+
+    @media screen and (max-width: 749px) {
+      --header-height: 60px;
+    }
+  }
+
+  #header-component {
+    @media screen and (min-width: 750px) {
+      --header-height: 80px;
+    }
+
+    @media screen and (max-width: 749px) {
+      --header-height: 60px;
+    }
+
+    .header__columns {
+      @media screen and (min-width: 750px) {
+        min-height: 80px;
+      }
+
+      @media screen and (max-width: 749px) {
+        min-height: 60px;
+      }
+    }
+
+    /* MOXIE: mobile — glass fijo, igual en estado transparente y sólido (Figma). --closed-underlay-height:
+       assets/header.js la pisa como estilo inline al activarse el sticky-state en scroll — un inline style
+       gana especificidad a cualquier regla CSS, hace falta !important para retomar el control. */
+    @media screen and (max-width: 749px) {
+      --closed-underlay-height: 100% !important;
+
+      .header__underlay-closed,
+      .header__underlay-open {
+        background: #dcdcdc33 !important;
+        backdrop-filter: blur(34.1px) !important;
+        -webkit-backdrop-filter: blur(34.1px) !important;
+      }
+    }
+
+    /* MOXIE: buscador — el botón nativo (icono, abre #search-modal) se viste como caja con placeholder
+       visual. No es un input real, el copy vive en CSS porque snippets/search.liquid es nativo (solo el
+       ícono se cambió). El placeholder se estila sobre .header-actions__action (el <button> real, único
+       con el on:click nativo que abre #search-modal), no sobre .search-action (el <search-button> wrapper)
+       — si vive en el wrapper queda fuera del área clickeable y el clic no abre el modal. */
+    @media screen and (min-width: 750px) {
+      .search-action .header-actions__action {
+        align-items: center;
+        justify-content: flex-start;
+        height: 32px;
+        gap: clamp(6px, 0.56vw, 8px);
+        padding-inline: clamp(11px, 1.11vw, 16px);
+        border-radius: 4px;
+        background-color: #7b7b7b33;
+
+        &::after {
+          content: 'Que estás buscando?';
+          font-family: var(--font-body--family);
+          font-weight: 400;
+          font-size: clamp(10px, 0.83vw, 12px);
+          line-height: 1.333; /* 16px a 12px, mismo ratio que .menu-list__link-title */
+          letter-spacing: 0.02em;
+          color: rgb(var(--color-foreground-rgb) / 0.55);
+          white-space: nowrap;
+        }
+      }
+
+      /* MOXIE: el ícono nativo hereda tamaño de --icon-size-md (pensado para botones sueltos, no para
+         vivir dentro de una caja de 32px de alto); Figma pide 16x16 fijo. */
+      & .search-action svg,
+      & .search-action .svg-wrapper {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* MOXIE: header sólido (nunca transparente, o transparente ya scrolleado) — caja e ícono pasan a
+         los colores fijos del Figma en vez de heredar el color del header. */
+      &:not([transparent]) .search-action .header-actions__action,
+      &[transparent='not-sticky'][data-sticky-state='active'] .search-action .header-actions__action {
+        background-color: #f3f3f3;
+        color: #000000;
+
+        &::after {
+          color: #595959;
+        }
+      }
+
+      /* MOXIE: la cuenta ya vive en la topbar (custom_header-top-bar) en desktop; en la fila principal
+         solo se muestra en mobile (ver capturas Figma). */
+      .account-button {
+        display: none;
+      }
+
+      /* MOXIE: espacio buscador → minicart, Figma pide 24px exactos. Los márgenes negativos nativos
+         (header-actions.liquid: margin-inline-start: calc(--gap-md * -1)) dejaban el gap real en -2.4px
+         (se solapaban) porque header-actions.liquid inyecta un <script> entre .search-action y
+         <header-actions> en el DOM. */
+      .search-action ~ header-actions {
+        margin-inline-start: 12px;
+      }
+    }
+
+    /* MOXIE: tipografía del menú desktop — tamaño (12px) y fuente (Host Grotesk / body) ya se controlan
+       con settings nativos de _header-menu (type_font_primary_size, type_font_primary_link); line-height
+       y letter-spacing no tienen setting nativo. */
+    @media screen and (min-width: 750px) {
+      &[data-menu-style='menu'] .menu-list__link-title {
+        line-height: 1.333;
+        letter-spacing: 0.02em;
+      }
+    }
+  }
 {% endstylesheet %}
 
 {% unless request.design_mode %}

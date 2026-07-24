@@ -23,3 +23,42 @@
     {{ content }}
   </div>
 </div>
+
+{% stylesheet %}
+  /* Migrado desde src/styles/components/_header-mega-menu.scss y _header-drawer.scss,
+     ver docs/css-architecture.md. */
+  .custom-menu-card-group {
+    min-width: 300px;
+  }
+
+  .custom-menu-card-group__heading {
+    margin: 0 0 clamp(11px, 1.11vw, 16px);
+    font-size: clamp(10px, 0.83vw, 12px);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+  }
+
+  .custom-menu-card-group__cards {
+    display: grid;
+    /* auto-fit en vez de grid-auto-flow: column — con un número variable de cards reparte
+       el ancho en partes iguales y envuelve a una fila nueva en vez de comprimir cards
+       indefinidamente. */
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: clamp(14px, 1.39vw, 20px);
+  }
+
+  /* Scroll horizontal dentro del grupo (Figma mobile). */
+  .custom-menu-drawer .custom-menu-card-group__cards {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    margin-inline: -16px;
+    padding-inline: 16px;
+    scrollbar-width: none;
+  }
+
+  .custom-menu-drawer .custom-menu-card-group__cards .custom-menu-card {
+    flex: 0 0 72%;
+  }
+{% endstylesheet %}

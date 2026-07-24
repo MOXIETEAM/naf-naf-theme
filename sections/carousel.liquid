@@ -27,6 +27,19 @@
   {% content_for 'block', type: '_carousel-content', id: 'static-carousel-content', closest.product: null %}
 </div>
 
+{% stylesheet %}
+  /* MOXIE: Horizon oculta las flechas del carrusel (opacity:0) y solo las revela con
+     :hover/:focus-within (assets/base.css). En mobile no hay hover, así que sin esto
+     las flechas nunca se ven en touch aunque el swipe sí funcione. */
+  [id^='shopify-section-'][id$='__carousel_capsulas_temporada'] {
+    @media screen and (max-width: 749px) {
+      .slideshow-control {
+        opacity: 1;
+      }
+    }
+  }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "t:names.carousel",
