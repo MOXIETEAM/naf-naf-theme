@@ -1,8 +1,0 @@
-// MOXIE: estilos del header principal custom migrados a un {% stylesheet %} nativo
-// dentro de sections/custom_header-main.liquid. Ver docs/css-architecture.md
-// (checklist de migración).
-//
-// La pill del ítem destacado (SALE) vive en blocks/_custom_menu.liquid
-// (.custom-menu-item--highlight) — ver src/styles/components/_header-mega-menu.scss.
-//
-// Este archivo queda vacío — no agregar CSS nuevo acá, ver docs/css-architecture.md.

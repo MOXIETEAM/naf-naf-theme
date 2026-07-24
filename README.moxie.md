@@ -82,13 +82,7 @@ npm run dev:shopify
 
 ## 🎨 CSS
 
-- Entrada: `src/styles/main.scss`
-- Output: `assets/mox-custom-styles.css`
-
-Pipeline:
-- Sass → compilación
-- PostCSS → autoprefixer
-- cssnano → solo producción
+CSS nativo por componente: cada `section`/`block`/`snippet` trae su propio `{% stylesheet %}`. No hay pipeline de compilación ni bundle único — ver `docs/css-architecture.md` para el estándar completo.
 
 ---
 
@@ -135,8 +129,7 @@ Reglas:
 ## 🧠 Comandos útiles
 
 ```bash
-npm run watch:css
-npm run build:css:prod
+npm run dev:shopify
 shopify theme dev --store $SHOPIFY_STORE
 ```
 

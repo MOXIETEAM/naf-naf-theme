@@ -4,27 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Shopify Horizon theme base (v3.4.0). CSS lives natively per component via `{% stylesheet %}` (see `docs/css-architecture.md`) — a legacy Sass + PostCSS pipeline still runs during the migration off the old single-bundle model, but it is not where new CSS goes. Maintained separately from upstream Horizon using a structured git workflow.
+Shopify Horizon theme base (v3.4.0). CSS lives natively per component via `{% stylesheet %}` (see `docs/css-architecture.md`). El pipeline legacy Sass + PostCSS de bundle único fue retirado por completo — no hay build step de CSS en este repo. Maintained separately from upstream Horizon using a structured git workflow.
 
 ## Commands
 
 ```bash
-# Full dev (CSS watcher + Shopify theme server)
+# Dev (Shopify theme server)
 npm run dev:shopify
-
-# CSS only
-npm run watch:css        # watch + rebuild on change
-npm run build:css        # one-shot dev build
-npm run build:css:prod   # production build (minified, no source maps)
 ```
 
 Requires `.env` with `SHOPIFY_STORE=<store-slug>` (no `.myshopify.com`).
 
 ## CSS Architecture
 
-**Estándar vigente: CSS por componente vía `{% stylesheet %}` nativo, en el propio `.liquid` de la sección/bloque/snippet.** Ver `docs/css-architecture.md` para la guía completa (patrón "afuera y lo llamo" con snippets dedicados, tokens de diseño, checklist de migración). Esa doc es la fuente de verdad — este archivo solo resume.
+**Estándar vigente: CSS por componente vía `{% stylesheet %}` nativo, en el propio `.liquid` de la sección/bloque/snippet.** Ver `docs/css-architecture.md` para la guía completa (patrón "afuera y lo llamo" con snippets dedicados, tokens de diseño). Esa doc es la fuente de verdad — este archivo solo resume.
 
-`src/styles/` (Sass → PostCSS → `assets/mox-custom-styles.css`, cargado global en `layout/theme.liquid`) es **legacy en transición**, no el modelo a seguir para código nuevo. Se mantiene activo solo mientras dura la migración de los componentes que aún dependen de él (ver checklist en `docs/css-architecture.md`); se retira en un PR aparte cuando esa lista llegue a cero. El `container` mixin en `_mixins.scss` sigue siendo el wrapper de layout de referencia (`max-width: 1200px`) hasta que se documente su equivalente nativo.
+No existe `src/styles/` en este repo — el pipeline Sass+PostCSS (bundle único `assets/mox-custom-styles.css`) fue retirado tras completar la migración a `{% stylesheet %}` nativo (ver checklist cerrado y playbook de retiro en `docs/css-architecture.md`). Si estás replicando este estándar en otra tienda Moxie que todavía tenga ese pipeline activo, seguí ese mismo playbook cuando termine su propia migración. El mixin `container` legacy (`max-width: 1200px`) nunca se llegó a usar (`@include container` no aparece en ningún partial) — no hay nada que migrar; para un wrapper de ancho máximo usar las clases nativas de Horizon `.page-width-normal`/`.page-width-wide`/`.page-width-narrow`/`.page-width-content` (`assets/base.css`, tokens en `snippets/theme-styles-variables.liquid`).
 
 ### Fluid scaling (valores fijos de Figma → CSS responsivo)
 
@@ -39,12 +34,12 @@ node tools/fluid.js 20          # -> clamp(14px, 1.39vw, 20px)   layout: padding
 node tools/fluid.js 16 --type   # -> clamp(14px, 1.11vw, 16px)   font-size fuera de h1-h6/paragraph
 ```
 
-El script replica la misma fórmula que antes vivía en `src/styles/base/_mixins.scss` (`fluid()`/`fluid-type()`, ahora legacy): ancho de referencia de Figma `$ref-w: 1440px`, breakpoint nativo de Horizon `$min-w: 990px`, piso de legibilidad 85% fijo para `fluid-type`. Por debajo de 990px siguen mandando los breakpoints fijos de Horizon (750px/990px) — esto no los reemplaza, solo cubre el rango 990–1440px donde el tema no tiene escalado propio.
+El script replica la misma fórmula de los mixins Sass `fluid()`/`fluid-type()` que existían en el pipeline ya retirado: ancho de referencia de Figma `$ref-w: 1440px`, breakpoint nativo de Horizon `$min-w: 990px`, piso de legibilidad 85% fijo para `fluid-type`. Por debajo de 990px siguen mandando los breakpoints fijos de Horizon (750px/990px) — esto no los reemplaza, solo cubre el rango 990–1440px donde el tema no tiene escalado propio.
 
 ## Theme Structure
 
 Standard Shopify Liquid theme layout:
-- `layout/theme.liquid` — master HTML template; still loads the legacy `mox-custom-styles.css` bundle during the migration (see `docs/css-architecture.md`)
+- `layout/theme.liquid` — master HTML template; no longer loads any global CSS bundle, each component ships its own `{% stylesheet %}` (see `docs/css-architecture.md`)
 - `sections/` — theme editor sections (43 files)
 - `blocks/` — reusable section blocks (114 files)
 - `snippets/` — Liquid partials (93 files)
@@ -75,14 +70,13 @@ Resolve conflicts in `development`, never in `main`.
 ## Rules
 
 - Never modify Horizon core files — extend instead
-- CSS nuevo va en un `{% stylesheet %}` nativo dentro del componente (ver `docs/css-architecture.md`), nunca en `src/styles/`
-- `src/styles/` (SCSS) es legacy en transición — solo se toca para retirar código a medida que se migra, no para agregar código nuevo
+- CSS nuevo va en un `{% stylesheet %}` nativo dentro del componente (ver `docs/css-architecture.md`) — no existe ningún `src/styles/` ni bundle Sass en este repo
 
 ## CORE RULES (CRITICAL)
 
 - Never modify Horizon core files
 - Always extend instead of overwrite
-- CSS nuevo: `{% stylesheet %}` nativo por componente — no `src/styles/` (ver `docs/css-architecture.md`)
+- CSS nuevo: `{% stylesheet %}` nativo por componente (ver `docs/css-architecture.md`) — no hay pipeline Sass/PostCSS en este repo
 - Do not inline CSS in Liquid outside of `{% stylesheet %}`/`{% style %}` tags
 - Always check existing theme implementation before building new logic
 
@@ -107,10 +101,8 @@ Resolve conflicts in `development`, never in `main`.
 
 ## SOURCE OF TRUTH
 
-- Source code: src/
-- Compiled code: assets/
-- Never edit compiled CSS directly
-- Always modify source and rebuild
+- CSS: no hay paso de compilación — el `{% stylesheet %}` dentro de cada `.liquid` (sections/blocks/snippets) ES el source, editar ahí directamente
+- `assets/` — JS, imágenes, fuentes y otros estáticos servidos tal cual (no CSS compilado)
 
 ## AI OPERATING MODE
 
@@ -141,7 +133,7 @@ El objetivo es **nunca romper el tema base** para que actualizaciones upstream s
 
 ### Árbol de decisión (en orden de prioridad)
 
-1. **¿Se resuelve solo con CSS?** → `{% stylesheet %}` nativo en el componente (ver `docs/css-architecture.md`). Si es un archivo nativo de Horizon, se agrega el bloque marcado `MOXIE:`; si el marcado ya es grande, usar un snippet dedicado `custom_[nombre]-styles.liquid` en vez de inflar el archivo. `src/styles/` es legacy en transición, no el destino de CSS nuevo.
+1. **¿Se resuelve solo con CSS?** → `{% stylesheet %}` nativo en el componente (ver `docs/css-architecture.md`). Si es un archivo nativo de Horizon, se agrega el bloque marcado `MOXIE:`; si el marcado ya es grande, usar un snippet dedicado `custom_[nombre]-styles.liquid` en vez de inflar el archivo.
 2. **¿Requiere un cambio mínimo en Liquid?** → Modificar el original con el cambio más pequeño posible. Marcar con `{%- comment -%} MOXIE: [descripción] {%- endcomment -%}`.
 3. **¿Requiere un cambio estructural?** → Crear archivo custom nuevo basado en el original. No modificar el original.
 

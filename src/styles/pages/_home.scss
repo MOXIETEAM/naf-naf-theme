@@ -1,9 +1,0 @@
-// MOXIE: estilos del home migrados a {% stylesheet %} nativos. Ver docs/css-architecture.md
-// (checklist de migración). Destinos:
-//   - [id$='__promo_banner_ana_vacanza'] (alineación mobile) → sections/section.liquid
-//   - [id$='__carousel_capsulas_temporada'] (flechas visibles mobile) → sections/carousel.liquid
-//
-// .hdt-slider__button--next / .hdt-slider__dots se eliminaron sin migrar — código muerto
-// (prefijo hdt-* legacy, cero referencias en .liquid/.js del repo).
-//
-// Este archivo queda vacío — no agregar CSS nuevo acá, ver docs/css-architecture.md.
